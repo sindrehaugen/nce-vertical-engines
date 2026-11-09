@@ -401,3 +401,125 @@ class TestLightingDaliAndGlamoxEngine(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestOdooSuperEngineAndCrossTalker(unittest.IsolatedAsyncioTestCase):
+    async def test_odoo_orm_workflows_and_super_intelligence(self) -> None:
+        from nce_verticals.odoo.auth import OdooAuthConfig
+        from nce_verticals.odoo.intelligence import OdooSuperIntelligence
+        from nce_verticals.odoo.operations import OdooOperations
+
+        ops = OdooOperations(config=OdooAuthConfig(url="", require_entra_gate=False))
+        intel = OdooSuperIntelligence(ops=ops)
+
+        # 1. Create a new customer partner & draft sale order
+        partner_id = await ops.execute_kw(
+            "res.partner",
+            "create",
+            args=[{"name": "Kongsberg Maritime AS", "city": "Kongsberg", "is_company": True}],
+        )
+        self.assertGreater(partner_id, 1000)
+
+        order_id = await ops.execute_kw(
+            "sale.order",
+            "create",
+            args=[
+                {
+                    "partner_id": [partner_id, "Kongsberg Maritime AS"],
+                    "amount_untaxed": 250000.0,
+                    "amount_total": 312500.0,
+                    "margin": 85000.0,
+                    "margin_percent": 0.34,
+                }
+            ],
+        )
+        # Confirm order via workflow action
+        await ops.execute_kw("sale.order", "action_confirm", args=[[order_id]])
+        confirmed = await ops.execute_kw("sale.order", "read", args=[[order_id]])
+        self.assertEqual(confirmed[0]["state"], "sale")
+
+        # 2. Run 360° Super-Intelligence Pulse
+        pulse = await intel.executive_erp_pulse()
+        self.assertIn("finance_and_margins", pulse)
+        self.assertGreaterEqual(pulse["finance_and_margins"]["margin_anomalies_count"], 1)
+        self.assertGreaterEqual(pulse["inventory_and_mrp"]["replenishment_proposals_count"], 1)
+        self.assertGreaterEqual(pulse["crm_and_pipeline"]["total_leads"], 2)
+
+    async def test_odoo_llm_crosstalk_and_cross_engine_bridges(self) -> None:
+        from nce_verticals.odoo.auth import OdooAuthConfig
+        from nce_verticals.odoo.crosstalk import OdooLLMCrossTalker
+        from nce_verticals.odoo.operations import OdooOperations
+        from nce_verticals.odoo.webhooks import OdooWebhookReceiver
+        from nce_verticals.plugin import OdooPlugin
+
+        ops = OdooOperations(config=OdooAuthConfig(url="", webhook_secret="odoo-secret-123", require_entra_gate=False))
+        ct = OdooLLMCrossTalker(ops=ops)
+
+        # 1. Bidirectional Chatter @nce prompt
+        res = await ct.handle_crosstalk_prompt(
+            "@nce Check margin anomalies, Glamox stockouts, and confirm order",
+            model="sale.order",
+            record_id=302,
+            author="sindre@company.no",
+        )
+        self.assertEqual(res["status"], "ok")
+        self.assertIn("NCE Super-Intelligence Cross-Talk", res["reply"])
+        self.assertIsNotNone(res["chatter_message"])
+
+        # 2. Cross-Engine Bridge: Relux / Glamox DALI-2 Project -> Odoo Sale Order & Chatter
+        bridge_relux = await ct.bridge_relux_lighting_to_odoo(
+            {
+                "project_name": "Trondheim Tech Center DALI-2",
+                "source_tool": "relux",
+                "rooms": [
+                    {
+                        "room_id": "RM-10",
+                        "name": "R&D Lab",
+                        "zone_code": "CAD_WORKSTATION",
+                        "length_m": 10.0,
+                        "width_m": 6.0,
+                        "height_m": 2.8,
+                        "luminaires": [
+                            {"code": "Glamox C77-R 600x600 4200 DALI 840 SI", "quantity": 20}
+                        ],
+                    }
+                ],
+            }
+        )
+        self.assertEqual(bridge_relux["status"], "ok")
+        self.assertTrue(bridge_relux["compliance_passed"])
+        self.assertEqual(len(bridge_relux["odoo_order_line_ids"]), 2)
+
+        # 3. Cross-Engine Bridge: Salesforce -> Odoo CRM
+        bridge_sf = await ct.bridge_salesforce_to_odoo(
+            sf_account_name="Aker Solutions ASA",
+            sf_opportunity_name="Offshore Control Room Glamox MAX-EX & AV",
+            expected_revenue=1800000.0,
+        )
+        self.assertEqual(bridge_sf["status"], "ok")
+        self.assertTrue(bridge_sf["salesforce_account_id"])
+        self.assertGreater(bridge_sf["odoo_lead_id"], 1000)
+
+        # 4. Webhook HMAC verification & @nce Chatter auto-trigger
+        wh = OdooWebhookReceiver(ops=ops)
+        raw_payload = json.dumps(
+            {
+                "model": "sale.order",
+                "res_id": 301,
+                "event": "chatter_mention",
+                "author": "erp_manager",
+                "body": "@nce Give me an inventory and MRP forecast",
+            }
+        ).encode("utf-8")
+        sig = hmac.new(b"odoo-secret-123", raw_payload, hashlib.sha256).hexdigest()
+        self.assertTrue(wh.verify_signature(raw_payload, sig))
+        self.assertFalse(wh.verify_signature(raw_payload, "bad-signature"))
+        wh_out = await wh.process_webhook(raw_payload)
+        self.assertTrue(wh_out["crosstalk_triggered"])
+
+        # 5. Plugin registration check
+        reg: dict = {}
+        OdooPlugin().register_tools(reg)
+        self.assertIn("odoo_execute_kw", reg)
+        self.assertIn("odoo_super_intelligence", reg)
+        self.assertIn("odoo_llm_crosstalk", reg)

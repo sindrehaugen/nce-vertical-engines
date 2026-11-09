@@ -245,7 +245,7 @@ def analyze_room_en12464(room: dict[str, Any]) -> dict[str, Any]:
     # Estimate spacing-to-height uniformity U0 if not supplied by Relux
     spacing_m = math.sqrt(area_m2 / max(1, total_qty))
     shr = round(spacing_m / hm, 2)
-    estimated_u0 = 0.68 if shr <= 1.25 else (0.58 if shr <= 1.55 else 0.42)
+    estimated_u0 = 0.74 if shr <= 1.05 else (0.68 if shr <= 1.30 else (0.58 if shr <= 1.55 else 0.42))
     u0 = float(room.get("relux_u0") or estimated_u0)
     ugr_actual = float(room.get("relux_ugr") or worst_ugr)
 

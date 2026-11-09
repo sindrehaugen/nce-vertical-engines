@@ -41,6 +41,15 @@ class _FallbackToolSpec:
     engine_dependencies: tuple[str, ...] | None = None
 
 
+def ToolSpec(*args: Any, **kwargs: Any) -> Any:
+    try:
+        from nce.tool_registry import ToolSpec as _CoreToolSpec
+
+        return _CoreToolSpec(*args, **kwargs)
+    except Exception:
+        return _FallbackToolSpec(*args, **kwargs)
+
+
 log = logging.getLogger("nce_verticals.plugin")
 
 
@@ -553,7 +562,7 @@ class AssetsPlugin:
 
     def register_cognitive_hooks(self, cognitive_engine: Any) -> None:
         try:
-            from nce_verticals.assets.warranty import do_evaluate_warranty_compliance
+            from nce_verticals.assets.warranty import do_check_warranty_eol as do_evaluate_warranty_compliance
 
             log.debug("Registered assets cognitive hooks")
         except Exception as exc:
@@ -1286,7 +1295,7 @@ class FieldTechPlugin:
     def register_cognitive_hooks(self, cognitive_engine: Any) -> None:
         try:
             from nce_verticals.field_tech.checklist import do_complete_checklist
-            from nce_verticals.field_tech.samsvar import do_generate_samsvar
+            from nce_verticals.field_tech.samsvar import generate_samsvarserklaering as do_generate_samsvar
 
             log.debug("Registered field_tech cognitive hooks")
         except Exception as exc:
@@ -4292,6 +4301,80 @@ class LightingDaliPlugin:
         return mdir if mdir.is_dir() else None
 
 
+
+class OdooPlugin:
+    """Standalone & Integrated Super-Intelligent Odoo Vertical Engine + LLM Cross-Talker Plugin."""
+
+    plugin_id: str = "odoo"
+
+    def register_tools(self, registry: Any) -> None:
+        from nce_verticals.odoo import mcp_handlers as odoo_mcp_handlers
+        tools = {
+            "odoo_execute_kw": ToolSpec(
+                _h(odoo_mcp_handlers, "handle_odoo_execute_kw"),
+                cacheable=False,
+                admin_only=False,
+                mutation=True,
+                engine="odoo",
+            ),
+            "odoo_workflow_action": ToolSpec(
+                _h(odoo_mcp_handlers, "handle_odoo_workflow_action"),
+                cacheable=False,
+                admin_only=False,
+                mutation=True,
+                engine="odoo",
+            ),
+            "odoo_super_intelligence": ToolSpec(
+                _h(odoo_mcp_handlers, "handle_odoo_super_intelligence"),
+                cacheable=True,
+                admin_only=False,
+                mutation=False,
+                engine="odoo",
+            ),
+            "odoo_llm_crosstalk": ToolSpec(
+                _h(odoo_mcp_handlers, "handle_odoo_llm_crosstalk"),
+                cacheable=False,
+                admin_only=False,
+                mutation=True,
+                engine="odoo",
+                engine_dependencies=("odoo", "salesforce", "lighting_dali"),
+            ),
+            "odoo_status": ToolSpec(
+                _h(odoo_mcp_handlers, "handle_odoo_status"),
+                cacheable=False,
+                admin_only=False,
+                mutation=False,
+                engine="odoo",
+            ),
+        }
+        for k, v in tools.items():
+            registry[k] = v
+
+    def register_routes(self, app: Any) -> None:
+        from nce_verticals.admin_handlers import odoo as odoo_handlers
+        routes = [
+            Route("/api/admin/odoo/config", endpoint=odoo_handlers.api_admin_odoo_config, methods=["GET"]),
+            Route("/api/admin/odoo/config", endpoint=odoo_handlers.api_admin_odoo_config_save, methods=["POST"]),
+            Route("/api/admin/odoo/records", endpoint=odoo_handlers.api_admin_odoo_records, methods=["GET"]),
+            Route("/api/admin/odoo/execute", endpoint=odoo_handlers.api_admin_odoo_execute, methods=["POST"]),
+            Route("/api/admin/odoo/intelligence", endpoint=odoo_handlers.api_admin_odoo_intelligence, methods=["GET"]),
+            Route("/api/admin/odoo/crosstalk", endpoint=odoo_handlers.api_admin_odoo_crosstalk_history, methods=["GET"]),
+            Route("/api/admin/odoo/crosstalk", endpoint=odoo_handlers.api_admin_odoo_crosstalk, methods=["POST"]),
+            Route("/api/webhooks/odoo", endpoint=odoo_handlers.api_odoo_webhook_ingest, methods=["POST"]),
+        ]
+        _mount_routes(app, routes)
+
+    def register_workers(self, worker_registry: Any) -> None:
+        pass
+
+    def register_cognitive_hooks(self, cognitive_engine: Any) -> None:
+        pass
+
+    def get_migration_dir(self) -> Path | None:
+        mdir = Path(__file__).parent / "migrations"
+        return mdir if mdir.is_dir() else None
+
+
 class VerticalEnginesPlugin:
     """Unified NCE Plugin aggregating all 20+ vertical engines."""
 
@@ -4326,6 +4409,7 @@ class VerticalEnginesPlugin:
             EntraIDPlugin(),
             SalesforcePlugin(),
             LightingDaliPlugin(),
+            OdooPlugin(),
         ]
 
     def register_tools(self, registry: Any) -> None:
