@@ -9,15 +9,20 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 from typing import Any
 
+from nce_verticals.entra_id.auth import EntraVerificationError
+from nce_verticals.entra_id.guard import get_global_entra_gate
 from nce_verticals.lighting_dali.analyser import (
     EN12464_ZONES,
     analyze_dali2_bus,
+    analyze_emergency_lighting_en1838,
     analyze_lighting_project,
     analyze_room_en12464,
     calculate_dali_dimming_level,
     calculate_dt8_mirek,
+    export_dali2_commissioning_csv,
 )
 from nce_verticals.lighting_dali.glamox_catalog import (
     GLAMOX_CONTROL_DEVICES,
@@ -42,10 +47,46 @@ def get_recent_lighting_projects() -> list[dict[str, Any]]:
     return _RECENT_PROJECTS
 
 
+async def _enforce_entra_if_configured(
+    tool_name: str,
+    engine: Any,
+    arguments: dict[str, Any],
+) -> str | None:
+    require_gate = os.environ.get("NCE_LIGHTING_REQUIRE_ENTRA_GATE", "false").lower() in (
+        "1",
+        "true",
+        "yes",
+    )
+    gate = get_global_entra_gate()
+    if not require_gate and gate.config.enforce_mode != "strict":
+        return None
+    if not gate.config.entra_tenant_id and not require_gate:
+        return None
+    try:
+        await gate.verify_request(tool_name, arguments, engine=engine)
+        return None
+    except EntraVerificationError as exc:
+        return json.dumps(
+            {
+                "error": str(exc),
+                "error_code": exc.code,
+                "details": exc.details,
+                "remediation": (
+                    "Authenticate with Microsoft Entra ID via 'entra_login_device_code' "
+                    "or verify membership in the authorized company Entra Security Group."
+                ),
+            }
+        )
+
+
 async def handle_lighting_parse_photometric(
     engine: Any, arguments: dict[str, Any]
 ) -> str:
     """Parse an EULUMDAT (`.ldt`) or IESNA (`.ies`) photometric file and decode Glamox specs."""
+    err = await _enforce_entra_if_configured("lighting_parse_photometric", engine, arguments)
+    if err:
+        return err
+
     content = str(
         arguments.get("content") or arguments.get("file_content") or ""
     ).strip()
@@ -76,6 +117,10 @@ async def handle_lighting_analyze_relux_project(
     Parse a Relux / DIALux project export (JSON, XML, or CSV schedule) and perform full
     EN 12464-1 room compliance + IEC 62386 DALI-2 subnet & Glamox Ethernet2DALI sizing.
     """
+    err = await _enforce_entra_if_configured("lighting_analyze_relux_project", engine, arguments)
+    if err:
+        return err
+
     project_input = arguments.get("project") or arguments.get("content") or arguments
     try:
         parsed_project = parse_relux_or_dialux_project(project_input)
@@ -89,9 +134,15 @@ async def handle_lighting_analyze_relux_project(
 
 
 async def handle_lighting_analyze_room(engine: Any, arguments: dict[str, Any]) -> str:
-    """Run EN 12464-1 photometric & Glamox luminaire analysis on a single room definition."""
+    """Run EN 12464-1 photometric & Glamox luminaire analysis (plus optional EN 1838 emergency check) on a single room."""
+    err = await _enforce_entra_if_configured("lighting_analyze_room", engine, arguments)
+    if err:
+        return err
+
     try:
         report = analyze_room_en12464(arguments)
+        if arguments.get("include_emergency_en1838") or arguments.get("emergency_type"):
+            report["emergency_en1838"] = analyze_emergency_lighting_en1838(arguments)
         return json.dumps(report, default=str)
     except Exception as exc:
         return json.dumps({"error": str(exc)})
@@ -103,6 +154,10 @@ async def handle_dali2_analyze_bus(engine: Any, arguments: dict[str, Any]) -> st
     checks 64 ECG / 64 ECD address limits, 250 mA current budget, <= 2.0 V voltage drop,
     and MCB LED driver inrush current limits.
     """
+    err = await _enforce_entra_if_configured("dali2_analyze_bus", engine, arguments)
+    if err:
+        return err
+
     try:
         res = analyze_dali2_bus(
             ecg_count=int(arguments.get("ecg_count", 20)),
@@ -122,6 +177,19 @@ async def handle_dali2_analyze_bus(engine: Any, arguments: dict[str, Any]) -> st
             ),
             mcb_rating=str(arguments.get("mcb_rating", "B16")),
         )
+        if arguments.get("export_commissioning_csv"):
+            res["commissioning_csv"] = export_dali2_commissioning_csv(
+                {
+                    "universes": [
+                        {
+                            "universe_id": 1,
+                            "rooms": [str(arguments.get("room_name") or "Zone-1")],
+                            "ecg_count": res["ecg_addresses_used"],
+                            "ecd_count": res["ecd_addresses_used"],
+                        }
+                    ]
+                }
+            )
         return json.dumps(res, default=str)
     except Exception as exc:
         return json.dumps({"error": str(exc)})
@@ -134,6 +202,10 @@ async def handle_glamox_decode_and_recommend(
     Decode a Glamox luminaire order code / description or recommend Glamox DALI-2
     luminaires & controls for an EN 12464-1 zone.
     """
+    err = await _enforce_entra_if_configured("glamox_decode_and_recommend", engine, arguments)
+    if err:
+        return err
+
     code = str(arguments.get("code") or arguments.get("description") or "").strip()
     zone_code = str(arguments.get("zone_code") or "OFFICE_WRITING").strip().upper()
     tunable_white = bool(arguments.get("require_tunable_white", False))

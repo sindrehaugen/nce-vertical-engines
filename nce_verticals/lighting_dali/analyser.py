@@ -13,12 +13,19 @@ Governing Equations & Standards Cited:
        E_m = (N * Phi_lum * UF(K) * MF) / (L * W)
    - Required Luminaire Count:
        N_req = ceil((E_target * L * W) / (Phi_lum * UF(K) * MF))
-2. EN 15193-1 (Energy Performance of Buildings - Lighting):
+2. EN 1838:2013 (Lighting Applications — Emergency Lighting):
+   - Escape routes up to 2 m width:
+       E_min >= 1.0 lx along the centre line, uniformity E_max / E_min <= 40 : 1, Ra >= 40
+   - Open areas (anti-panic, > 60 m^2):
+       E_min >= 0.5 lx on the empty core floor area, uniformity E_max / E_min <= 40 : 1
+   - High-risk task areas:
+       E_m >= max(15.0 lx, 0.10 * E_normal_lux), uniformity E_max / E_min <= 10 : 1
+3. EN 15193-1 (Energy Performance of Buildings - Lighting):
    - Installed Lighting Power Density:
        LPD = P_total / Area [W/m^2]
    - Normalized Power Density per 100 lx:
        e_norm = (LPD * 100) / E_m [W/(m^2 * 100 lx)]
-3. IEC 62386 DALI-2 (Parts 101, 102, 103, 202, 207, 209, 251-253, 301-304):
+4. IEC 62386 DALI-2 (Parts 101, 102, 103, 202, 207, 209, 251-253, 301-304):
    - Part 101 Bus Current Limit:
        I_bus = sum(N_ecg * I_ecg) + sum(N_ecd * I_ecd) <= I_psu_rated <= 250 mA
    - Part 101 Maximum Bus Voltage Drop (Delta_U <= 2.0 V):
@@ -32,13 +39,15 @@ Governing Equations & Standards Cited:
        Max 64 ECD short addresses (0..63), 32 Device Groups (0..31).
    - Part 209 DT8 Colour Control (Tunable White Mirek):
        Mirek = round(1,000,000 / T_Kelvin), valid range [154..370] for 6500K..2700K.
-4. NEK 400 / EN 60898-1 MCB Breaker Sizing & Electronic Driver Inrush Derating:
+5. NEK 400 / EN 60898-1 MCB Breaker Sizing & Electronic Driver Inrush Derating:
    - Protects lighting circuits against nuisance magnetic tripping from capacitive
      LED driver cold-start inrush currents (B10/B16/C10/C16 breaker limits).
 """
 
 from __future__ import annotations
 
+import csv
+import io
 import math
 from typing import Any
 
@@ -179,6 +188,115 @@ def estimate_utilization_factor(room_index_k: float) -> float:
     # Smooth rational curve calibrated against standard CIE / EULUMDAT utilization tables
     uf = 0.88 * (k / (k + 0.55))
     return round(min(0.86, max(0.35, uf)), 4)
+
+
+def analyze_emergency_lighting_en1838(room_or_route: dict[str, Any]) -> dict[str, Any]:
+    """
+    Perform deterministic EN 1838:2013 & IEC 62386-202 (DT1 Self-Contained Emergency)
+    compliance analysis for an escape route, open anti-panic area, or high-risk task area.
+    """
+    app_type = str(room_or_route.get("emergency_type") or "open_area").strip().lower()
+    length_m = max(1.0, float(room_or_route.get("length_m", 10.0)))
+    width_m = max(1.0, float(room_or_route.get("width_m", 6.0)))
+    area_m2 = round(length_m * width_m, 2)
+    normal_em_lux = float(room_or_route.get("normal_em_lux", 500.0))
+
+    if app_type == "escape_route":
+        e_target_min_lux = 1.0
+        max_diversity_ratio = 40.0
+    elif app_type == "high_risk":
+        e_target_min_lux = max(15.0, round(0.10 * normal_em_lux, 1))
+        max_diversity_ratio = 10.0
+    else:
+        app_type = "open_area"
+        e_target_min_lux = 0.5
+        max_diversity_ratio = 40.0
+
+    dt1_count = int(room_or_route.get("dt1_luminaire_count", 0))
+    emergency_flux_per_unit_lm = float(room_or_route.get("emergency_flux_lm", 450.0))
+    duration_hours = float(room_or_route.get("battery_duration_h", 3.0))
+
+    recommended_dt1_count = max(
+        1 if area_m2 <= 30.0 else 2,
+        math.ceil((e_target_min_lux * area_m2 * 2.2) / max(50.0, emergency_flux_per_unit_lm * 0.55)),
+    )
+    effective_count = dt1_count if dt1_count > 0 else recommended_dt1_count
+    estimated_e_min_lux = round(
+        (effective_count * emergency_flux_per_unit_lm * 0.55) / (area_m2 * 2.2),
+        2,
+    )
+    diversity_ratio = float(room_or_route.get("diversity_ratio", 18.0 if effective_count >= recommended_dt1_count else 48.0))
+
+    violations: list[str] = []
+    if dt1_count > 0 and estimated_e_min_lux < e_target_min_lux:
+        violations.append(
+            f"EN 1838 violation: Emergency E_min ({estimated_e_min_lux} lx) is below required {e_target_min_lux} lx."
+        )
+    if diversity_ratio > max_diversity_ratio:
+        violations.append(
+            f"EN 1838 uniformity violation: E_max/E_min ({diversity_ratio}:1) exceeds maximum ({max_diversity_ratio}:1)."
+        )
+    if duration_hours < 1.0:
+        violations.append("EN 1838 battery autonomy violation: minimum rated duration is 1.0 h (3.0 h recommended).")
+
+    return {
+        "standard": "EN 1838:2013 & IEC 62386-202 (DALI-2 DT1 Emergency)",
+        "emergency_type": app_type,
+        "area_m2": area_m2,
+        "e_min_target_lux": e_target_min_lux,
+        "estimated_e_min_lux": estimated_e_min_lux,
+        "diversity_ratio_emax_emin": diversity_ratio,
+        "max_diversity_ratio": max_diversity_ratio,
+        "recommended_glamox_dt1_luminaires": recommended_dt1_count,
+        "configured_dt1_luminaires": effective_count,
+        "dali2_ecg_addresses_added": effective_count,
+        "battery_duration_h": duration_hours,
+        "compliant": len(violations) == 0,
+        "violations": violations,
+    }
+
+
+def export_dali2_commissioning_csv(dali_topology: dict[str, Any]) -> str:
+    """
+    Export a ready-to-import Glamox Ethernet2DALI / IEC 62386 DALI-2 commissioning schedule CSV
+    with short addresses (0..63), device type (DT6/DT8/DT1/ECD), room assignment, and group/scene mapping.
+    """
+    buf = io.StringIO()
+    writer = csv.writer(buf, lineterminator="\n")
+    writer.writerow(
+        [
+            "controller_id",
+            "dali_subnet",
+            "short_address",
+            "address_domain",
+            "dali_device_type",
+            "room_name",
+            "dali_group",
+            "default_scene_0_pct",
+            "bus_current_ma",
+        ]
+    )
+    universes = dali_topology.get("universes") or []
+    for u in universes:
+        u_id = int(u.get("universe_id", 1))
+        ctrl_id = f"ETH2DALI-{((u_id - 1) // 3) + 1}"
+        rooms = u.get("rooms") or ["Zone-1"]
+        ecg_total = int(u.get("ecg_count", 0))
+        ecd_total = int(u.get("ecd_count", 0))
+
+        for addr in range(min(64, ecg_total)):
+            rm_name = rooms[addr % len(rooms)]
+            grp = addr % 16
+            writer.writerow(
+                [ctrl_id, u_id, addr, "ECG", "DT6_or_DT8_LED_Driver", rm_name, f"G{grp}", 100, 2.0]
+            )
+        for ecd_addr in range(min(64, ecd_total)):
+            rm_name = rooms[ecd_addr % len(rooms)]
+            grp = ecd_addr % 16
+            writer.writerow(
+                [ctrl_id, u_id, ecd_addr, "ECD", "Part303_304_PIR_Light_Sensor", rm_name, f"G{grp}", 100, 5.0]
+            )
+    return buf.getvalue()
 
 
 def analyze_room_en12464(room: dict[str, Any]) -> dict[str, Any]:
@@ -499,12 +617,14 @@ def design_dali2_universe_allocation(
         1, math.ceil(len(universes) / int(eth2dali_spec["dali_lines_per_unit"]))
     )
 
-    return {
+    result = {
         "total_dali2_subnets": len(universes),
         "glamox_eth2dali_controllers_required": controllers_needed,
         "controller_model": eth2dali_spec["name"],
         "universes": universes,
     }
+    result["commissioning_csv"] = export_dali2_commissioning_csv(result)
+    return result
 
 
 def analyze_lighting_project(project_data: dict[str, Any]) -> dict[str, Any]:

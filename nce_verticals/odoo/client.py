@@ -4,7 +4,7 @@ nce_verticals/odoo/client.py
 Async Multi-Protocol Odoo Client supporting:
 1. JSON-RPC 2.0 (`POST /jsonrpc` with `service="common"` and `service="object"`, `method="execute_kw"`)
 2. XML-RPC (`/xmlrpc/2/common` and `/xmlrpc/2/object` via `xmlrpc.client` in threadpool with <5s timeout)
-3. REST / OAuth2 Bearer (`/api/v1/{model}` or `/json/2/{model}` with Bearer token)
+3. REST / OAuth2 Bearer (`/json/2/{model}/{method}` or `/api/v1/{model}` with Bearer token)
 
 Enforces explicit `<5s` connect timeouts per Senior Architect rules.
 """
@@ -144,6 +144,55 @@ class OdooClient:
             raise OdooAPIError(f"Odoo RPC Error: {msg}", code="ODOO_JSONRPC_ERROR", details=err)
         return body.get("result")
 
+    async def _rest_oauth2_call(
+        self,
+        model: str,
+        method: str,
+        args: list[Any],
+        kwargs: dict[str, Any],
+    ) -> Any:
+        """
+        Execute an Odoo 17+/18+ `/json/2/{model}/{method}` REST OAuth2 Bearer request.
+        """
+        url = f"{self.config.url}/json/2/{model}/{method}"
+        bearer = self.config.oauth_bearer_token or self.config.api_key
+        headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "X-Odoo-Database": self.config.db_name,
+        }
+        if bearer:
+            headers["Authorization"] = f"Bearer {bearer}"
+
+        payload: dict[str, Any] = dict(kwargs)
+        if args:
+            if method in ("search", "search_read", "search_count") and "domain" not in payload:
+                payload["domain"] = args[0]
+            elif method in ("read", "write", "unlink") and "ids" not in payload:
+                payload["ids"] = args[0]
+                if method == "write" and len(args) > 1 and "vals" not in payload:
+                    payload["vals"] = args[1]
+            elif method == "create" and "vals_list" not in payload:
+                payload["vals_list"] = args[0] if isinstance(args[0], list) else [args[0]]
+            else:
+                payload["args"] = args
+
+        if self._http_client is not None:
+            resp = await self._http_client.request("POST", url, json=payload, headers=headers)
+        else:
+            async with httpx.AsyncClient(timeout=ODOO_TIMEOUT) as client:
+                resp = await client.request("POST", url, json=payload, headers=headers)
+
+        if resp.status_code not in (200, 201):
+            raise OdooAPIError(
+                f"Odoo REST OAuth2 HTTP {resp.status_code}",
+                code=f"HTTP_{resp.status_code}",
+            )
+        body = resp.json()
+        if isinstance(body, dict) and "result" in body:
+            return body["result"]
+        return body
+
     async def execute_kw(
         self,
         model: str,
@@ -163,6 +212,14 @@ class OdooClient:
             return await asyncio.to_thread(
                 self._xmlrpc_execute_kw,
                 uid,
+                model,
+                method,
+                call_args,
+                call_kwargs,
+            )
+
+        if self.config.protocol == "rest_oauth2":
+            return await self._rest_oauth2_call(
                 model,
                 method,
                 call_args,

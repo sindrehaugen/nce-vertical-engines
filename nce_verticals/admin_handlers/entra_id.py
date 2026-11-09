@@ -6,7 +6,6 @@ Admin HTTP handlers for the Microsoft Entra ID Identification Point & Allowlist 
 
 from __future__ import annotations
 
-import json
 from typing import Any
 
 try:
@@ -34,7 +33,9 @@ def _parse_str_list(val: Any) -> list[str]:
 
 
 async def api_admin_entra_config(request: Any) -> JSONResponse:
-    """GET /api/admin/entra/config — return current Entra ID gate config & PC context."""
+    """GET or POST /api/admin/entra/config — return or update Entra ID gate config & PC context."""
+    if getattr(request, "method", "GET").upper() == "POST":
+        return await api_admin_entra_config_save(request)
     gate = get_global_entra_gate()
     return JSONResponse(
         {

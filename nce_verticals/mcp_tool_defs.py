@@ -2,10 +2,28 @@
 
 from __future__ import annotations
 
-from mcp.types import Tool
+try:
+    from mcp.types import Tool
+except ImportError:
+    class Tool:  # type: ignore[no-redef]
+        def __init__(self, *, name: str, description: str, inputSchema: dict) -> None:
+            self.name = name
+            self.description = description
+            self.inputSchema = inputSchema
 
-from nce.config import cfg
-from nce.resource_surface import build_all_resource_tool_definitions
+try:
+    from nce.config import cfg
+except ImportError:
+    class _FallbackCfg:
+        def __getattr__(self, _name: str) -> bool:
+            return False
+    cfg = _FallbackCfg()  # type: ignore[assignment]
+
+try:
+    from nce.resource_surface import build_all_resource_tool_definitions
+except ImportError:
+    def build_all_resource_tool_definitions() -> list:  # type: ignore[misc]
+        return []
 
 # --- Tool Definitions ---
 
@@ -10707,3 +10725,379 @@ if cfg.NCE_DIAG_ENABLED:
 
 # Auto-advertise all C12 Resource Surface tools
 TOOLS.extend(build_all_resource_tool_definitions())
+
+
+# ── Entra ID Gate, Salesforce, Relux/Glamox DALI-2 & Odoo Super-Engine Tools ──
+_VERTICAL_STANDALONE_TOOLS = [
+    Tool(
+        name="entra_whoami",
+        description="Inspect current PC / LLM user identity and Microsoft Entra ID company allowlist status.",
+        inputSchema={
+            "type": "object",
+            "properties": {
+                "entra_token": {"type": "string", "description": "Optional Entra ID Bearer JWT token."},
+            },
+        },
+    ),
+    Tool(
+        name="entra_verify_access",
+        description="Verify caller identity against company Microsoft Entra ID Security Groups, App Roles, and UPN allowlist.",
+        inputSchema={
+            "type": "object",
+            "properties": {
+                "entra_token": {"type": "string", "description": "Optional Entra ID Bearer JWT token."},
+                "target_tool": {"type": "string", "description": "Optional target tool name to verify access for."},
+            },
+        },
+    ),
+    Tool(
+        name="entra_login_device_code",
+        description="Start or complete Microsoft Entra ID OAuth 2.0 Device Code authentication for an LLM session.",
+        inputSchema={
+            "type": "object",
+            "properties": {
+                "action": {"type": "string", "enum": ["start", "complete"], "default": "start"},
+                "device_code": {"type": "string", "description": "Device code returned by action='start'."},
+                "scopes": {"type": "array", "items": {"type": "string"}},
+            },
+        },
+    ),
+    Tool(
+        name="entra_logout",
+        description="Revoke the cached Microsoft Entra ID session for the current PC or specified Object ID (oid).",
+        inputSchema={
+            "type": "object",
+            "properties": {
+                "oid": {"type": "string", "description": "Optional Entra user Object ID (oid) to revoke."},
+            },
+        },
+    ),
+    Tool(
+        name="sf_query_soql",
+        description="Execute a parameterized SOQL query against Salesforce (with automatic pagination and injection guard).",
+        inputSchema={
+            "type": "object",
+            "properties": {
+                "soql": {"type": "string", "description": "SOQL SELECT statement."},
+                "max_records": {"type": "integer", "default": 200},
+                "entra_token": {"type": "string"},
+            },
+            "required": ["soql"],
+        },
+    ),
+    Tool(
+        name="sf_get_record",
+        description="Fetch a single Salesforce SObject record by ID.",
+        inputSchema={
+            "type": "object",
+            "properties": {
+                "sobject": {"type": "string", "default": "Account"},
+                "record_id": {"type": "string"},
+                "fields": {"type": "array", "items": {"type": "string"}},
+                "entra_token": {"type": "string"},
+            },
+            "required": ["record_id"],
+        },
+    ),
+    Tool(
+        name="sf_create_record",
+        description="Create a new record on any Salesforce SObject.",
+        inputSchema={
+            "type": "object",
+            "properties": {
+                "sobject": {"type": "string", "default": "Account"},
+                "payload": {"type": "object", "additionalProperties": True},
+                "entra_token": {"type": "string"},
+            },
+            "required": ["sobject", "payload"],
+        },
+    ),
+    Tool(
+        name="sf_update_record",
+        description="Update an existing Salesforce SObject record by ID.",
+        inputSchema={
+            "type": "object",
+            "properties": {
+                "sobject": {"type": "string", "default": "Account"},
+                "record_id": {"type": "string"},
+                "payload": {"type": "object", "additionalProperties": True},
+                "entra_token": {"type": "string"},
+            },
+            "required": ["sobject", "record_id", "payload"],
+        },
+    ),
+    Tool(
+        name="sf_delete_record",
+        description="Delete a Salesforce SObject record by ID.",
+        inputSchema={
+            "type": "object",
+            "properties": {
+                "sobject": {"type": "string", "default": "Account"},
+                "record_id": {"type": "string"},
+                "entra_token": {"type": "string"},
+            },
+            "required": ["sobject", "record_id"],
+        },
+    ),
+    Tool(
+        name="sf_manage_account",
+        description="High-level Account CRUD & search in Salesforce.",
+        inputSchema={
+            "type": "object",
+            "properties": {
+                "action": {"type": "string", "enum": ["list", "get", "create", "update", "delete"], "default": "list"},
+                "record_id": {"type": "string"},
+                "payload": {"type": "object", "additionalProperties": True},
+                "search_name": {"type": "string"},
+                "limit": {"type": "integer", "default": 50},
+            },
+        },
+    ),
+    Tool(
+        name="sf_manage_contact",
+        description="High-level Contact CRUD & search in Salesforce.",
+        inputSchema={
+            "type": "object",
+            "properties": {
+                "action": {"type": "string", "enum": ["list", "get", "create", "update", "delete"], "default": "list"},
+                "record_id": {"type": "string"},
+                "payload": {"type": "object", "additionalProperties": True},
+                "search_name": {"type": "string"},
+                "limit": {"type": "integer", "default": 50},
+            },
+        },
+    ),
+    Tool(
+        name="sf_manage_lead",
+        description="High-level Lead CRUD & search in Salesforce.",
+        inputSchema={
+            "type": "object",
+            "properties": {
+                "action": {"type": "string", "enum": ["list", "get", "create", "update", "delete"], "default": "list"},
+                "record_id": {"type": "string"},
+                "payload": {"type": "object", "additionalProperties": True},
+                "search_name": {"type": "string"},
+                "limit": {"type": "integer", "default": 50},
+            },
+        },
+    ),
+    Tool(
+        name="sf_manage_opportunity",
+        description="High-level Opportunity CRUD & pipeline management in Salesforce.",
+        inputSchema={
+            "type": "object",
+            "properties": {
+                "action": {"type": "string", "enum": ["list", "get", "create", "update", "delete"], "default": "list"},
+                "record_id": {"type": "string"},
+                "payload": {"type": "object", "additionalProperties": True},
+                "search_name": {"type": "string"},
+                "limit": {"type": "integer", "default": 50},
+            },
+        },
+    ),
+    Tool(
+        name="sf_manage_case",
+        description="High-level Support Case CRUD in Salesforce.",
+        inputSchema={
+            "type": "object",
+            "properties": {
+                "action": {"type": "string", "enum": ["list", "get", "create", "update", "delete"], "default": "list"},
+                "record_id": {"type": "string"},
+                "payload": {"type": "object", "additionalProperties": True},
+                "search_name": {"type": "string"},
+                "limit": {"type": "integer", "default": 50},
+            },
+        },
+    ),
+    Tool(
+        name="sf_log_activity",
+        description="Log a Task / Activity in Salesforce linked to a Contact/Lead (WhoId) or Account/Opportunity/Case (WhatId).",
+        inputSchema={
+            "type": "object",
+            "properties": {
+                "subject": {"type": "string"},
+                "description": {"type": "string"},
+                "who_id": {"type": "string"},
+                "what_id": {"type": "string"},
+                "status": {"type": "string", "default": "Completed"},
+                "priority": {"type": "string", "default": "Normal"},
+            },
+            "required": ["subject"],
+        },
+    ),
+    Tool(
+        name="sf_sync_now",
+        description="Trigger an incremental sync from Salesforce to NCE read-model.",
+        inputSchema={
+            "type": "object",
+            "properties": {
+                "sobject_types": {"type": "array", "items": {"type": "string"}},
+                "since_iso": {"type": "string"},
+                "namespace_id": {"type": "string"},
+            },
+        },
+    ),
+    Tool(
+        name="sf_sync_status",
+        description="Return current Salesforce integration config, cached record counts, and last sync summary.",
+        inputSchema={"type": "object", "properties": {}},
+    ),
+    Tool(
+        name="lighting_parse_photometric",
+        description="Parse an EULUMDAT (.ldt) or IESNA LM-63 (.ies) photometric file and decode Glamox luminaire specs.",
+        inputSchema={
+            "type": "object",
+            "properties": {
+                "content": {"type": "string", "description": "Raw EULUMDAT (.ldt) or IESNA (.ies) text."},
+                "format": {"type": "string", "enum": ["ldt", "ies"]},
+            },
+            "required": ["content"],
+        },
+    ),
+    Tool(
+        name="lighting_analyze_relux_project",
+        description="Parse a Relux / DIALux project export (JSON, XML, or CSV) and run EN 12464-1 + IEC 62386 DALI-2 & Glamox Ethernet2DALI analysis.",
+        inputSchema={
+            "type": "object",
+            "properties": {
+                "project": {"type": ["object", "string"], "description": "Relux/DIALux JSON, XML, or CSV schedule."},
+            },
+        },
+    ),
+    Tool(
+        name="lighting_analyze_room",
+        description="Run EN 12464-1 indoor lighting compliance (and optional EN 1838 emergency lighting check) on a room.",
+        inputSchema={
+            "type": "object",
+            "properties": {
+                "name": {"type": "string"},
+                "zone_code": {"type": "string", "default": "OFFICE_WRITING"},
+                "length_m": {"type": "number", "default": 6.0},
+                "width_m": {"type": "number", "default": 4.0},
+                "height_m": {"type": "number", "default": 2.8},
+                "luminaires": {"type": "array", "items": {"type": "object", "additionalProperties": True}},
+                "include_emergency_en1838": {"type": "boolean", "default": False},
+            },
+        },
+    ),
+    Tool(
+        name="dali2_analyze_bus",
+        description="Validate a DALI-2 bus line per IEC 62386-101/102/103 & NEK 400 (64 ECG/64 ECD, 250mA current, <=2.0V drop, MCB inrush).",
+        inputSchema={
+            "type": "object",
+            "properties": {
+                "ecg_count": {"type": "integer", "default": 20},
+                "ecd_sensor_count": {"type": "integer", "default": 4},
+                "ecd_pushbutton_count": {"type": "integer", "default": 2},
+                "dt1_emergency_count": {"type": "integer", "default": 0},
+                "cable_length_m": {"type": "number", "default": 120.0},
+                "cable_cross_section_mm2": {"type": "number", "default": 1.5},
+                "psu_rated_current_ma": {"type": "number", "default": 240.0},
+                "topology": {"type": "string", "default": "line_or_star"},
+                "mcb_rating": {"type": "string", "default": "B16"},
+                "export_commissioning_csv": {"type": "boolean", "default": False},
+            },
+        },
+    ),
+    Tool(
+        name="glamox_decode_and_recommend",
+        description="Decode a Glamox luminaire variant code (DALI/TWH/SEN/DT1/MP) and recommend Glamox luminaires & DALI-2 controls.",
+        inputSchema={
+            "type": "object",
+            "properties": {
+                "code": {"type": "string", "description": "Glamox product code or description."},
+                "zone_code": {"type": "string", "default": "OFFICE_WRITING"},
+                "require_tunable_white": {"type": "boolean", "default": False},
+                "dali_level": {"type": "integer", "minimum": 0, "maximum": 254},
+                "cct_kelvin": {"type": "number"},
+            },
+        },
+    ),
+    Tool(
+        name="glamox_catalog_list",
+        description="List curated Glamox DALI-2 luminaires, control devices, and EN 12464-1 zones.",
+        inputSchema={"type": "object", "properties": {}},
+    ),
+    Tool(
+        name="odoo_execute_kw",
+        description="Execute any Odoo ORM method (search_read, read, create, write, unlink, fields_get) across any Odoo model.",
+        inputSchema={
+            "type": "object",
+            "properties": {
+                "model": {"type": "string", "default": "res.partner"},
+                "method": {"type": "string", "default": "search_read"},
+                "args": {"type": "array", "items": {}},
+                "kwargs": {"type": "object", "additionalProperties": True},
+                "entra_token": {"type": "string"},
+            },
+            "required": ["model", "method"],
+        },
+    ),
+    Tool(
+        name="odoo_workflow_action",
+        description="Trigger an Odoo workflow method (action_confirm, action_post, button_validate, action_set_won, message_post) on record IDs.",
+        inputSchema={
+            "type": "object",
+            "properties": {
+                "model": {"type": "string", "default": "sale.order"},
+                "action": {"type": "string", "default": "action_confirm"},
+                "record_ids": {"type": "array", "items": {"type": "integer"}},
+                "kwargs": {"type": "object", "additionalProperties": True},
+                "entra_token": {"type": "string"},
+            },
+            "required": ["model", "action", "record_ids"],
+        },
+    ),
+    Tool(
+        name="odoo_super_intelligence",
+        description="Run the Super-Intelligent Odoo Cognitive Analyser (pulse, margins_invoices, inventory_mrp, crm_pipeline).",
+        inputSchema={
+            "type": "object",
+            "properties": {
+                "mode": {
+                    "type": "string",
+                    "enum": ["pulse", "margins_invoices", "inventory_mrp", "crm_pipeline"],
+                    "default": "pulse",
+                },
+                "min_acceptable_margin_pct": {"type": "number", "default": 0.15},
+                "entra_token": {"type": "string"},
+            },
+        },
+    ),
+    Tool(
+        name="odoo_llm_crosstalk",
+        description="Full Bidirectional LLM Cross-Talker for Odoo (prompt, bridge_relux, bridge_salesforce).",
+        inputSchema={
+            "type": "object",
+            "properties": {
+                "action": {"type": "string", "enum": ["prompt", "bridge_relux", "bridge_salesforce"], "default": "prompt"},
+                "prompt": {"type": "string"},
+                "model": {"type": "string", "default": "sale.order"},
+                "record_id": {"type": "integer", "default": 301},
+                "project": {"type": "object", "additionalProperties": True},
+                "sf_account_name": {"type": "string"},
+                "sf_opportunity_name": {"type": "string"},
+                "expected_revenue": {"type": "number"},
+                "post_reply_to_chatter": {"type": "boolean", "default": True},
+            },
+        },
+    ),
+    Tool(
+        name="odoo_sync_now",
+        description="Synchronize Odoo ERP models into the local read-model cache and PostgreSQL odoo_read_model.",
+        inputSchema={
+            "type": "object",
+            "properties": {
+                "models": {"type": "array", "items": {"type": "string"}},
+                "namespace_id": {"type": "string"},
+                "limit_per_model": {"type": "integer", "default": 200},
+            },
+        },
+    ),
+    Tool(
+        name="odoo_status",
+        description="Return current Odoo Vertical Engine configuration, model counts, and Cross-Talk history.",
+        inputSchema={"type": "object", "properties": {}},
+    ),
+]
+TOOLS.extend(_VERTICAL_STANDALONE_TOOLS)

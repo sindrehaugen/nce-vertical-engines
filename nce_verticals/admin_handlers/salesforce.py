@@ -27,7 +27,9 @@ from nce_verticals.salesforce.webhooks import SalesforceWebhookReceiver
 
 
 async def api_admin_salesforce_config(request: Any) -> JSONResponse:
-    """GET /api/admin/salesforce/config — return current Salesforce configuration & status."""
+    """GET or POST /api/admin/salesforce/config — return or update current Salesforce configuration & status."""
+    if getattr(request, "method", "GET").upper() == "POST":
+        return await api_admin_salesforce_config_save(request)
     ops = get_global_salesforce_ops()
     return JSONResponse(
         {
@@ -109,7 +111,9 @@ async def api_admin_salesforce_config_save(request: Any) -> JSONResponse:
 
 
 async def api_admin_salesforce_records(request: Any) -> JSONResponse:
-    """GET /api/admin/salesforce/records — list cached or live records via SOQL/filter."""
+    """GET or POST /api/admin/salesforce/records — list cached/SOQL records or mutate a record."""
+    if getattr(request, "method", "GET").upper() == "POST":
+        return await api_admin_salesforce_mutate(request)
     ops = get_global_salesforce_ops()
     qp = request.query_params
     sobject = qp.get("sobject")

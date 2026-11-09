@@ -13,7 +13,7 @@ Capabilities:
    - Interactive OAuth 2.0 Device Code flow (`/oauth2/v2.0/devicecode` & `/oauth2/v2.0/token`)
      so an LLM user on a cold session can authenticate via `https://microsoft.com/devicelogin`.
 2. Company Microsoft Environment Allowlist Enforcement:
-   - Validates JWT claims (`tid`, `aud`, `iss`, `exp`, `nbf`, `oid`, `preferred_username`/`upn`).
+   - Validates JWT claims (`tid`, `iss`, `aud`, `exp`, `nbf`, `oid`, `preferred_username`/`upn`).
    - Checks Entra Security Group Object IDs (`groups` claim + Microsoft Graph
      `POST /v1.0/me/checkMemberObjects` for transitive group membership & overage handling).
    - Checks Enterprise Application Roles (`roles` claim) and `/v1.0/me` `accountEnabled`.
@@ -221,6 +221,29 @@ class EntraIDAuthenticator:
         except Exception:
             username = "unknown-user"
         return {"pc_hostname": hostname, "os_username": username}
+
+    async def fetch_openid_jwks(self, tenant_id: str | None = None) -> dict[str, Any]:
+        """
+        Fetch and cache the Microsoft Entra ID OpenID Connect JWKS keys for `tenant_id`
+        (`https://login.microsoftonline.com/{tenant_id}/discovery/v2.0/keys`) with <5s timeout.
+        """
+        tid = (tenant_id or self.config.entra_tenant_id or "common").strip()
+        now = time.time()
+        cached = self._jwks_cache.get(tid)
+        if cached and cached[0] > now:
+            return cached[1]
+
+        url = f"https://login.microsoftonline.com/{tid}/discovery/v2.0/keys"
+        async with httpx.AsyncClient(timeout=HTTP_TIMEOUT) as client:
+            resp = await client.get(url)
+            if resp.status_code != 200:
+                raise EntraVerificationError(
+                    f"Failed to fetch Entra ID JWKS keys (HTTP {resp.status_code})",
+                    code="JWKS_FETCH_FAILED",
+                )
+            jwks = resp.json()
+            self._jwks_cache[tid] = (now + 3600.0, jwks)
+            return jwks
 
     async def acquire_os_silent_token(self) -> tuple[str | None, str]:
         """
@@ -440,6 +463,21 @@ class EntraIDAuthenticator:
                 f"Tenant ID mismatch: token tid '{tid}' is not authorized for tenant '{self.config.entra_tenant_id}'",
                 code="TENANT_MISMATCH",
             )
+
+        # 1b. Verify Token Issuer ('iss') when present in claims against Microsoft Entra v1/v2 endpoints
+        iss = str(claims.get("iss") or "").strip().lower().rstrip("/")
+        if iss:
+            tid_low = tid.lower()
+            valid_issuers = {
+                f"https://login.microsoftonline.com/{tid_low}/v2.0",
+                f"https://login.microsoftonline.com/{tid_low}",
+                f"https://sts.windows.net/{tid_low}",
+            }
+            if iss not in valid_issuers:
+                raise EntraVerificationError(
+                    f"Token issuer '{iss}' is not an authorized Microsoft Entra ID issuer for tenant '{tid}'",
+                    code="ISSUER_MISMATCH",
+                )
 
         # 2. Verify Audience if client_id is configured and token is not a Graph token
         aud = str(claims.get("aud") or "").strip()

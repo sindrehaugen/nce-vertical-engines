@@ -25,7 +25,13 @@ except ImportError:
 
 
 def _h(module: Any, handler_name: str) -> Any:
-    return getattr(module, handler_name)
+    async def _call(engine: Any, arguments: dict[str, Any]) -> Any:
+        fn = getattr(module, handler_name)
+        return await fn(engine, arguments)
+
+    _call.__name__ = handler_name
+    _call.__qualname__ = f"{getattr(module, '__name__', 'nce_verticals')}.{handler_name}"
+    return _call
 
 
 @dataclass(frozen=True)
@@ -51,19 +57,29 @@ def ToolSpec(*args: Any, **kwargs: Any) -> Any:
 log = logging.getLogger("nce_verticals.plugin")
 
 
+def _route_key(r: Any) -> tuple[Any, tuple[str, ...]]:
+    path = getattr(r, "path", None)
+    methods = tuple(sorted(str(m).upper() for m in (getattr(r, "methods", None) or ())))
+    return (path, methods)
+
+
 def _mount_routes(app: Any, routes: list[Route]) -> None:
     if not routes:
         return
     if hasattr(app, "routes"):
-        existing = {getattr(r, "path", None) for r in app.routes}
+        existing = {_route_key(r) for r in app.routes}
         for r in routes:
-            if getattr(r, "path", None) not in existing:
+            rk = _route_key(r)
+            if rk not in existing:
                 app.routes.append(r)
+                existing.add(rk)
     elif isinstance(app, list):
-        existing = {getattr(r, "path", None) for r in app}
+        existing = {_route_key(r) for r in app}
         for r in routes:
-            if getattr(r, "path", None) not in existing:
+            rk = _route_key(r)
+            if rk not in existing:
                 app.append(r)
+                existing.add(rk)
 
 
 class AgreementsPlugin:
@@ -4334,6 +4350,13 @@ class OdooPlugin:
                 engine="odoo",
                 engine_dependencies=("odoo", "salesforce", "lighting_dali"),
             ),
+            "odoo_sync_now": ToolSpec(
+                _h(odoo_mcp_handlers, "handle_odoo_sync_now"),
+                cacheable=False,
+                admin_only=True,
+                mutation=True,
+                engine="odoo",
+            ),
             "odoo_status": ToolSpec(
                 _h(odoo_mcp_handlers, "handle_odoo_status"),
                 cacheable=False,
@@ -4355,6 +4378,7 @@ class OdooPlugin:
             Route("/api/admin/odoo/intelligence", endpoint=odoo_handlers.api_admin_odoo_intelligence, methods=["GET"]),
             Route("/api/admin/odoo/crosstalk", endpoint=odoo_handlers.api_admin_odoo_crosstalk_history, methods=["GET"]),
             Route("/api/admin/odoo/crosstalk", endpoint=odoo_handlers.api_admin_odoo_crosstalk, methods=["POST"]),
+            Route("/api/admin/odoo/sync", endpoint=odoo_handlers.api_admin_odoo_sync_now, methods=["POST"]),
             Route("/api/webhooks/odoo", endpoint=odoo_handlers.api_odoo_webhook_ingest, methods=["POST"]),
         ]
         _mount_routes(app, routes)

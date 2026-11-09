@@ -18,6 +18,7 @@ from nce_verticals.entra_id.guard import get_global_entra_gate
 from nce_verticals.odoo.crosstalk import OdooLLMCrossTalker
 from nce_verticals.odoo.intelligence import OdooSuperIntelligence
 from nce_verticals.odoo.operations import get_global_odoo_ops
+from nce_verticals.odoo.sync import OdooSyncEngine
 
 log = logging.getLogger("nce_verticals.odoo.mcp_handlers")
 
@@ -178,6 +179,26 @@ async def handle_odoo_llm_crosstalk(engine: Any, arguments: dict[str, Any]) -> s
         return json.dumps({"error": str(exc)})
 
 
+async def handle_odoo_sync_now(engine: Any, arguments: dict[str, Any]) -> str:
+    """Synchronize Odoo ERP models into the local read-model cache and PostgreSQL `odoo_read_model`."""
+    err = await _enforce_entra_if_configured("odoo_sync_now", engine, arguments)
+    if err:
+        return err
+
+    ops = get_global_odoo_ops()
+    pg_pool = getattr(engine, "_pg_pool", None) if engine is not None else None
+    sync_engine = OdooSyncEngine(ops=ops, pg_pool=pg_pool)
+    models = arguments.get("models")
+    if isinstance(models, str):
+        models = [m.strip() for m in models.split(",") if m.strip()]
+    summary = await sync_engine.run_sync(
+        models=models,
+        namespace_id=arguments.get("namespace_id"),
+        limit_per_model=int(arguments.get("limit_per_model", 200)),
+    )
+    return json.dumps(summary, default=str)
+
+
 async def handle_odoo_status(engine: Any, arguments: dict[str, Any]) -> str:
     """Return current Odoo Vertical Engine configuration, model counts, and Cross-Talk history."""
     ops = get_global_odoo_ops()
@@ -187,6 +208,7 @@ async def handle_odoo_status(engine: Any, arguments: dict[str, Any]) -> str:
             "config": ops.config.to_safe_dict(),
             "model_record_counts": model_counts,
             "crosstalk_messages_count": len(ops._crosstalk_history),
+            "last_sync": getattr(ops, "_last_sync_summary", None),
             "recent_crosstalk": ops._crosstalk_history[:10],
         },
         default=str,

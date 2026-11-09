@@ -523,3 +523,120 @@ class TestOdooSuperEngineAndCrossTalker(unittest.IsolatedAsyncioTestCase):
         self.assertIn("odoo_execute_kw", reg)
         self.assertIn("odoo_super_intelligence", reg)
         self.assertIn("odoo_llm_crosstalk", reg)
+
+
+
+class TestAuditFixesAndContracts(unittest.IsolatedAsyncioTestCase):
+    async def test_entra_issuer_validation_and_route_mounting(self) -> None:
+        from nce_verticals.mcp_tool_defs import TOOLS
+        from nce_verticals.plugin import VerticalEnginesPlugin
+
+        cfg = EntraConfig(
+            entra_tenant_id="11111111-2222-3333-4444-555555555555",
+            client_id="nce-enterprise-app-id",
+            enforce_mode="strict",
+            allowed_group_ids=["group-nce-authorized"],
+            require_graph_check=False,
+        )
+        auth = EntraIDAuthenticator(config=cfg)
+        now = int(time.time())
+
+        # Valid v2.0 issuer should pass
+        valid_iss_tok = _make_mock_jwt(
+            {
+                "tid": "11111111-2222-3333-4444-555555555555",
+                "iss": "https://login.microsoftonline.com/11111111-2222-3333-4444-555555555555/v2.0",
+                "aud": "nce-enterprise-app-id",
+                "oid": "user-oid-123",
+                "preferred_username": "engineer@company.no",
+                "groups": ["group-nce-authorized"],
+                "exp": now + 3600,
+            }
+        )
+        p = await auth.verify_token_and_allowlist(valid_iss_tok)
+        self.assertEqual(p.oid, "user-oid-123")
+
+        # Spoofed / invalid issuer must be rejected with ISSUER_MISMATCH
+        bad_iss_tok = _make_mock_jwt(
+            {
+                "tid": "11111111-2222-3333-4444-555555555555",
+                "iss": "https://evil-idp.example.com/11111111-2222-3333-4444-555555555555/v2.0",
+                "aud": "nce-enterprise-app-id",
+                "oid": "user-oid-123",
+                "preferred_username": "engineer@company.no",
+                "groups": ["group-nce-authorized"],
+                "exp": now + 3600,
+            }
+        )
+        with self.assertRaises(EntraVerificationError) as ctx:
+            await auth.verify_token_and_allowlist(bad_iss_tok)
+        self.assertEqual(ctx.exception.code, "ISSUER_MISMATCH")
+
+        # Verify _mount_routes keeps both GET and POST routes for same path
+        from nce_verticals.plugin import OdooPlugin
+
+        routes_list: list = []
+        EntraIDPlugin().register_routes(routes_list)
+        SalesforcePlugin().register_routes(routes_list)
+        LightingDaliPlugin().register_routes(routes_list)
+        OdooPlugin().register_routes(routes_list)
+        odoo_cfg_routes = [r for r in routes_list if getattr(r, "path", None) == "/api/admin/odoo/config"]
+        self.assertEqual(len(odoo_cfg_routes), 2)
+
+        # Verify late-binding _h wrapper sets __qualname__
+        reg: dict = {}
+        OdooPlugin().register_tools(reg)
+        self.assertIn("odoo_sync_now", reg)
+        self.assertIn("nce_verticals.odoo.mcp_handlers.handle_odoo_sync_now", reg["odoo_sync_now"].handler.__qualname__)
+
+        # Verify all 29 new tools are advertised in mcp_tool_defs.TOOLS
+        tool_names = {t.name for t in TOOLS}
+        for expected in (
+            "entra_whoami",
+            "entra_verify_access",
+            "entra_login_device_code",
+            "entra_logout",
+            "sf_query_soql",
+            "sf_manage_account",
+            "sf_sync_now",
+            "lighting_parse_photometric",
+            "lighting_analyze_relux_project",
+            "dali2_analyze_bus",
+            "glamox_decode_and_recommend",
+            "odoo_execute_kw",
+            "odoo_super_intelligence",
+            "odoo_llm_crosstalk",
+            "odoo_sync_now",
+        ):
+            self.assertIn(expected, tool_names)
+
+    async def test_en1838_emergency_dali_csv_and_odoo_sync(self) -> None:
+        from nce_verticals.lighting_dali.analyser import (
+            analyze_emergency_lighting_en1838,
+            export_dali2_commissioning_csv,
+        )
+        from nce_verticals.odoo.auth import OdooAuthConfig
+        from nce_verticals.odoo.operations import OdooOperations
+        from nce_verticals.odoo.sync import OdooSyncEngine
+
+        em = analyze_emergency_lighting_en1838(
+            {"emergency_type": "escape_route", "length_m": 15.0, "width_m": 2.0}
+        )
+        self.assertTrue(em["compliant"])
+        self.assertGreaterEqual(em["estimated_e_min_lux"], 1.0)
+
+        csv_out = export_dali2_commissioning_csv(
+            {
+                "universes": [
+                    {"universe_id": 1, "rooms": ["Room-101"], "ecg_count": 4, "ecd_count": 2}
+                ]
+            }
+        )
+        self.assertIn("ETH2DALI-1,1,0,ECG", csv_out)
+        self.assertIn("ETH2DALI-1,1,0,ECD", csv_out)
+
+        ops = OdooOperations(config=OdooAuthConfig(url="", require_entra_gate=False))
+        sync_engine = OdooSyncEngine(ops=ops)
+        summary = await sync_engine.run_sync(models=["res.partner", "sale.order"])
+        self.assertEqual(summary["status"], "completed")
+        self.assertGreaterEqual(summary["total_records"], 4)
