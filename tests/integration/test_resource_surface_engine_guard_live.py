@@ -27,7 +27,7 @@ THE FIX
 product now sets it to that engine's existing ``require_*_enabled`` (an
 adapter for the ``resources`` engine, whose hand-written guard takes an
 already-fetched ``namespace_metadata`` dict instead of a pool -- see
-``nce/vertical_modules/resources/resources.py::_require_resources_enabled_via_pool``).
+``nce_verticals/resources/resources.py::_require_resources_enabled_via_pool``).
 ``nce/resource_surface/mcp.py`` and ``rest.py`` call it at the top of every
 generated handler/route, both reads and writes, letting the exception
 propagate through the same translation path (``@mcp_handler`` ->

@@ -21,7 +21,7 @@ The administrative REST API endpoints for the Dynamics 365 integration allow mon
   ```json
   {
     "enabled": true,
-    "org_url": "https://nce-prod.crm4.dynamics.com",
+    "org_url": "https://contoso.crm4.dynamics.com",
     "api_version": "9.2",
     "sync_interval_minutes": 60,
     "sync_page_size": 500,
@@ -47,7 +47,7 @@ The administrative REST API endpoints for the Dynamics 365 integration allow mon
         "id": "e813a48e-d95b-4c48-8dfb-f28328c0b299",
         "namespace_id": "a4d3cfbd-2ea1-424a-a035-e1ab89bf3dc1",
         "namespace_slug": "tenant-alpha",
-        "org_url": "https://nce-prod.crm4.dynamics.com",
+        "org_url": "https://contoso.crm4.dynamics.com",
         "status": "ACTIVE",
         "last_sync_at": "2026-06-07T01:30:00Z",
         "last_sync_stats": {

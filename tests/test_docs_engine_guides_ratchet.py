@@ -5,7 +5,7 @@ Two assertions, both aimed at the same failure mode that motivated this charter:
 merged, running engines "Planned" for five days before anyone noticed, because
 nothing in ``tests/`` checked it against the code.
 
-1. Every package under ``nce/vertical_modules/`` that registers at least one MCP
+1. Every package under ``nce_verticals/`` that registers at least one MCP
    tool in ``TOOL_REGISTRY`` MUST have a ``docs/engines/<engine>-user.md`` guide.
    A merged engine with a registered tool and no guide is exactly the D-1 gap this
    charter closed (support, customer_portal, resources, assets, marketing, five of
@@ -68,7 +68,7 @@ def _engines_with_registered_tools() -> dict[str, int]:
     """Map engine slug -> registered tool count, by resolved handler module path.
 
     Mirrors ``gen_surface_table.extract_tools``'s engine-attribution logic (module
-    path substring match against ``nce/vertical_modules/<engine>/``) so this test
+    path substring match against ``nce_verticals/<engine>/``) so this test
     and the generator can never silently disagree about which package a tool
     belongs to.
     """
@@ -155,7 +155,7 @@ def test_generated_surface_doc_matches_the_generator():
         engine_data[route["engine"]]["routes"].append(route)
     for eng in gen.VERTICAL_ENGINES:
         engine_data[eng]["do_functions"] = gen.find_do_functions(
-            str(_ROOT), "HEAD", f"nce/vertical_modules/{eng}/"
+            str(_ROOT), "HEAD", f"nce_verticals/{eng}/"
         )
 
     lines = [

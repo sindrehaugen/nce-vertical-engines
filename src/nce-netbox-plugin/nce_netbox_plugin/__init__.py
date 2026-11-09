@@ -20,7 +20,7 @@ class NceCognitiveDashboardConfig(PluginConfig):
     )
     version = "0.1.0"
     author = "NCE Architecture Team"
-    author_email = "admin@nce.internal"
+    author_email = "support@example.com"
     base_url = "nce-cognitive-dashboard"
     required_settings = []
     default_settings = {

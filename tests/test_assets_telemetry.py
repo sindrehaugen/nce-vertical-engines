@@ -67,9 +67,9 @@ from urllib.parse import urlparse, urlunparse
 import asyncpg  # type: ignore[import-untyped]
 import httpx
 import pytest
-
 from nce.auth import set_namespace_context
 from nce.config import cfg
+
 from nce_verticals.assets import telemetry as telemetry_module
 from nce_verticals.assets.seed import do_seed_asset_from_bom
 from nce_verticals.assets.telemetry import (
@@ -1489,34 +1489,22 @@ class TestAVCloudAdapters:
 # A throwaway RSA key generated for this test file only — never a real
 # credential, and never round-tripped through anything but PyJWT's local
 # signing (the adapter's own private key is never sent over the wire).
-_TEST_RSA_PRIVATE_KEY = """-----BEGIN PRIVATE KEY-----
-MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCStoM4XHI2dfyu
-M8yuSHHWb61AaH/vFdYHqxtn05GfAiojcWZGwtgK7OeriyHVROvXWqpIz2dr68Y2
-o0KnCheJv5tITcNecOykYOLvDktgVVnocGZUtFraPtJgu235iu1403ruy3zZkjeN
-br4W9MrNK50slOONQu6ghPnmrbN1FO6dbCaZPXml8/3bPW5jAlTYtGEnFPUbynvj
-0POw8HKfOkRabufjyXxcheeKHDKLZaCx4IzmA7QH6yamlmQiY4KwedwV0eVTsj0t
-o2NR6W8bW6ZN4v4xdbLv7K53A+wzAZtTmrzYAeUYTuCsP03daRygOR2fIUK2X3EZ
-nz0kYGplAgMBAAECggEAAUn0r6lSQIu7T015shtFUsCy6TKx0wgiU/lrGXeomxjC
-BYMwxpTeIIRxyZZEkxLSrpbnkZGu4yoUWPUIuB500/s4skMqoPkFfzExtS9vNpax
-XkMkhwB5ntq37u0em3devDXBafkkLOYlskqjhWCbqn9EV3isYhiRL5xTdLUYc0Ib
-KY5N79+fNTOOoPI+8h3S21rYDu+uZtUgbnfOMTynoXRmkkcOzqBQmzUcUY5457/M
-er0zfguN8xdQFmNT8sZW2xZt7Trwrx8IzkOUU2YBTVNn84r3T57syFLY/S1PZ9Ex
-l4496n1L/lJBttsgnnrJ3aUUkacvBwxP+iM8MxkDIQKBgQDGplh8Jc9rO76+DZ/E
-p6KbkrZWJJchDBKvEYWX1e5+l3tw8zj6N3zqqAjiy6fkeQMUa8+SfaIBym8heup1
-bXs/2/33lsNwCSBeC050Tu9Mis+tiDRQQjLixhF0r+qvfwuHxbQrijS7EDhl/pNW
-3pTzQ0lB6cTmopeXOMYZbHOs4QKBgQC9EaifXfMwZaTRTywbLPhbfJftGCwWTmYz
-72yGMDlCIGiqatJKviQ54RP2G5Zyp+or/i1VARf//KxLjmszBiXlfRjX3USFDHIc
-zlisU2umlgMfXgHkQL8+UrSDsBEV9oBmJV+h/HMFhM786DZCF2+hjlDOJ4UvnyJv
-THedLcVKBQKBgQCbqBLjzNjX5OvUjmZnuReAohiALZHCkmw9hBRTYo3L4jUWz28R
-GdOnJ942oHBBZdVU9hmjZxBAKPilmmQHea8+3coGbLtdmbkkF+X02zlFl+udxYGA
-di7bZWqeLY5Oz9UgIXnJODWTcuVOfonDYwwCBfJsVJo2QqdYFmOb3lBR4QKBgEpv
-y12DFZ22Rt+JNio02ErckMvtul3F3AMSfj2OetyH+e0uRUDb/1MyRDOexOq7JTzQ
-w3Q2DAbiqcrNdXMPNphVWhSSrslbDwo8Szj9VuKtKOmOj1wYCbM1yJAYH4HwHLka
-eb5Cr946XWvA2KvIolCOwU2IzazkECCVkHo3bPcpAoGAOiLVslkYhY6EMWRIKtVc
-9sBCrl1KbvJT/IJ+eOfnDbge+SbCxtkWNv1J4V8CxRhNNZsepzbc/EdrBw39dBcN
-XLdiT9Eyedd1IKP2tBCnarjtOgn1XwK1mgcJ+AuOQBPBeOBDY/vkpWn8bXUIM1hu
-u4XwLJNhU1uEx86MaiWc02A=
------END PRIVATE KEY-----"""
+def _make_test_rsa_key() -> str:
+    from cryptography.hazmat.primitives import serialization
+    from cryptography.hazmat.primitives.asymmetric import rsa
+
+    return (
+        rsa.generate_private_key(public_exponent=65537, key_size=2048)
+        .private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.PKCS8,
+            encryption_algorithm=serialization.NoEncryption(),
+        )
+        .decode("ascii")
+    )
+
+
+_TEST_RSA_PRIVATE_KEY = _make_test_rsa_key()
 
 
 def _neowit_adapter(handler: Any) -> Any:

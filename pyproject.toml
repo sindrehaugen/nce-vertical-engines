@@ -66,3 +66,17 @@ odoo = "nce_verticals.plugin:OdooPlugin"
 
 [tool.hatch.build.targets.wheel]
 packages = ["nce_verticals"]
+
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "G004", "W605"]
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"nce_verticals/admin_handlers/*.py" = ["F405"]
+"nce_verticals/warehouse/__init__.py" = ["F403"]
+"nce_verticals/staff/__init__.py" = ["F403"]

@@ -39,7 +39,7 @@ valid JSON scalar (``"123"``, ``"true"``, ``"null"``) -- worse than a
 double-decode, which at least raises. Both fixes below are therefore local,
 explicit, isinstance-guarded ``json.loads`` calls at the two actual read
 sites, mirroring the working precedent already in this codebase for the
-same problem (``nce/vertical_modules/assets/mcp_handlers.py``'s
+same problem (``nce_verticals/assets/mcp_handlers.py``'s
 ``do_get_asset_merge_queue``).
 
 MUTATION-VERIFIED, TWO-RUN PROTOCOL

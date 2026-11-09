@@ -62,14 +62,14 @@ Call `diag_ingest_bundle` with the device identifier and vendor profile:
 {
   "ingest_id": "7a8b9c0d1e2f3a4b...",
   "landing_uri": "s3://nce-diag-landing/3fa85f64.../diag_bundle_20260817.zip",
-  "upload_url": "https://storage.nce.local/nce-diag-landing/3fa85f64...?X-Amz-Signature=..."
+  "upload_url": "https://storage.example.com/nce-diag-landing/3fa85f64...?X-Amz-Signature=..."
 }
 ```
 
 ### Step 2: Upload Raw Bundle
 Upload the file directly to the `upload_url` via HTTP PUT:
 ```bash
-curl -X PUT --upload-file diag_bundle_20260817.zip "https://storage.nce.local/nce-diag-landing/..."
+curl -X PUT --upload-file diag_bundle_20260817.zip "https://storage.example.com/nce-diag-landing/..."
 ```
 
 ### Step 3: Commit and Enqueue

@@ -7,6 +7,7 @@ VerticalEnginesPlugin for registering tools, routes, background workers, and cog
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -25,9 +26,6 @@ except ImportError:
 
 def _h(module: Any, handler_name: str) -> Any:
     return getattr(module, handler_name)
-
-
-from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
@@ -562,7 +560,6 @@ class AssetsPlugin:
 
     def register_cognitive_hooks(self, cognitive_engine: Any) -> None:
         try:
-            from nce_verticals.assets.warranty import do_check_warranty_eol as do_evaluate_warranty_compliance
 
             log.debug("Registered assets cognitive hooks")
         except Exception as exc:
@@ -1294,8 +1291,6 @@ class FieldTechPlugin:
 
     def register_cognitive_hooks(self, cognitive_engine: Any) -> None:
         try:
-            from nce_verticals.field_tech.checklist import do_complete_checklist
-            from nce_verticals.field_tech.samsvar import generate_samsvarserklaering as do_generate_samsvar
 
             log.debug("Registered field_tech cognitive hooks")
         except Exception as exc:
@@ -2150,7 +2145,6 @@ class ProcurementPlugin:
 
     def register_cognitive_hooks(self, cognitive_engine: Any) -> None:
         try:
-            from nce_verticals.procurement.ranking import do_rank_suppliers
 
             log.debug("Registered procurement cognitive hooks")
         except Exception as exc:
@@ -2393,6 +2387,8 @@ class ProjectPlugin:
         try:
             from nce_verticals.project import (
                 automation as project_automation,
+            )
+            from nce_verticals.project import (
                 tasks as project_tasks,
             )
 
@@ -3781,7 +3777,6 @@ class SystemDesignPlugin:
 
     def register_cognitive_hooks(self, cognitive_engine: Any) -> None:
         try:
-            from nce_verticals.system_design.validate import _append_validation_ledger
 
             log.debug("Registered system_design cognitive hooks")
         except Exception as exc:
