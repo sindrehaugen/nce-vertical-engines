@@ -165,7 +165,10 @@ def _build_buildings_from_fl_path(fl_path: list[str]) -> list[dict[str, Any]]:
     floor: dict[str, Any] = (
         {"name": floor_name, "rooms": [room] if room else []} if floor_name else {}
     )
-    building: dict[str, Any] = {"name": building_name, "floors": [floor] if floor else []}
+    building: dict[str, Any] = {
+        "name": building_name,
+        "floors": [floor] if floor else [],
+    }
     return [building]
 
 
@@ -241,7 +244,9 @@ async def _gap_fill_for_lines(
 
         proposed = propose_result.get("proposed_lines", [])
         gap_fill_lines.extend(
-            _build_gap_fill_lines(proposed, line_ref_prefix=f"{design_id}-{fl_label[:16]}")
+            _build_gap_fill_lines(
+                proposed, line_ref_prefix=f"{design_id}-{fl_label[:16]}"
+            )
         )
 
     return gap_fill_lines
@@ -314,7 +319,9 @@ async def do_design_from_quote(
 
     # 1. Read quote lines via A2A seam — NO DB transaction open yet.
     #    (Do not perform slow I/O inside a scoped_pg_session transaction.)
-    quote_lines: list[dict[str, Any]] = await _read_quote_lines(engine, ns_uuid, quote_id)
+    quote_lines: list[dict[str, Any]] = await _read_quote_lines(
+        engine, ns_uuid, quote_id
+    )
 
     if not quote_lines:
         log.warning(

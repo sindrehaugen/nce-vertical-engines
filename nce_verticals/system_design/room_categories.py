@@ -684,7 +684,11 @@ async def do_set_fl_room_category(
     if getattr(engine, "pg_pool", None):
         async with scoped_pg_session(engine.pg_pool, namespace_id) as conn:
             return await set_fl_room_category(
-                conn, namespace_id, fl_id_or_label=fl_id, category_id=cat_id, actor=actor
+                conn,
+                namespace_id,
+                fl_id_or_label=fl_id,
+                category_id=cat_id,
+                actor=actor,
             )
     return await set_fl_room_category(
         None, namespace_id, fl_id_or_label=fl_id, category_id=cat_id, actor=actor
@@ -759,7 +763,11 @@ async def do_unassign_fl_responsible(
     if getattr(engine, "pg_pool", None):
         async with scoped_pg_session(engine.pg_pool, namespace_id) as conn:
             return await unassign_fl_responsible(
-                conn, namespace_id, fl_id_or_label=fl_id, employee_id=emp_id, actor=actor
+                conn,
+                namespace_id,
+                fl_id_or_label=fl_id,
+                employee_id=emp_id,
+                actor=actor,
             )
     return await unassign_fl_responsible(
         None, namespace_id, fl_id_or_label=fl_id, employee_id=emp_id, actor=actor

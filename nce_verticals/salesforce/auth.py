@@ -48,7 +48,14 @@ class SalesforceAuthConfig:
     sync_enabled: bool = True
     require_entra_gate: bool = True
     sync_objects: list[str] = dataclasses.field(
-        default_factory=lambda: ["Account", "Contact", "Lead", "Opportunity", "Case", "Task"]
+        default_factory=lambda: [
+            "Account",
+            "Contact",
+            "Lead",
+            "Opportunity",
+            "Case",
+            "Task",
+        ]
     )
 
     @classmethod
@@ -58,11 +65,16 @@ class SalesforceAuthConfig:
             "Account,Contact,Lead,Opportunity,Case,Task",
         )
         return cls(
-            enabled=os.environ.get("NCE_SF_ENABLED", "true").lower() in ("1", "true", "yes"),
+            enabled=os.environ.get("NCE_SF_ENABLED", "true").lower()
+            in ("1", "true", "yes"),
             instance_url=os.environ.get("NCE_SF_INSTANCE_URL", "").strip().rstrip("/"),
-            login_url=os.environ.get("NCE_SF_LOGIN_URL", "https://login.salesforce.com").strip().rstrip("/"),
+            login_url=os.environ.get("NCE_SF_LOGIN_URL", "https://login.salesforce.com")
+            .strip()
+            .rstrip("/"),
             api_version=os.environ.get("NCE_SF_API_VERSION", "v60.0").strip(),
-            auth_mode=os.environ.get("NCE_SF_AUTH_MODE", "client_credentials").strip().lower(),
+            auth_mode=os.environ.get("NCE_SF_AUTH_MODE", "client_credentials")
+            .strip()
+            .lower(),
             client_id=os.environ.get("NCE_SF_CLIENT_ID", "").strip(),
             client_secret=os.environ.get("NCE_SF_CLIENT_SECRET", "").strip(),
             refresh_token=os.environ.get("NCE_SF_REFRESH_TOKEN", "").strip(),
@@ -70,9 +82,16 @@ class SalesforceAuthConfig:
             jwt_private_key=os.environ.get("NCE_SF_JWT_PRIVATE_KEY", "").strip(),
             static_access_token=os.environ.get("NCE_SF_ACCESS_TOKEN", "").strip(),
             webhook_secret=os.environ.get("NCE_SF_WEBHOOK_SECRET", "").strip(),
-            standalone_passthrough=os.environ.get("NCE_SF_STANDALONE_PASSTHROUGH", "true").lower() in ("1", "true", "yes"),
-            sync_enabled=os.environ.get("NCE_SF_SYNC_ENABLED", "true").lower() in ("1", "true", "yes"),
-            require_entra_gate=os.environ.get("NCE_SF_REQUIRE_ENTRA_GATE", "true").lower() in ("1", "true", "yes"),
+            standalone_passthrough=os.environ.get(
+                "NCE_SF_STANDALONE_PASSTHROUGH", "true"
+            ).lower()
+            in ("1", "true", "yes"),
+            sync_enabled=os.environ.get("NCE_SF_SYNC_ENABLED", "true").lower()
+            in ("1", "true", "yes"),
+            require_entra_gate=os.environ.get(
+                "NCE_SF_REQUIRE_ENTRA_GATE", "true"
+            ).lower()
+            in ("1", "true", "yes"),
             sync_objects=[s.strip() for s in sync_objs_raw.split(",") if s.strip()],
         )
 
@@ -133,13 +152,20 @@ def build_salesforce_jwt_assertion(
             from cryptography.hazmat.primitives import hashes, serialization
             from cryptography.hazmat.primitives.asymmetric import padding
 
-            key = serialization.load_pem_private_key(private_key_pem.encode("utf-8"), password=None)
+            key = serialization.load_pem_private_key(
+                private_key_pem.encode("utf-8"), password=None
+            )
             sig = key.sign(signing_input, padding.PKCS1v15(), hashes.SHA256())  # type: ignore[union-attr]
             return f"{signing_input.decode('ascii')}.{_b64url(sig)}"
         except Exception as exc:
-            log.warning("RSA signing failed (%s); falling back to HMAC-SHA256 assertion signature", exc)
+            log.warning(
+                "RSA signing failed (%s); falling back to HMAC-SHA256 assertion signature",
+                exc,
+            )
 
-    sig_hmac = hmac.new(private_key_pem.encode("utf-8"), signing_input, hashlib.sha256).digest()
+    sig_hmac = hmac.new(
+        private_key_pem.encode("utf-8"), signing_input, hashlib.sha256
+    ).digest()
     return f"{signing_input.decode('ascii')}.{_b64url(sig_hmac)}"
 
 
@@ -182,13 +208,17 @@ class SalesforceTokenManager:
             and now < self._expires_at
             and self.config.auth_mode != "entra_delegated"
         ):
-            return self._cached_token, (self._cached_instance_url or self.config.instance_url)
+            return self._cached_token, (
+                self._cached_instance_url or self.config.instance_url
+            )
 
         if self.config.static_access_token and not force_refresh:
             return self.config.static_access_token, self.config.instance_url
 
         mode = self.config.auth_mode
-        token_endpoint = f"{self.config.login_url or self.config.instance_url}/services/oauth2/token"
+        token_endpoint = (
+            f"{self.config.login_url or self.config.instance_url}/services/oauth2/token"
+        )
 
         if mode == "entra_delegated":
             if entra_token:
@@ -204,10 +234,16 @@ class SalesforceTokenManager:
                 if self.config.client_secret:
                     form_data["client_secret"] = self.config.client_secret
             else:
-                raise RuntimeError("Salesforce auth_mode='entra_delegated' requires a verified Entra ID token.")
+                raise RuntimeError(
+                    "Salesforce auth_mode='entra_delegated' requires a verified Entra ID token."
+                )
 
         elif mode == "jwt_bearer":
-            if not (self.config.client_id and self.config.jwt_subject and self.config.jwt_private_key):
+            if not (
+                self.config.client_id
+                and self.config.jwt_subject
+                and self.config.jwt_private_key
+            ):
                 raise RuntimeError(
                     "Salesforce jwt_bearer mode requires client_id, jwt_subject, and jwt_private_key."
                 )
@@ -224,7 +260,9 @@ class SalesforceTokenManager:
 
         elif mode == "refresh_token":
             if not (self.config.client_id and self.config.refresh_token):
-                raise RuntimeError("Salesforce refresh_token mode requires client_id and refresh_token.")
+                raise RuntimeError(
+                    "Salesforce refresh_token mode requires client_id and refresh_token."
+                )
             form_data = {
                 "grant_type": "refresh_token",
                 "client_id": self.config.client_id,
@@ -236,7 +274,9 @@ class SalesforceTokenManager:
         else:
             # Default: client_credentials
             if not (self.config.client_id and self.config.client_secret):
-                raise RuntimeError("Salesforce client_credentials mode requires client_id and client_secret.")
+                raise RuntimeError(
+                    "Salesforce client_credentials mode requires client_id and client_secret."
+                )
             form_data = {
                 "grant_type": "client_credentials",
                 "client_id": self.config.client_id,
@@ -252,7 +292,9 @@ class SalesforceTokenManager:
             data = resp.json()
 
         access_token = str(data.get("access_token") or "")
-        instance_url = str(data.get("instance_url") or self.config.instance_url).rstrip("/")
+        instance_url = str(data.get("instance_url") or self.config.instance_url).rstrip(
+            "/"
+        )
         if not access_token:
             raise RuntimeError("Salesforce token response did not include access_token")
 

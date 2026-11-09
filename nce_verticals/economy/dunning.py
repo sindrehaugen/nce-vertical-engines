@@ -179,11 +179,15 @@ def _as_risk_score(value: Any) -> float | Decimal:
             "customer must not silently default into any tier (least or most aggressive)"
         )
     if isinstance(value, bool):
-        raise ValueError(f"dunning: credit_risk_score must be a number, got bool {value!r}")
+        raise ValueError(
+            f"dunning: credit_risk_score must be a number, got bool {value!r}"
+        )
     score: float | Decimal
     if isinstance(value, Decimal):
         if not value.is_finite():
-            raise ValueError(f"dunning: credit_risk_score must be finite, got {value!r}")
+            raise ValueError(
+                f"dunning: credit_risk_score must be finite, got {value!r}"
+            )
         score = value
     elif isinstance(value, (int, float)):
         # A str is never parsed here — same rule as every other money/score boundary in this
@@ -198,7 +202,9 @@ def _as_risk_score(value: Any) -> float | Decimal:
                 f"dunning: credit_risk_score is too large to represent: {value!r}"
             ) from exc
         if not math.isfinite(score):
-            raise ValueError(f"dunning: credit_risk_score must be finite, got {value!r}")
+            raise ValueError(
+                f"dunning: credit_risk_score must be finite, got {value!r}"
+            )
     else:
         raise ValueError(
             f"dunning: credit_risk_score must be int/float/Decimal, got "
@@ -218,7 +224,9 @@ def _normalised_customer(customer: Any) -> dict[str, Any]:
     ``"credit_risk_scor"`` would otherwise read as 'no score supplied' and raise anyway, but
     only after masking the real cause; failing on the unknown key names it directly)."""
     if not isinstance(customer, dict):
-        raise ValueError(f"dunning: customer must be an object, got {type(customer).__name__}")
+        raise ValueError(
+            f"dunning: customer must be an object, got {type(customer).__name__}"
+        )
     unknown = set(customer) - _VALID_CUSTOMER_KEYS
     if unknown:
         raise ValueError(

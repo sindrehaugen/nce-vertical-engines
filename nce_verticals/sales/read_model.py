@@ -71,7 +71,9 @@ def _text_fields(prefix: str) -> tuple[str, ...]:
 
 def _subject_fv(prefix: str) -> str:
     """The prefixed ``subject`` lookup's OData formatted-value field name."""
-    return prefixed_field("subject@OData.Community.Display.V1.FormattedValue", prefix=prefix)
+    return prefixed_field(
+        "subject@OData.Community.Display.V1.FormattedValue", prefix=prefix
+    )
 
 
 def classify_it_av(sj: dict[str, Any], owner_title: str | None = None) -> str:
@@ -127,7 +129,8 @@ def segment_of(industry: str | None, name: str | None = None) -> str:
     m = _NACE_RE.search(industry or "")
     nace2 = m.group(1) if m else ""
     if nace2 in ("55", "56") or any(
-        w in blob for w in ("hotell", "hotel", "apartments", "hospitality", "restaurant")
+        w in blob
+        for w in ("hotell", "hotel", "apartments", "hospitality", "restaurant")
     ):
         return "hospitality"
     if nace2 == "85" or any(w in blob for w in _EDU_TOKENS):
@@ -181,7 +184,11 @@ def _period_range(period: str, today: date, offset: int = 0) -> tuple[str, str, 
         q0 = ((today.month - 1) // 3) * 3 + 1
         start = _first_of_next(date(today.year, q0, 1), -3 * offset)
         qn = (start.month - 1) // 3 + 1
-        return f"{start.year}-Q{qn}", start.isoformat(), _first_of_next(start, 3).isoformat()
+        return (
+            f"{start.year}-Q{qn}",
+            start.isoformat(),
+            _first_of_next(start, 3).isoformat(),
+        )
     if period in ("year", "ytd"):
         y = today.year - offset
         return str(y), date(y, 1, 1).isoformat(), date(y + 1, 1, 1).isoformat()
@@ -197,14 +204,18 @@ def _period_range(period: str, today: date, offset: int = 0) -> tuple[str, str, 
 _VAL = r"coalesce(nullif(source_json->>'estimatedvalue',''), nullif(source_json->>'estimatedvalue_base',''))"
 _VAL_NUM = rf"(CASE WHEN {_VAL} ~ '^-?[0-9]+(\.[0-9]+)?$' THEN ({_VAL})::numeric END)"
 _STAGE = r"coalesce(nullif(source_json->>'stepname',''), nullif(source_json->>'salesstagecode',''), 'Uten fase')"
-_ACCT_NAME = r"source_json->>'_customerid_value@OData.Community.Display.V1.FormattedValue'"
+_ACCT_NAME = (
+    r"source_json->>'_customerid_value@OData.Community.Display.V1.FormattedValue'"
+)
 
 
 def _rec_sql(prefix: str) -> str:
     """SQL expression for the prefixed recurring-monthly amount."""
     rec = prefixed_field("estrecurringmonthly", prefix=prefix)
     base = prefixed_field("estrecurringmonthly_base", prefix=prefix)
-    return f"coalesce(nullif(source_json->>'{rec}',''), nullif(source_json->>'{base}',''))"
+    return (
+        f"coalesce(nullif(source_json->>'{rec}',''), nullif(source_json->>'{base}',''))"
+    )
 
 
 def _rec_num_sql(prefix: str) -> str:
@@ -236,7 +247,9 @@ async def fetch_records_helper(
         args.append(f"%{term}%")
         where.append(f"lower(coalesce(name,'')) LIKE ${len(args)}")
     wsql = " AND ".join(where)
-    total = await conn.fetchval(f"SELECT count(*) FROM sales_read_model WHERE {wsql}", *args)
+    total = await conn.fetchval(
+        f"SELECT count(*) FROM sales_read_model WHERE {wsql}", *args
+    )
 
     args.append(page * size)
     offset_param = f"${len(args)}"
@@ -578,7 +591,8 @@ async def dashboard_aggregate_helper(
         pipeline["funnel"] = []
     else:
         pipeline["funnel"] = [
-            {"stage": r["stage"], "count": r["cnt"] or 0, "value": _num(r["val"])} for r in funnel_r
+            {"stage": r["stage"], "count": r["cnt"] or 0, "value": _num(r["val"])}
+            for r in funnel_r
         ]
 
     # ── lukker snart ──
@@ -612,7 +626,9 @@ async def dashboard_aggregate_helper(
                     "id": r["id"],
                     "name": r["name"],
                     "city": r["city"],
-                    "lastActivity": r["modifiedon"].isoformat() if r["modifiedon"] else None,
+                    "lastActivity": r["modifiedon"].isoformat()
+                    if r["modifiedon"]
+                    else None,
                 }
                 for r in rows
             ],
@@ -765,7 +781,9 @@ async def manager_dashboard_helper(
     sales_owners = {
         r["guid"]
         for r in su_rows_val
-        if r["guid"] and str(r["disabled"]).lower() != "true" and _is_sales_title(r["title"])
+        if r["guid"]
+        and str(r["disabled"]).lower() != "true"
+        and _is_sales_title(r["title"])
     }
     targets = await get_targets_helper(conn, namespace_id)
 
@@ -818,7 +836,10 @@ async def manager_dashboard_helper(
         slug = _fold_slug(a["name"])
         a["slug"] = slug
         t = targets.get(slug, {})
-        a["targets"] = {"meetings": t.get("meetings_monthly"), "won": t.get("won_monthly")}
+        a["targets"] = {
+            "meetings": t.get("meetings_monthly"),
+            "won": t.get("won_monthly"),
+        }
 
     def _has_activity(a: dict[str, Any]) -> bool:
         return bool(
@@ -974,11 +995,15 @@ async def manager_dashboard_helper(
                         "name": r["name"],
                         "value": _num(r["val"]),
                         "closeDate": r["close_date"],
-                        "modifiedon": r["modifiedon"].isoformat() if r["modifiedon"] else None,
+                        "modifiedon": r["modifiedon"].isoformat()
+                        if r["modifiedon"]
+                        else None,
                         "ownerName": r["owner_name"],
                         "accountId": r["account_id"],
                         "accountName": r["account_name"],
-                        "overdue": bool(r["close_date"] and r["close_date"] < iso_today),
+                        "overdue": bool(
+                            r["close_date"] and r["close_date"] < iso_today
+                        ),
                     }
                     for r in ritems
                 ],
@@ -1102,7 +1127,13 @@ async def manager_dashboard_helper(
             warnings.append("blocked_failed")
 
     return {
-        "period": {"key": key, "start": start, "end": end, "type": period, "offset": offset},
+        "period": {
+            "key": key,
+            "start": start,
+            "end": end,
+            "type": period,
+            "offset": offset,
+        },
         "byAm": rows,
         "team": team_summary,
         "funnel": funnel_list,
@@ -1147,7 +1178,13 @@ async def stats_dashboard_helper(
     acc_map = {r["aid"]: (r["ind"], r["name"]) for r in acc_rows if r["aid"]}
 
     def _bucket() -> dict[str, Any]:
-        return {"openCount": 0, "openValue": 0.0, "wonCount": 0, "wonValue": 0.0, "recurring": 0.0}
+        return {
+            "openCount": 0,
+            "openValue": 0.0,
+            "wonCount": 0,
+            "wonValue": 0.0,
+            "recurring": 0.0,
+        }
 
     by_itav = {k: _bucket() for k in ("it", "av", "begge", "ukjent")}
     by_seg = {k: _bucket() for k in ("workplace", "education", "hospitality", "ukjent")}
@@ -1229,15 +1266,25 @@ async def stats_dashboard_helper(
                 GROUP BY 1 ORDER BY 1""",
             ns_str,
         )
-        trend["createdPerMonth"] = [{"ym": r["ym"], "count": r["n"] or 0} for r in cre if r["ym"]]
+        trend["createdPerMonth"] = [
+            {"ym": r["ym"], "count": r["n"] or 0} for r in cre if r["ym"]
+        ]
         trend["wonByYear"] = [
-            {"yr": r["yr"], "count": r["n"] or 0, "value": _num(r["v"])} for r in won if r["yr"]
+            {"yr": r["yr"], "count": r["n"] or 0, "value": _num(r["v"])}
+            for r in won
+            if r["yr"]
         ]
     except Exception:
         warnings.append("trend_failed")
 
     return {
-        "period": {"key": key, "start": start, "end": end, "type": period, "offset": offset},
+        "period": {
+            "key": key,
+            "start": start,
+            "end": end,
+            "type": period,
+            "offset": offset,
+        },
         "byItAv": by_itav,
         "bySegment": by_seg,
         "trend": trend,
@@ -1251,7 +1298,9 @@ async def stats_dashboard_helper(
 
 
 # ── Public Facades ───────────────────────────────────────────────────────────
-async def do_list_customers(engine: NCEEngine, params: dict[str, Any]) -> dict[str, Any]:
+async def do_list_customers(
+    engine: NCEEngine, params: dict[str, Any]
+) -> dict[str, Any]:
     namespace_id = params.get("namespace_id")
     if not namespace_id:
         raise ValueError("namespace_id is required")
@@ -1273,7 +1322,9 @@ async def do_list_customers(engine: NCEEngine, params: dict[str, Any]) -> dict[s
         )
 
 
-async def do_customer_profile(engine: NCEEngine, params: dict[str, Any]) -> dict[str, Any]:
+async def do_customer_profile(
+    engine: NCEEngine, params: dict[str, Any]
+) -> dict[str, Any]:
     namespace_id = params.get("namespace_id")
     if not namespace_id:
         raise ValueError("namespace_id is required")
@@ -1284,7 +1335,10 @@ async def do_customer_profile(engine: NCEEngine, params: dict[str, Any]) -> dict
     async with scoped_pg_session(engine.pg_pool, namespace_id) as conn:
         company = await fetch_one_helper(conn, namespace_id, "accounts", accountid)
         if company is None:
-            return {"error": "unknown_company", "detail": f"Ukjent selskap: {accountid!r}"}
+            return {
+                "error": "unknown_company",
+                "detail": f"Ukjent selskap: {accountid!r}",
+            }
 
         contacts = await fetch_by_lookup_helper(
             conn, namespace_id, "contacts", "_parentcustomerid_value", accountid
@@ -1309,7 +1363,9 @@ async def do_customer_profile(engine: NCEEngine, params: dict[str, Any]) -> dict
 
         locations = []
         if fl_ids:
-            fls = await fetch_by_ids_helper(conn, namespace_id, "functionallocations", fl_ids)
+            fls = await fetch_by_ids_helper(
+                conn, namespace_id, "functionallocations", fl_ids
+            )
             for fl in fls:
                 parts = [fl.get("msdyn_address1"), fl.get("msdyn_city")]
                 address = ", ".join(p for p in parts if p)
@@ -1338,7 +1394,9 @@ async def do_customer_profile(engine: NCEEngine, params: dict[str, Any]) -> dict
         }
 
 
-async def do_sales_overview(engine: NCEEngine, params: dict[str, Any]) -> dict[str, Any]:
+async def do_sales_overview(
+    engine: NCEEngine, params: dict[str, Any]
+) -> dict[str, Any]:
     namespace_id = params.get("namespace_id")
     if not namespace_id:
         raise ValueError("namespace_id is required")
@@ -1376,7 +1434,13 @@ async def do_seller_detail(engine: NCEEngine, params: dict[str, Any]) -> dict[st
     async with scoped_pg_session(engine.pg_pool, namespace_id) as conn:
         owner = await owner_id_for_slug_helper(conn, namespace_id, user)
         if not owner:
-            return {"user": user, "owner": None, "pipeline": [], "wonValue": 0.0, "wonCount": 0}
+            return {
+                "user": user,
+                "owner": None,
+                "pipeline": [],
+                "wonValue": 0.0,
+                "wonCount": 0,
+            }
 
         rows = await conn.fetch(
             f"""SELECT id, name, {_VAL_NUM} AS val, source_json->>'estimatedclosedate' AS close_date, {_STAGE} AS stage
@@ -1416,7 +1480,9 @@ async def do_seller_detail(engine: NCEEngine, params: dict[str, Any]) -> dict[st
         }
 
 
-async def do_sales_dashboard(engine: NCEEngine, params: dict[str, Any]) -> dict[str, Any]:
+async def do_sales_dashboard(
+    engine: NCEEngine, params: dict[str, Any]
+) -> dict[str, Any]:
     namespace_id = params.get("namespace_id")
     if not namespace_id:
         raise ValueError("namespace_id is required")
@@ -1503,7 +1569,9 @@ async def do_sales_manager(engine: NCEEngine, params: dict[str, Any]) -> dict[st
         return data
 
 
-async def do_list_agreements(engine: NCEEngine, params: dict[str, Any]) -> dict[str, Any]:
+async def do_list_agreements(
+    engine: NCEEngine, params: dict[str, Any]
+) -> dict[str, Any]:
     namespace_id = params.get("namespace_id")
     if not namespace_id:
         raise ValueError("namespace_id is required")
@@ -1525,7 +1593,9 @@ async def do_list_agreements(engine: NCEEngine, params: dict[str, Any]) -> dict[
         )
 
 
-async def do_agreement_detail(engine: NCEEngine, params: dict[str, Any]) -> dict[str, Any]:
+async def do_agreement_detail(
+    engine: NCEEngine, params: dict[str, Any]
+) -> dict[str, Any]:
     namespace_id = params.get("namespace_id")
     if not namespace_id:
         raise ValueError("namespace_id is required")
@@ -1536,7 +1606,10 @@ async def do_agreement_detail(engine: NCEEngine, params: dict[str, Any]) -> dict
     async with scoped_pg_session(engine.pg_pool, namespace_id) as conn:
         res = await fetch_one_helper(conn, namespace_id, "agreements", agreementid)
         if res is None:
-            return {"error": "unknown_agreement", "detail": f"Ukjent avtale: {agreementid!r}"}
+            return {
+                "error": "unknown_agreement",
+                "detail": f"Ukjent avtale: {agreementid!r}",
+            }
         return res
 
 
@@ -1573,7 +1646,9 @@ async def do_set_target(engine: NCEEngine, params: dict[str, Any]) -> dict[str, 
     metric = params.get("metric")
     value = float(params.get("value", 0.0))
     if not owner_slug or metric not in ("meetings_monthly", "won_monthly"):
-        raise ValueError("owner_slug and valid metric (meetings_monthly/won_monthly) are required")
+        raise ValueError(
+            "owner_slug and valid metric (meetings_monthly/won_monthly) are required"
+        )
     async with scoped_pg_session(engine.pg_pool, namespace_id) as conn:
         await set_target_helper(conn, namespace_id, owner_slug, metric, value)
         return {"ok": True}

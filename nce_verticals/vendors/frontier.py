@@ -18,7 +18,7 @@ from nce_verticals.vendors.tiers import do_get_tier_status
 
 log = logging.getLogger("nce_verticals.vendors.frontier")
 
-_CONFIG_DATA_DIR = Path(__file__).parents[3] / "nce" / "config_data"
+_CONFIG_DATA_DIR = Path(__file__).resolve().parents[1] / "config_data"
 
 
 def parse_json(val: Any) -> Any:
@@ -62,10 +62,14 @@ async def do_reliability_radar(
         for row in scorecard_rows:
             vendor_id = row["vendor_id"]
             composite_score = (
-                float(row["composite_score"]) if row["composite_score"] is not None else None
+                float(row["composite_score"])
+                if row["composite_score"] is not None
+                else None
             )
             defect_rma_rate = (
-                float(row["defect_rma_rate"]) if row["defect_rma_rate"] is not None else None
+                float(row["defect_rma_rate"])
+                if row["defect_rma_rate"] is not None
+                else None
             )
             float(row["on_time_pct"]) if row["on_time_pct"] is not None else None
 
@@ -107,11 +111,16 @@ async def do_reliability_radar(
                 prior = outcomes[half:]
 
                 # Check on_time trend
-                recent_ot = [o.get("on_time") for o in recent if o.get("on_time") is not None]
-                prior_ot = [o.get("on_time") for o in prior if o.get("on_time") is not None]
+                recent_ot = [
+                    o.get("on_time") for o in recent if o.get("on_time") is not None
+                ]
+                prior_ot = [
+                    o.get("on_time") for o in prior if o.get("on_time") is not None
+                ]
                 if recent_ot and prior_ot:
                     recent_ot_pct = (
-                        sum(1 for x in recent_ot if x is True or x == 1) / len(recent_ot)
+                        sum(1 for x in recent_ot if x is True or x == 1)
+                        / len(recent_ot)
                     ) * 100.0
                     prior_ot_pct = (
                         sum(1 for x in prior_ot if x is True or x == 1) / len(prior_ot)
@@ -123,11 +132,20 @@ async def do_reliability_radar(
                         )
 
                 # Check defect_rma trend
-                recent_df = [o.get("defect_rma") for o in recent if o.get("defect_rma") is not None]
-                prior_df = [o.get("defect_rma") for o in prior if o.get("defect_rma") is not None]
+                recent_df = [
+                    o.get("defect_rma")
+                    for o in recent
+                    if o.get("defect_rma") is not None
+                ]
+                prior_df = [
+                    o.get("defect_rma")
+                    for o in prior
+                    if o.get("defect_rma") is not None
+                ]
                 if recent_df and prior_df:
                     recent_df_rate = (
-                        sum(1 for x in recent_df if x is True or x == 1) / len(recent_df)
+                        sum(1 for x in recent_df if x is True or x == 1)
+                        / len(recent_df)
                     ) * 100.0
                     prior_df_rate = (
                         sum(1 for x in prior_df if x is True or x == 1) / len(prior_df)
@@ -157,7 +175,9 @@ async def do_reliability_radar(
                             f"Kickback tier at risk: YTD pace ({ytd_run_rate:.1f}/day) below target ({needed_run_rate:.1f}/day)"
                         )
             except Exception as e:
-                log.warning("Could not calculate tier-at-risk for vendor %s: %s", vendor_id, e)
+                log.warning(
+                    "Could not calculate tier-at-risk for vendor %s: %s", vendor_id, e
+                )
 
             if risk_level:
                 supplier_risks.append(
@@ -195,7 +215,9 @@ async def do_reliability_radar(
         for row in contractor_rows:
             contractor_id = row["contractor_id"]
             performance_score = (
-                float(row["performance_score"]) if row["performance_score"] is not None else None
+                float(row["performance_score"])
+                if row["performance_score"] is not None
+                else None
             )
             active_load = load_map.get(contractor_id, 0)
 
@@ -357,8 +379,12 @@ async def do_calibrate_weights(
             )
             diff = round(1.0 - total_calc, 2)
             if diff != 0.0:
-                highest_key = max(calibrated_weights, key=lambda k: calibrated_weights[k])
-                calibrated_weights[highest_key] = round(calibrated_weights[highest_key] + diff, 2)
+                highest_key = max(
+                    calibrated_weights, key=lambda k: calibrated_weights[k]
+                )
+                calibrated_weights[highest_key] = round(
+                    calibrated_weights[highest_key] + diff, 2
+                )
 
         # 4. Overwrite vendor-scorecard-weights.json config file
         weights_path = _CONFIG_DATA_DIR / "vendor-scorecard-weights.json"

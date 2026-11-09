@@ -35,7 +35,9 @@ log = logging.getLogger("nce_verticals.vendors.mcp_handlers")
 
 
 @mcp_handler
-async def handle_vendors_get_vendor(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_vendors_get_vendor(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: vendors_get_vendor — fetch a single vendor.
 
     Requires ``namespace_id`` and ``vendor_id`` in *arguments*.
@@ -46,7 +48,9 @@ async def handle_vendors_get_vendor(engine: NCEEngine, arguments: dict[str, Any]
 
 
 @mcp_handler
-async def handle_vendors_compute_scorecard(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_vendors_compute_scorecard(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: vendors_compute_scorecard — compute scorecard for a vendor.
 
     Requires ``namespace_id`` and ``vendor_id`` in *arguments*.
@@ -57,7 +61,9 @@ async def handle_vendors_compute_scorecard(engine: NCEEngine, arguments: dict[st
 
 
 @mcp_handler
-async def handle_vendors_get_tier_status(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_vendors_get_tier_status(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: vendors_get_tier_status — get current kickback tier status for a vendor.
 
     Requires ``namespace_id`` and ``vendor_id`` in *arguments*.
@@ -81,7 +87,9 @@ async def handle_vendors_detect_reliability_degradation(
 
 
 @mcp_handler
-async def handle_vendors_check_tier_at_risk(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_vendors_check_tier_at_risk(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: vendors_check_tier_at_risk — check if kickback tier is at risk for a vendor.
 
     Requires ``namespace_id`` and ``vendor_id`` in *arguments*.
@@ -92,7 +100,9 @@ async def handle_vendors_check_tier_at_risk(engine: NCEEngine, arguments: dict[s
 
 
 @mcp_handler
-async def handle_vendors_match_contractor(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_vendors_match_contractor(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: vendors_match_contractor — match and rank contractors for a job.
 
     Requires ``namespace_id`` and ``job`` in *arguments*.
@@ -106,7 +116,9 @@ async def handle_vendors_match_contractor(engine: NCEEngine, arguments: dict[str
 
 
 @mcp_handler
-async def handle_vendors_compute_performance(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_vendors_compute_performance(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: vendors_compute_performance — compute performance score for a contractor.
 
     Requires ``namespace_id`` and ``contractor_id`` in *arguments*.
@@ -117,7 +129,9 @@ async def handle_vendors_compute_performance(engine: NCEEngine, arguments: dict[
 
 
 @mcp_handler
-async def handle_vendors_recall_similar_jobs(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_vendors_recall_similar_jobs(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: vendors_recall_similar_jobs — recall similar contractor jobs.
 
     Requires ``namespace_id`` and ``query`` in *arguments*.
@@ -128,7 +142,9 @@ async def handle_vendors_recall_similar_jobs(engine: NCEEngine, arguments: dict[
 
 
 @mcp_handler
-async def handle_vendors_reliability_radar(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_vendors_reliability_radar(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: vendors_reliability_radar — analyze supplier-risk and contractor-burnout signals.
 
     Requires ``namespace_id`` in *arguments*.
@@ -139,7 +155,9 @@ async def handle_vendors_reliability_radar(engine: NCEEngine, arguments: dict[st
 
 
 @mcp_handler
-async def handle_vendors_calibrate_weights(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_vendors_calibrate_weights(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: vendors_calibrate_weights — recalibrate vendor scorecard weights dynamically.
 
     Requires ``namespace_id`` in *arguments* (it names whose delivery/defect
@@ -156,7 +174,9 @@ async def handle_vendors_calibrate_weights(engine: NCEEngine, arguments: dict[st
 
 
 @mcp_handler
-async def handle_vendors_upsert_vendor(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_vendors_upsert_vendor(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: vendors_upsert_vendor — upsert a vendor organization.
 
     Requires ``namespace_id``, ``orgnr``, and ``name`` in *arguments*.
@@ -167,7 +187,9 @@ async def handle_vendors_upsert_vendor(engine: NCEEngine, arguments: dict[str, A
 
 
 @mcp_handler
-async def handle_vendors_upsert_contractor(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_vendors_upsert_contractor(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: vendors_upsert_contractor — upsert contractor profile.
 
     Requires ``namespace_id``, ``contractor_id``, and ``partner_scope_id`` in *arguments*.
@@ -178,7 +200,9 @@ async def handle_vendors_upsert_contractor(engine: NCEEngine, arguments: dict[st
 
 
 @mcp_handler
-async def handle_vendors_get_contractor(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_vendors_get_contractor(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: vendors_get_contractor — fetch a single contractor profile.
 
     Requires ``namespace_id`` and ``contractor_id`` in *arguments*.
@@ -189,7 +213,9 @@ async def handle_vendors_get_contractor(engine: NCEEngine, arguments: dict[str, 
 
 
 @mcp_handler
-async def handle_vendors_upsert_cert(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_vendors_upsert_cert(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: vendors_upsert_cert — upsert contractor certification.
 
     Requires ``namespace_id``, ``contractor_id``, ``cert_name``, and ``expiry_date`` in *arguments*.

@@ -264,7 +264,9 @@ async def do_create_customer(
     source_id: str | None = None,
 ) -> dict[str, Any]:
     """Transactional action to natively create a customer in the graph and sales_read_model."""
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
 
     cust_lbl = _customer_label(customer_id)
     await _upsert_node(conn, ns_uuid, cust_lbl, _NODE_TYPE_CUSTOMER, source_id)
@@ -307,7 +309,9 @@ async def do_create_lead(
     source_id: str | None = None,
 ) -> dict[str, Any]:
     """Transactional action to natively create a lead in the graph and sales_read_model."""
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
 
     lead_lbl = _lead_label(lead_id)
     await _upsert_node(conn, ns_uuid, lead_lbl, _NODE_TYPE_LEAD, source_id)
@@ -316,7 +320,9 @@ async def do_create_lead(
     if customer_id:
         cust_lbl = _customer_label(customer_id)
         await _upsert_node(conn, ns_uuid, cust_lbl, _NODE_TYPE_CUSTOMER, source_id)
-        await _upsert_edge(conn, ns_uuid, cust_lbl, _PRED_HAS, lead_lbl, confidence, source_id)
+        await _upsert_edge(
+            conn, ns_uuid, cust_lbl, _PRED_HAS, lead_lbl, confidence, source_id
+        )
 
     lead_name = name or lead_id
     source_json: dict[str, Any] = {"leadid": lead_id, "name": lead_name}
@@ -344,7 +350,9 @@ async def do_create_lead(
     )
 
     cust_uuid = (
-        await _upsert_relational_customer(conn, ns_uuid, customer_id) if customer_id else None
+        await _upsert_relational_customer(conn, ns_uuid, customer_id)
+        if customer_id
+        else None
     )
     await _upsert_relational_lead(
         conn,
@@ -380,7 +388,9 @@ async def do_create_deal(
     Upserts CUSTOMER, DEAL, and QUOTE nodes, plus any intermediate LEAD/OPPORTUNITY nodes.
     Writes the linking edges with the specified confidence and records into sales_read_model.
     """
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
 
     # 1. Upsert nodes
     cust_lbl = _customer_label(customer_id)
@@ -404,16 +414,28 @@ async def do_create_deal(
 
     # 2. Upsert edges
     if lead_lbl:
-        await _upsert_edge(conn, ns_uuid, cust_lbl, _PRED_HAS, lead_lbl, confidence, source_id)
+        await _upsert_edge(
+            conn, ns_uuid, cust_lbl, _PRED_HAS, lead_lbl, confidence, source_id
+        )
         if opp_lbl:
             await _upsert_edge(
-                conn, ns_uuid, lead_lbl, _PRED_QUALIFIES_INTO, opp_lbl, confidence, source_id
+                conn,
+                ns_uuid,
+                lead_lbl,
+                _PRED_QUALIFIES_INTO,
+                opp_lbl,
+                confidence,
+                source_id,
             )
 
     if opp_lbl:
-        await _upsert_edge(conn, ns_uuid, opp_lbl, _PRED_BECOMES, deal_lbl, confidence, source_id)
+        await _upsert_edge(
+            conn, ns_uuid, opp_lbl, _PRED_BECOMES, deal_lbl, confidence, source_id
+        )
 
-    await _upsert_edge(conn, ns_uuid, deal_lbl, _PRED_PRICED_AS, quote_lbl, confidence, source_id)
+    await _upsert_edge(
+        conn, ns_uuid, deal_lbl, _PRED_PRICED_AS, quote_lbl, confidence, source_id
+    )
 
     # 3. Dual-write to sales_read_model (opportunities entity)
     deal_name = name or deal_id
@@ -461,7 +483,12 @@ async def do_create_deal(
         title=name,
     )
 
-    return {"ok": True, "deal_id": deal_id, "quote_id": quote_id, "customer_id": customer_id}
+    return {
+        "ok": True,
+        "deal_id": deal_id,
+        "quote_id": quote_id,
+        "customer_id": customer_id,
+    }
 
 
 async def do_edit_deal(
@@ -477,7 +504,9 @@ async def do_edit_deal(
 
     Updates the DEAL node itself, optionally adjusts edge confidence, and updates sales_read_model.
     """
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
 
     deal_lbl = _deal_label(deal_id)
     await _upsert_node(conn, ns_uuid, deal_lbl, _NODE_TYPE_DEAL, source_id)

@@ -268,7 +268,9 @@ def _as_money(value: Any, where: str) -> Decimal:
       - non-finite values (``NaN``/``Infinity``, via ``Decimal.is_finite()``).
     """
     if isinstance(value, bool):
-        raise FinagoGLReadError(f"finago gl: {where} must be numeric, got bool {value!r}")
+        raise FinagoGLReadError(
+            f"finago gl: {where} must be numeric, got bool {value!r}"
+        )
     if isinstance(value, float):
         raise FinagoGLReadError(
             f"finago gl: {where} arrived as a raw JSON float ({value!r}) -- "
@@ -329,7 +331,9 @@ def _validate_gl_payload(payload: Any, period_id: str) -> dict[str, Decimal]:
         the period actually requested.
     """
     if not isinstance(payload, dict):
-        raise FinagoGLReadError("finago gl response: top-level payload must be an object")
+        raise FinagoGLReadError(
+            "finago gl response: top-level payload must be an object"
+        )
 
     response_period = payload.get("period")
     if response_period is not None and response_period != period_id:
@@ -348,7 +352,9 @@ def _validate_gl_payload(payload: Any, period_id: str) -> dict[str, Decimal]:
     balances: dict[str, Decimal] = {}
     for index, entry in enumerate(accounts):
         if not isinstance(entry, dict):
-            raise FinagoGLReadError(f"finago gl response: accounts[{index}] must be an object")
+            raise FinagoGLReadError(
+                f"finago gl response: accounts[{index}] must be an object"
+            )
 
         account = entry.get("account")
         if not isinstance(account, str) or not account.strip():
@@ -384,7 +390,9 @@ async def fetch_gl_period(period_id: str) -> dict[str, Decimal] | None:
 
     creds = _finago_creds()
     if creds is None:
-        log.debug("fetch_gl_period: NCE_ECONOMY_FINAGO_URL unset -- no-op (not configured)")
+        log.debug(
+            "fetch_gl_period: NCE_ECONOMY_FINAGO_URL unset -- no-op (not configured)"
+        )
         return None
 
     base_url, token = creds
@@ -442,7 +450,9 @@ async def _read_internal_balances(
         )
 
     return {
-        row["account"]: _quantise(row["total"], f"internal balance for account {row['account']}")
+        row["account"]: _quantise(
+            row["total"], f"internal balance for account {row['account']}"
+        )
         for row in rows
     }
 
@@ -471,7 +481,9 @@ def _materiality(operational_value: Decimal, legal_value: Decimal) -> float:
     preserved separately via the two distinct value fields the caller keeps.
     """
     delta = (operational_value - legal_value).copy_abs()
-    denom = max(operational_value.copy_abs(), legal_value.copy_abs(), _MATERIALITY_FLOOR)
+    denom = max(
+        operational_value.copy_abs(), legal_value.copy_abs(), _MATERIALITY_FLOOR
+    )
     return float(delta / denom)
 
 
@@ -548,7 +560,9 @@ async def do_reconcile_gl(engine: NCEEngine, params: dict[str, Any]) -> dict[str
             "reconciled_at": _utc_now_iso(),
         }
 
-    internal_balances = await _read_internal_balances(engine.pg_pool, ns_uuid, period_id)
+    internal_balances = await _read_internal_balances(
+        engine.pg_pool, ns_uuid, period_id
+    )
 
     accounts = sorted(set(finago_balances) | set(internal_balances))
     threshold = _materiality_threshold()
@@ -622,7 +636,9 @@ async def do_reconcile_gl(engine: NCEEngine, params: dict[str, Any]) -> dict[str
 # ---------------------------------------------------------------------------
 
 
-async def do_gl_sync_status(engine: NCEEngine, params: dict[str, Any]) -> dict[str, Any]:
+async def do_gl_sync_status(
+    engine: NCEEngine, params: dict[str, Any]
+) -> dict[str, Any]:
     """Report Economy's recent GL-reconciliation activity for one namespace.
 
     Answers "when did Economy last find a Finago divergence, and how dirty
@@ -683,6 +699,8 @@ async def do_gl_sync_status(engine: NCEEngine, params: dict[str, Any]) -> dict[s
         "window_hours": window_hours,
         "divergence_count": total,
         "material_divergence_count": material,
-        "last_divergence_at": last_detected_at.isoformat() if last_detected_at else None,
+        "last_divergence_at": last_detected_at.isoformat()
+        if last_detected_at
+        else None,
         "clean": total == 0,
     }

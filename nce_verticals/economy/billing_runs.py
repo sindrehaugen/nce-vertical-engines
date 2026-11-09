@@ -216,7 +216,9 @@ async def _price_agreement(
     fl_labels_by_tier: dict[str, list[str]] = {}
     custom_project_fl_labels: list[str] = []
     for fl_label in fl_labels:
-        category_info = await get_fl_room_category(conn, namespace_id, fl_id_or_label=fl_label)
+        category_info = await get_fl_room_category(
+            conn, namespace_id, fl_id_or_label=fl_label
+        )
         category_id = category_info.get("category_id")
         if not category_id:
             raise ValueError(
@@ -245,7 +247,9 @@ async def _price_agreement(
             "custom_project_fl_labels": custom_project_fl_labels,
         }
 
-    pricing = evaluate_price_rule(_PRICE_RULE_ID, {"room_counts": room_counts, "on_site": on_site})
+    pricing = evaluate_price_rule(
+        _PRICE_RULE_ID, {"room_counts": room_counts, "on_site": on_site}
+    )
     return {
         "agreement_id": agreement_id,
         "fl_labels_by_tier": fl_labels_by_tier,
@@ -394,7 +398,9 @@ async def do_generate_billing_run(
     custom_project_fl_labels: list[str] = []
     try:
         for agreement_uuid in agreement_uuids:
-            result = await _price_agreement(conn, ns_uuid, agreement_uuid, on_site=on_site)
+            result = await _price_agreement(
+                conn, ns_uuid, agreement_uuid, on_site=on_site
+            )
             if result is None:
                 skipped_agreements.append(str(agreement_uuid))
                 continue

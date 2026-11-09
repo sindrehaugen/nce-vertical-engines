@@ -100,10 +100,14 @@ async def do_get_gl_records(
     until_dt = _parse_iso_boundary(params.get("until_iso"), "until_iso")
 
     account = str(params["account"]).strip() if params.get("account") else None
-    account_prefix = str(params["account_prefix"]).strip() if params.get("account_prefix") else None
+    account_prefix = (
+        str(params["account_prefix"]).strip() if params.get("account_prefix") else None
+    )
     period_id = str(params["period_id"]).strip() if params.get("period_id") else None
     source_id = (
-        str(params["economy_source_id"]).strip() if params.get("economy_source_id") else None
+        str(params["economy_source_id"]).strip()
+        if params.get("economy_source_id")
+        else None
     )
 
     raw_limit = params.get("limit")

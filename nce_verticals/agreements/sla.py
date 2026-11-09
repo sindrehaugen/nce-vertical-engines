@@ -155,7 +155,9 @@ async def do_set_sla_coverage(engine: Any, params: dict[str, Any]) -> dict[str, 
         # 1. SLA term nodes (identity anchors — value not stored on kg_nodes).
         for key, value in sla_terms.items():
             term_type = f"{_SLA_TERM_PREFIX}{key}"
-            value_str = json.dumps(value) if isinstance(value, (list, dict)) else str(value)
+            value_str = (
+                json.dumps(value) if isinstance(value, (list, dict)) else str(value)
+            )
             await upsert_agreement_term_node(
                 conn,
                 ns_uuid,
@@ -263,7 +265,8 @@ async def get_sla_coverage(
     return {
         "agreement_id": str(agreement_uuid),
         "covers": [
-            {"object": r["object_label"], "confidence": float(r["confidence"])} for r in edge_rows
+            {"object": r["object_label"], "confidence": float(r["confidence"])}
+            for r in edge_rows
         ],
         "sla_terms": [r["label"] for r in term_rows],
     }

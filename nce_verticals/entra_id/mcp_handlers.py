@@ -71,7 +71,9 @@ async def handle_entra_login_device_code(engine: Any, arguments: dict[str, Any])
         return json.dumps({"error": str(exc)})
 
 
-async def handle_entra_complete_device_login(engine: Any, arguments: dict[str, Any]) -> str:
+async def handle_entra_complete_device_login(
+    engine: Any, arguments: dict[str, Any]
+) -> str:
     """Complete a Microsoft Entra ID Device Code flow and verify company group/role membership."""
     device_code = str(arguments.get("device_code") or "").strip()
     if not device_code:
@@ -102,7 +104,10 @@ async def handle_entra_complete_device_login(engine: Any, arguments: dict[str, A
             principal=None,
             namespace_id=str(arguments.get("namespace_id") or ""),
         )
-        return json.dumps({"error": str(exc), "error_code": exc.code, "details": exc.details}, default=str)
+        return json.dumps(
+            {"error": str(exc), "error_code": exc.code, "details": exc.details},
+            default=str,
+        )
 
 
 async def handle_entra_verify_access(engine: Any, arguments: dict[str, Any]) -> str:

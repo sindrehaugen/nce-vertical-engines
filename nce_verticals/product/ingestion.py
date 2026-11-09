@@ -108,7 +108,9 @@ async def do_ingest_spec(
     dict with ``memory_id`` (str UUID) and ``degraded`` (bool).
     """
     if not spec_text or not spec_text.strip():
-        log.warning("[PRODUCT-INGEST] skipped empty spec_text for product_id=%s", product_id)
+        log.warning(
+            "[PRODUCT-INGEST] skipped empty spec_text for product_id=%s", product_id
+        )
         return {"skipped": "empty spec_text"}
 
     # ------------------------------------------------------------------

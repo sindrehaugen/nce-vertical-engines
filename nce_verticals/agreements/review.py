@@ -83,7 +83,9 @@ async def do_review_extraction(
             uuid.UUID(str(namespace_id)),
         )
         if not existing:
-            raise ValueError(f"Agreement review queue row not found for ID: {agreement_id}")
+            raise ValueError(
+                f"Agreement review queue row not found for ID: {agreement_id}"
+            )
 
         # Update the row
         if corrected_terms is not None:

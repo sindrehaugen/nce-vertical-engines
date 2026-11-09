@@ -99,7 +99,9 @@ class AisAllowListRefusal(PermissionError):
     """
 
     def __init__(self, method: str, gate_path: str) -> None:
-        super().__init__(f"AIS adapter refused {method} {gate_path!r}: not in its read allow-list")
+        super().__init__(
+            f"AIS adapter refused {method} {gate_path!r}: not in its read allow-list"
+        )
         self.method = method
         self.path = gate_path
 
@@ -133,18 +135,25 @@ def _samples_from_vessel(row: dict[str, Any], now: datetime) -> list[TelemetrySa
     lon = _num(row.get("longitude"))
     if lat is not None:
         samples.append(
-            TelemetrySample(metric="latitude", value=lat, sampled_at=now, raw={"source": "ais"})
+            TelemetrySample(
+                metric="latitude", value=lat, sampled_at=now, raw={"source": "ais"}
+            )
         )
     if lon is not None:
         samples.append(
-            TelemetrySample(metric="longitude", value=lon, sampled_at=now, raw={"source": "ais"})
+            TelemetrySample(
+                metric="longitude", value=lon, sampled_at=now, raw={"source": "ais"}
+            )
         )
 
     speed = _num(row.get("speedOverGround"))
     if speed is not None:
         samples.append(
             TelemetrySample(
-                metric="speedOverGround", value=speed, sampled_at=now, raw={"source": "ais"}
+                metric="speedOverGround",
+                value=speed,
+                sampled_at=now,
+                raw={"source": "ais"},
             )
         )
 
@@ -154,7 +163,10 @@ def _samples_from_vessel(row: dict[str, Any], now: datetime) -> list[TelemetrySa
     if heading is not None and 0 <= heading < 360:
         samples.append(
             TelemetrySample(
-                metric="trueHeading", value=heading, sampled_at=now, raw={"source": "ais"}
+                metric="trueHeading",
+                value=heading,
+                sampled_at=now,
+                raw={"source": "ais"},
             )
         )
 
@@ -163,7 +175,10 @@ def _samples_from_vessel(row: dict[str, Any], now: datetime) -> list[TelemetrySa
     if cog is not None and 0 <= cog < 360:
         samples.append(
             TelemetrySample(
-                metric="courseOverGround", value=cog, sampled_at=now, raw={"source": "ais"}
+                metric="courseOverGround",
+                value=cog,
+                sampled_at=now,
+                raw={"source": "ais"},
             )
         )
 
@@ -184,13 +199,19 @@ class AisTelemetryAdapter(TelemetryAdapter):
         transport: httpx.AsyncBaseTransport | None = None,
     ) -> None:
         self._endpoint_url = (
-            (endpoint_url or live_env_str("NCE_ASSETS_AIS_ENDPOINT_URL") or "").strip().rstrip("/")
+            (endpoint_url or live_env_str("NCE_ASSETS_AIS_ENDPOINT_URL") or "")
+            .strip()
+            .rstrip("/")
         )
-        self._client_id = (client_id or live_env_str("NCE_ASSETS_AIS_CLIENT_ID") or "").strip()
+        self._client_id = (
+            client_id or live_env_str("NCE_ASSETS_AIS_CLIENT_ID") or ""
+        ).strip()
         self._client_secret = (
             client_secret or live_env_str("NCE_ASSETS_AIS_CLIENT_SECRET") or ""
         ).strip()
-        self._token_url = (token_url or live_env_str("NCE_ASSETS_AIS_TOKEN_URL") or "").strip()
+        self._token_url = (
+            token_url or live_env_str("NCE_ASSETS_AIS_TOKEN_URL") or ""
+        ).strip()
         self._scope = (scope or live_env_str("NCE_ASSETS_AIS_SCOPE") or "").strip()
         self._timeout = min(timeout, 4.9)
         self._transport = transport
@@ -237,12 +258,19 @@ class AisTelemetryAdapter(TelemetryAdapter):
         return str(token)
 
     async def _gated_request(
-        self, client: httpx.AsyncClient, method: str, path: str, *, headers: dict[str, str]
+        self,
+        client: httpx.AsyncClient,
+        method: str,
+        path: str,
+        *,
+        headers: dict[str, str],
     ) -> httpx.Response:
         if (method, path) not in _ALLOWED_READS:
             raise AisAllowListRefusal(method, path)
         url = self._endpoint_url if not path else f"{self._endpoint_url}/{path}"
-        resp = await client.request(method, url, headers=headers, params={"modelType": "Full"})
+        resp = await client.request(
+            method, url, headers=headers, params={"modelType": "Full"}
+        )
         resp.raise_for_status()
         return resp
 
@@ -295,7 +323,10 @@ class AisTelemetryAdapter(TelemetryAdapter):
                         continue
                     if mmsi_norm == wanted_mmsi:
                         return _samples_from_vessel(row, now)
-                log.info("AisTelemetryAdapter: no vessel with MMSI %s in the live feed", serial)
+                log.info(
+                    "AisTelemetryAdapter: no vessel with MMSI %s in the live feed",
+                    serial,
+                )
                 return []
         except Exception as exc:
             log.warning(

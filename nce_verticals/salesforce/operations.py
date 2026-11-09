@@ -29,12 +29,81 @@ log = logging.getLogger("nce_verticals.salesforce.operations")
 _SAFE_SOBJECT_RE = re.compile(r"^[A-Za-z][A-Za-z0-9_]*(__c|__r)?$")
 
 DEFAULT_SOBJECT_FIELDS: dict[str, list[str]] = {
-    "Account": ["Id", "Name", "Type", "Industry", "Phone", "Website", "BillingCity", "BillingCountry", "OwnerId", "SystemModstamp"],
-    "Contact": ["Id", "FirstName", "LastName", "Name", "Email", "Phone", "Title", "AccountId", "OwnerId", "SystemModstamp"],
-    "Lead": ["Id", "FirstName", "LastName", "Name", "Company", "Email", "Phone", "Status", "Rating", "OwnerId", "SystemModstamp"],
-    "Opportunity": ["Id", "Name", "AccountId", "StageName", "Amount", "CloseDate", "Probability", "IsClosed", "IsWon", "OwnerId", "SystemModstamp"],
-    "Case": ["Id", "CaseNumber", "Subject", "Status", "Priority", "Origin", "Description", "AccountId", "ContactId", "OwnerId", "SystemModstamp"],
-    "Task": ["Id", "Subject", "Status", "Priority", "Description", "WhoId", "WhatId", "ActivityDate", "OwnerId", "SystemModstamp"],
+    "Account": [
+        "Id",
+        "Name",
+        "Type",
+        "Industry",
+        "Phone",
+        "Website",
+        "BillingCity",
+        "BillingCountry",
+        "OwnerId",
+        "SystemModstamp",
+    ],
+    "Contact": [
+        "Id",
+        "FirstName",
+        "LastName",
+        "Name",
+        "Email",
+        "Phone",
+        "Title",
+        "AccountId",
+        "OwnerId",
+        "SystemModstamp",
+    ],
+    "Lead": [
+        "Id",
+        "FirstName",
+        "LastName",
+        "Name",
+        "Company",
+        "Email",
+        "Phone",
+        "Status",
+        "Rating",
+        "OwnerId",
+        "SystemModstamp",
+    ],
+    "Opportunity": [
+        "Id",
+        "Name",
+        "AccountId",
+        "StageName",
+        "Amount",
+        "CloseDate",
+        "Probability",
+        "IsClosed",
+        "IsWon",
+        "OwnerId",
+        "SystemModstamp",
+    ],
+    "Case": [
+        "Id",
+        "CaseNumber",
+        "Subject",
+        "Status",
+        "Priority",
+        "Origin",
+        "Description",
+        "AccountId",
+        "ContactId",
+        "OwnerId",
+        "SystemModstamp",
+    ],
+    "Task": [
+        "Id",
+        "Subject",
+        "Status",
+        "Priority",
+        "Description",
+        "WhoId",
+        "WhatId",
+        "ActivityDate",
+        "OwnerId",
+        "SystemModstamp",
+    ],
 }
 
 
@@ -67,11 +136,15 @@ class SalesforceOperations:
     def config(self) -> SalesforceAuthConfig:
         return self.token_manager.config
 
-    async def _build_client(self, entra_token: str | None = None) -> SalesforceClient | None:
+    async def _build_client(
+        self, entra_token: str | None = None
+    ) -> SalesforceClient | None:
         """Build a live `SalesforceClient` if `instance_url` is configured."""
         if not self.config.instance_url:
             return None
-        token, inst_url = await self.token_manager.get_access_token(entra_token=entra_token)
+        token, inst_url = await self.token_manager.get_access_token(
+            entra_token=entra_token
+        )
         return SalesforceClient(
             instance_url=inst_url,
             access_token=token,
@@ -79,7 +152,9 @@ class SalesforceOperations:
             http_client=self._http_client,
         )
 
-    def _cache_record_in_memory(self, sobject: str, record_id: str, data: dict[str, Any]) -> dict[str, Any]:
+    def _cache_record_in_memory(
+        self, sobject: str, record_id: str, data: dict[str, Any]
+    ) -> dict[str, Any]:
         sobj = validate_sobject_name(sobject)
         existing = self._standalone_store.get((sobj, record_id), {})
         merged = {
@@ -87,7 +162,8 @@ class SalesforceOperations:
             **data,
             "Id": record_id,
             "attributes": {"type": sobj},
-            "SystemModstamp": data.get("SystemModstamp") or time.strftime("%Y-%m-%dT%H:%M:%S.000+0000", time.gmtime()),
+            "SystemModstamp": data.get("SystemModstamp")
+            or time.strftime("%Y-%m-%dT%H:%M:%S.000+0000", time.gmtime()),
         }
         self._standalone_store[(sobj, record_id)] = merged
         return merged
@@ -171,7 +247,13 @@ class SalesforceOperations:
             new_id = str(res.get("id") or res.get("Id") or "")
             if new_id:
                 self._cache_record_in_memory(sobj, new_id, {**payload, "Id": new_id})
-            return {"mode": "live_salesforce", "sobject": sobj, "id": new_id, "success": True, "result": res}
+            return {
+                "mode": "live_salesforce",
+                "sobject": sobj,
+                "id": new_id,
+                "success": True,
+                "result": res,
+            }
 
         # Standalone creation
         new_id = f"00{uuid.uuid4().hex[:13].upper()}"
@@ -202,7 +284,13 @@ class SalesforceOperations:
         if client is not None:
             res = await client.update_sobject(sobj, record_id, payload)
             self._cache_record_in_memory(sobj, record_id, payload)
-            return {"mode": "live_salesforce", "sobject": sobj, "id": record_id, "updated": True, "result": res}
+            return {
+                "mode": "live_salesforce",
+                "sobject": sobj,
+                "id": record_id,
+                "updated": True,
+                "result": res,
+            }
 
         stored = self._cache_record_in_memory(sobj, record_id, payload)
         return {
@@ -228,7 +316,13 @@ class SalesforceOperations:
         if client is not None:
             res = await client.delete_sobject(sobj, record_id)
             self._standalone_store.pop((sobj, record_id), None)
-            return {"mode": "live_salesforce", "sobject": sobj, "id": record_id, "deleted": True, "result": res}
+            return {
+                "mode": "live_salesforce",
+                "sobject": sobj,
+                "id": record_id,
+                "deleted": True,
+                "result": res,
+            }
 
         existed = self._standalone_store.pop((sobj, record_id), None) is not None
         return {
@@ -268,12 +362,16 @@ class SalesforceOperations:
             )
 
         if act == "create":
-            return await self.create_record(sobj, payload or {}, entra_token=entra_token)
+            return await self.create_record(
+                sobj, payload or {}, entra_token=entra_token
+            )
 
         if act == "update":
             if not record_id:
                 raise ValueError(f"record_id is required for {sobj}.update")
-            return await self.update_record(sobj, record_id, payload or {}, entra_token=entra_token)
+            return await self.update_record(
+                sobj, record_id, payload or {}, entra_token=entra_token
+            )
 
         if act == "delete":
             if not record_id:
@@ -291,7 +389,9 @@ class SalesforceOperations:
         soql = f"SELECT {', '.join(fields)} FROM {sobj}{where_sql} ORDER BY SystemModstamp DESC LIMIT {max(1, min(200, int(limit)))}"
         return await self.query_soql(soql, entra_token=entra_token, max_records=limit)
 
-    def list_cached_records(self, sobject: str | None = None, limit: int = 100) -> list[dict[str, Any]]:
+    def list_cached_records(
+        self, sobject: str | None = None, limit: int = 100
+    ) -> list[dict[str, Any]]:
         out: list[dict[str, Any]] = []
         for (sobj, _), rec in self._standalone_store.items():
             if sobject and sobj.lower() != sobject.lower():

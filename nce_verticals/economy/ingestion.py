@@ -216,7 +216,10 @@ def _parse_money_string(raw: str) -> Decimal | None:
         # dot, NBSP (`` ``) and narrow NBSP (`` ``); the last two are what
         # Norwegian locales and many PDF extractors actually emit, not ASCII space.
         integer_part = (
-            integer_part.replace(" ", "").replace(".", "").replace(" ", "").replace(" ", "")
+            integer_part.replace(" ", "")
+            .replace(".", "")
+            .replace(" ", "")
+            .replace(" ", "")
         )
         if not integer_part.isdigit():
             return None
@@ -326,7 +329,9 @@ def _parse_ehf_document(document_bytes: bytes) -> dict[str, Any]:
         and result["money_amount"] is not None
     )
     if not result["parse_complete"]:
-        result["warnings"].append("ehf_parse_incomplete: one or more header fields missing")
+        result["warnings"].append(
+            "ehf_parse_incomplete: one or more header fields missing"
+        )
     return result
 
 
@@ -335,7 +340,9 @@ def _parse_ehf_document(document_bytes: bytes) -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 
-async def _run_ocr(document_bytes: bytes, document_format: str) -> tuple[str, list[str]]:
+async def _run_ocr(
+    document_bytes: bytes, document_format: str
+) -> tuple[str, list[str]]:
     """Run OCR over an invoice document and return ``(text, warnings)``.
 
     Delegates to the existing extractor pipeline (``nce.extractors.ocr``) -- this is the
@@ -568,7 +575,9 @@ async def do_ingest_invoice(
     }
 
 
-async def do_get_invoice_watermark(pg_pool: asyncpg.Pool, namespace_id: uuid.UUID) -> str | None:
+async def do_get_invoice_watermark(
+    pg_pool: asyncpg.Pool, namespace_id: uuid.UUID
+) -> str | None:
     """Return the incremental invoice-ingest watermark for a namespace, or ``None``.
 
     Zero-DDL by design (Rule 6: no migrations) -- there is no watermark table. The value

@@ -96,7 +96,9 @@ class OchnoAllowListRefusal(PermissionError):
     """
 
     def __init__(self, method: str, gate_path: str) -> None:
-        super().__init__(f"Ochno adapter refused {method} {gate_path}: not in its read allow-list")
+        super().__init__(
+            f"Ochno adapter refused {method} {gate_path}: not in its read allow-list"
+        )
         self.method = method
         self.path = gate_path
 
@@ -206,7 +208,10 @@ class OchnoTelemetryAdapter(TelemetryAdapter):
         resp = await client.request(
             method,
             f"{self._endpoint_url}{path}",
-            headers={"Accept": "application/json", "Authorization": f"Bearer {self._token}"},
+            headers={
+                "Accept": "application/json",
+                "Authorization": f"Bearer {self._token}",
+            },
         )
         resp.raise_for_status()
         return resp

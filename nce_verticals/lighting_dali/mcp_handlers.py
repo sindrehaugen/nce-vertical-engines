@@ -42,15 +42,25 @@ def get_recent_lighting_projects() -> list[dict[str, Any]]:
     return _RECENT_PROJECTS
 
 
-async def handle_lighting_parse_photometric(engine: Any, arguments: dict[str, Any]) -> str:
+async def handle_lighting_parse_photometric(
+    engine: Any, arguments: dict[str, Any]
+) -> str:
     """Parse an EULUMDAT (`.ldt`) or IESNA (`.ies`) photometric file and decode Glamox specs."""
-    content = str(arguments.get("content") or arguments.get("file_content") or "").strip()
+    content = str(
+        arguments.get("content") or arguments.get("file_content") or ""
+    ).strip()
     fmt = str(arguments.get("format") or "").strip().lower()
     if not content:
-        return json.dumps({"error": "content (EULUMDAT .ldt or IESNA .ies text) is required"})
+        return json.dumps(
+            {"error": "content (EULUMDAT .ldt or IESNA .ies text) is required"}
+        )
 
     try:
-        if fmt == "ies" or content.upper().startswith("IESNA") or "TILT=" in content.upper():
+        if (
+            fmt == "ies"
+            or content.upper().startswith("IESNA")
+            or "TILT=" in content.upper()
+        ):
             parsed = parse_iesna_ies(content)
         else:
             parsed = parse_eulumdat_ldt(content)
@@ -59,7 +69,9 @@ async def handle_lighting_parse_photometric(engine: Any, arguments: dict[str, An
         return json.dumps({"error": str(exc)})
 
 
-async def handle_lighting_analyze_relux_project(engine: Any, arguments: dict[str, Any]) -> str:
+async def handle_lighting_analyze_relux_project(
+    engine: Any, arguments: dict[str, Any]
+) -> str:
     """
     Parse a Relux / DIALux project export (JSON, XML, or CSV schedule) and perform full
     EN 12464-1 room compliance + IEC 62386 DALI-2 subnet & Glamox Ethernet2DALI sizing.
@@ -98,7 +110,9 @@ async def handle_dali2_analyze_bus(engine: Any, arguments: dict[str, Any]) -> st
             ecd_pushbutton_count=int(arguments.get("ecd_pushbutton_count", 2)),
             dt1_emergency_count=int(arguments.get("dt1_emergency_count", 0)),
             cable_length_m=float(arguments.get("cable_length_m", 120.0)),
-            cable_cross_section_mm2=float(arguments.get("cable_cross_section_mm2", 1.5)),
+            cable_cross_section_mm2=float(
+                arguments.get("cable_cross_section_mm2", 1.5)
+            ),
             psu_rated_current_ma=float(arguments.get("psu_rated_current_ma", 240.0)),
             topology=str(arguments.get("topology", "line_or_star")),
             total_driver_wattage_w=(
@@ -113,7 +127,9 @@ async def handle_dali2_analyze_bus(engine: Any, arguments: dict[str, Any]) -> st
         return json.dumps({"error": str(exc)})
 
 
-async def handle_glamox_decode_and_recommend(engine: Any, arguments: dict[str, Any]) -> str:
+async def handle_glamox_decode_and_recommend(
+    engine: Any, arguments: dict[str, Any]
+) -> str:
     """
     Decode a Glamox luminaire order code / description or recommend Glamox DALI-2
     luminaires & controls for an EN 12464-1 zone.
@@ -130,7 +146,9 @@ async def handle_glamox_decode_and_recommend(engine: Any, arguments: dict[str, A
         require_tunable_white=tunable_white,
     )
     if arguments.get("dali_level") is not None:
-        result["dimming_curve"] = calculate_dali_dimming_level(int(arguments["dali_level"]))
+        result["dimming_curve"] = calculate_dali_dimming_level(
+            int(arguments["dali_level"])
+        )
     if arguments.get("cct_kelvin") is not None:
         result["dt8_mirek"] = calculate_dt8_mirek(float(arguments["cct_kelvin"]))
     if arguments.get("dali_csv"):

@@ -233,7 +233,9 @@ def _quantise_qty(value: Decimal, where: str) -> Decimal:
     try:
         return value.quantize(_QTY_SCALE, rounding=ROUND_HALF_UP)
     except DecimalException as exc:
-        raise ValueError(f"{where}: quantity is too large to express to 3dp: {value!r}") from exc
+        raise ValueError(
+            f"{where}: quantity is too large to express to 3dp: {value!r}"
+        ) from exc
 
 
 def _as_required_text(raw: Any, field: str) -> str:
@@ -272,7 +274,9 @@ def _assert_weee_state(weee_state: str) -> None:
         )
 
 
-def _assert_disposal_ref_present_when_disposed(weee_state: str, disposal_ref: str | None) -> None:
+def _assert_disposal_ref_present_when_disposed(
+    weee_state: str, disposal_ref: str | None
+) -> None:
     """Mirrors migration 053's ``inventory_rma_disposed_requires_ref`` CHECK —
     the compliance claim of this wave: a WEEE item cannot be recorded as
     disposed without the take-back scheme's documentation reference."""
@@ -448,7 +452,9 @@ async def do_record_rma(engine: NCEEngine, params: dict[str, Any]) -> dict[str, 
         # ordering section) — the authoritative row above is already written
         # by the time this runs, so a refusal here rolls the whole
         # transaction back, that row included.
-        await _upsert_inventory_rma_kg_node(conn, ns_uuid, _inventory_rma_label(row["rma_ref"]))
+        await _upsert_inventory_rma_kg_node(
+            conn, ns_uuid, _inventory_rma_label(row["rma_ref"])
+        )
 
     return {
         "ok": True,
@@ -596,7 +602,9 @@ async def _claim_rma(
         raise RmaNotFoundError(rma_ref=rma_ref)
     if target_state == _STATE_DISPOSED and diag["weee_state"] == WEEE_NOT_APPLICABLE:
         raise RmaNotWeeeScopeError(rma_ref=rma_ref)
-    raise RmaAlreadySettledError(rma_ref=rma_ref, stock_movement_state=diag["stock_movement_state"])
+    raise RmaAlreadySettledError(
+        rma_ref=rma_ref, stock_movement_state=diag["stock_movement_state"]
+    )
 
 
 async def _run_rma_leg(
@@ -673,7 +681,9 @@ async def _run_rma_leg(
     }
 
 
-async def do_restock_from_rma(engine: NCEEngine, params: dict[str, Any]) -> dict[str, Any]:
+async def do_restock_from_rma(
+    engine: NCEEngine, params: dict[str, Any]
+) -> dict[str, Any]:
     """Return a repairable unit to stock at the RMA's own location.
 
     Parameters
@@ -716,7 +726,9 @@ async def do_restock_from_rma(engine: NCEEngine, params: dict[str, Any]) -> dict
     }
 
 
-async def do_dispose_rma_weee(engine: NCEEngine, params: dict[str, Any]) -> dict[str, Any]:
+async def do_dispose_rma_weee(
+    engine: NCEEngine, params: dict[str, Any]
+) -> dict[str, Any]:
     """Permanently remove a WEEE-scope return from stock under the approved
     take-back scheme — the leg nothing arrives for: stock leaves and the
     ledger row is what proves it happened.

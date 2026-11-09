@@ -138,7 +138,9 @@ async def do_get_asset_service_history(
             "serial": asset_row["serial"],
             "lifecycle_state": asset_row["lifecycle_state"],
             "is_shell": bool(asset_row["is_shell"]),
-            "product_id": str(asset_row["product_id"]) if asset_row["product_id"] else None,
+            "product_id": str(asset_row["product_id"])
+            if asset_row["product_id"]
+            else None,
             "product_sku": asset_row["product_sku"],
             "functional_location_id": asset_row["functional_location_id"],
             "bom_line_id": asset_row["bom_line_id"],
@@ -357,7 +359,15 @@ async def do_get_asset_service_history(
             pred = edge["predicate"].lower()
             if any(
                 term in pred
-                for term in ("outcome", "failure", "resolv", "result", "dispatched", "about", "for")
+                for term in (
+                    "outcome",
+                    "failure",
+                    "resolv",
+                    "result",
+                    "dispatched",
+                    "about",
+                    "for",
+                )
             ):
                 outcome_edges.append(edge)
 
@@ -428,7 +438,9 @@ async def do_get_asset_service_history(
         # 8c. Work Order events
         for wo in work_orders:
             wo_outcome_meta = (
-                wo.get("raw", {}).get("outcome") if isinstance(wo.get("raw"), dict) else None
+                wo.get("raw", {}).get("outcome")
+                if isinstance(wo.get("raw"), dict)
+                else None
             )
             timeline.append(
                 {
@@ -493,12 +505,18 @@ async def do_get_asset_service_history(
         summary = {
             "total_tickets": len(tickets),
             "open_tickets": sum(
-                1 for t in tickets if t["status"] not in ("resolved", "closed", "cancelled")
+                1
+                for t in tickets
+                if t["status"] not in ("resolved", "closed", "cancelled")
             ),
-            "resolved_tickets": sum(1 for t in tickets if t["status"] in ("resolved", "closed")),
+            "resolved_tickets": sum(
+                1 for t in tickets if t["status"] in ("resolved", "closed")
+            ),
             "total_actions": len(actions),
             "total_work_orders": len(work_orders),
-            "completed_work_orders": sum(1 for wo in work_orders if wo["status"] == "completed"),
+            "completed_work_orders": sum(
+                1 for wo in work_orders if wo["status"] == "completed"
+            ),
             "action_outcomes": outcome_breakdown,
             "boundary_edges_count": len(boundary_edges),
         }

@@ -175,7 +175,9 @@ async def create_design_request(
 ) -> dict[str, Any]:
     """Create a new solution design request in the intake queue."""
     if not title or not title.strip():
-        raise InvalidDesignRequestPayloadError("Design request 'title' must not be blank.")
+        raise InvalidDesignRequestPayloadError(
+            "Design request 'title' must not be blank."
+        )
 
     p_val = (priority or PRIORITY_NORMAL).lower().strip()
     if p_val not in ALLOWED_PRIORITIES:
@@ -185,7 +187,9 @@ async def create_design_request(
 
     raw_id = clean_request_id(request_id) if request_id else str(uuid4())
     req_lbl = canonical_request_label(raw_id)
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
     ns_str = str(ns_uuid)
 
     status = STATUS_ASSIGNED if owner_id else STATUS_PENDING
@@ -213,7 +217,9 @@ async def create_design_request(
     }
 
     if conn is not None:
-        await assert_owner(conn, ns_uuid, _NODE_TYPE_DESIGN_REQUEST, _SYSTEM_DESIGN_ENGINE)
+        await assert_owner(
+            conn, ns_uuid, _NODE_TYPE_DESIGN_REQUEST, _SYSTEM_DESIGN_ENGINE
+        )
 
         await conn.execute(
             """
@@ -415,7 +421,9 @@ async def get_design_request(
     """Fetch a design request by its ID or label."""
     raw_id = clean_request_id(request_id)
     req_lbl = canonical_request_label(raw_id)
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
     ns_str = str(ns_uuid)
 
     if conn is not None:
@@ -460,7 +468,9 @@ async def list_design_requests(
     offset: int = 0,
 ) -> list[dict[str, Any]]:
     """List design requests in the intake queue with optional filters."""
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
     ns_str = str(ns_uuid)
     fl_lbl = _format_fl_label(functional_location_id)
 
@@ -547,7 +557,9 @@ async def update_design_request(
     existing = await get_design_request(conn, namespace_id, request_id)
     raw_id = clean_request_id(request_id)
     req_lbl = canonical_request_label(raw_id)
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
     ns_str = str(ns_uuid)
 
     updated_status = existing["status"]
@@ -570,9 +582,13 @@ async def update_design_request(
 
     updated_title = title.strip() if title is not None else existing["title"]
     if not updated_title:
-        raise InvalidDesignRequestPayloadError("Design request 'title' must not be blank.")
+        raise InvalidDesignRequestPayloadError(
+            "Design request 'title' must not be blank."
+        )
 
-    updated_desc = description if description is not None else existing.get("description", "")
+    updated_desc = (
+        description if description is not None else existing.get("description", "")
+    )
     updated_owner = owner_id if owner_id is not None else existing.get("owner_id")
 
     # If owner assigned and status was pending, transition to assigned
@@ -695,7 +711,9 @@ async def update_design_request(
         _MEM_REQUEST_EDGES[ns_str] = [
             e
             for e in edges
-            if not (e["subject_label"] == req_lbl and e["predicate"] == _PRED_ASSIGNED_TO)
+            if not (
+                e["subject_label"] == req_lbl and e["predicate"] == _PRED_ASSIGNED_TO
+            )
         ]
         owner_lbl = _format_employee_label(updated_owner)
         if owner_lbl:
@@ -738,7 +756,9 @@ async def complete_design_request(
 ) -> dict[str, Any]:
     """Mark a design request as COMPLETED and link the resulting DESIGN."""
     if not design_id or not design_id.strip():
-        raise InvalidDesignRequestPayloadError("Resulting 'design_id' must not be blank.")
+        raise InvalidDesignRequestPayloadError(
+            "Resulting 'design_id' must not be blank."
+        )
 
     raw_id = clean_request_id(request_id)
     req_lbl = canonical_request_label(raw_id)
@@ -748,7 +768,9 @@ async def complete_design_request(
     d_lbl = f"DESIGN:{d_clean}"
 
     existing = await get_design_request(conn, namespace_id, request_id)
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
     ns_str = str(ns_uuid)
 
     now = datetime.datetime.now(datetime.timezone.utc)
@@ -841,7 +863,9 @@ async def find_active_request_for_quote(
     quote_id: str,
 ) -> dict[str, Any] | None:
     """Find the earliest actionable (pending/assigned/in_progress) request for a quote."""
-    requests = await list_design_requests(conn, namespace_id, quote_id=quote_id, limit=20)
+    requests = await list_design_requests(
+        conn, namespace_id, quote_id=quote_id, limit=20
+    )
     for r in requests:
         if r.get("status") in (STATUS_PENDING, STATUS_ASSIGNED, STATUS_IN_PROGRESS):
             return r
@@ -857,7 +881,9 @@ async def fulfill_design_request_from_quote(
     source_id: str | None = None,
 ) -> dict[str, Any]:
     """Fulfill an intake queue design request by realizing its quote into a DESIGN."""
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
     raw_id = clean_request_id(request_id)
 
     has_pool = hasattr(engine, "pg_pool") and engine.pg_pool is not None

@@ -52,7 +52,9 @@ def parse_eulumdat_ldt(ldt_content: str) -> dict[str, Any]:
     """
     lines = [ln.strip() for ln in str(ldt_content or "").splitlines()]
     if len(lines) < 26:
-        raise ValueError(f"EULUMDAT (.ldt) file requires at least 26 header lines (got {len(lines)})")
+        raise ValueError(
+            f"EULUMDAT (.ldt) file requires at least 26 header lines (got {len(lines)})"
+        )
 
     company = lines[0]
     ityp = _safe_int(lines[1], 1)
@@ -123,7 +125,11 @@ def parse_eulumdat_ldt(ldt_content: str) -> dict[str, Any]:
 
     c_angles = remaining_nums[:mc] if len(remaining_nums) >= mc else [0.0]
     g_start = mc
-    g_angles = remaining_nums[g_start : g_start + mg] if len(remaining_nums) >= g_start + mg else []
+    g_angles = (
+        remaining_nums[g_start : g_start + mg]
+        if len(remaining_nums) >= g_start + mg
+        else []
+    )
     i_start = g_start + mg
     intensities = remaining_nums[i_start:] if len(remaining_nums) > i_start else []
 
@@ -190,7 +196,9 @@ def parse_iesna_ies(ies_content: str) -> dict[str, Any]:
     if not lines:
         raise ValueError("Empty IESNA (.ies) content")
 
-    header_version = lines[0] if lines[0].upper().startswith("IESNA") else "IESNA:LM-63-2002"
+    header_version = (
+        lines[0] if lines[0].upper().startswith("IESNA") else "IESNA:LM-63-2002"
+    )
     keywords: dict[str, str] = {}
     tilt_idx = -1
 
@@ -213,7 +221,9 @@ def parse_iesna_ies(ies_content: str) -> dict[str, Any]:
             nums.append(_safe_float(tok, 0.0))
 
     if len(nums) < 13:
-        raise ValueError(f"IESNA (.ies) numeric block requires at least 13 header numbers (got {len(nums)})")
+        raise ValueError(
+            f"IESNA (.ies) numeric block requires at least 13 header numbers (got {len(nums)})"
+        )
 
     num_lamps = max(1, int(nums[0]))
     lumens_per_lamp = nums[1]
@@ -235,7 +245,11 @@ def parse_iesna_ies(ies_content: str) -> dict[str, Any]:
     c_start = h_start + n_horizontal
     candelas = [c * multiplier for c in nums[c_start:]]
 
-    total_flux_lm = lumens_per_lamp * num_lamps if lumens_per_lamp > 0 else (max(candelas, default=1200.0) * math.pi)
+    total_flux_lm = (
+        lumens_per_lamp * num_lamps
+        if lumens_per_lamp > 0
+        else (max(candelas, default=1200.0) * math.pi)
+    )
     max_cd = max(candelas, default=0.0)
     nadir_cd = candelas[0] if candelas else 0.0
 
@@ -287,13 +301,19 @@ def parse_relux_or_dialux_project(content: str | dict[str, Any]) -> dict[str, An
             raise ValueError("Empty Relux/DIALux project content")
         if raw.startswith("{") or raw.startswith("["):
             parsed_json = json.loads(raw)
-            data = {"rooms": parsed_json} if isinstance(parsed_json, list) else parsed_json
+            data = (
+                {"rooms": parsed_json} if isinstance(parsed_json, list) else parsed_json
+            )
         elif raw.startswith("<"):
             data = _parse_relux_xml(raw)
         else:
             data = _parse_relux_csv(raw)
 
-    project_name = str(data.get("project_name") or data.get("name") or "Relux Lighting & DALI-2 Project")
+    project_name = str(
+        data.get("project_name")
+        or data.get("name")
+        or "Relux Lighting & DALI-2 Project"
+    )
     source_tool = str(data.get("source_tool") or "relux").lower()
     raw_rooms = data.get("rooms") or []
 
@@ -305,7 +325,9 @@ def parse_relux_or_dialux_project(content: str | dict[str, Any]) -> dict[str, An
         width_m = _safe_float(rm.get("width_m", rm.get("width", 4.0)), 4.0)
         height_m = _safe_float(rm.get("height_m", rm.get("height", 2.8)), 2.8)
         workplane_m = _safe_float(rm.get("workplane_m", 0.8), 0.8)
-        zone_code = str(rm.get("zone_code") or rm.get("usage") or "OFFICE_WRITING").upper()
+        zone_code = str(
+            rm.get("zone_code") or rm.get("usage") or "OFFICE_WRITING"
+        ).upper()
         maintenance_factor = _safe_float(rm.get("maintenance_factor", 0.80), 0.80)
 
         lum_list_raw = rm.get("luminaires") or []
@@ -321,7 +343,12 @@ def parse_relux_or_dialux_project(content: str | dict[str, Any]) -> dict[str, An
 
         normalized_lums: list[dict[str, Any]] = []
         for lum in lum_list_raw:
-            code = str(lum.get("code") or lum.get("model") or lum.get("name") or "Glamox C95-R 600x600 4000 DALI 840 MP")
+            code = str(
+                lum.get("code")
+                or lum.get("model")
+                or lum.get("name")
+                or "Glamox C95-R 600x600 4000 DALI 840 MP"
+            )
             decoded = decode_glamox_code(code)
             qty = max(1, _safe_int(lum.get("quantity", lum.get("count", 1)), 1))
             flux = _safe_float(lum.get("flux_lm"), decoded["flux_lm"])
@@ -368,7 +395,9 @@ def parse_relux_or_dialux_project(content: str | dict[str, Any]) -> dict[str, An
 
 def _parse_relux_xml(xml_text: str) -> dict[str, Any]:
     root = ET.fromstring(xml_text)
-    proj_name = root.attrib.get("name") or root.findtext("ProjectName") or "Relux XML Export"
+    proj_name = (
+        root.attrib.get("name") or root.findtext("ProjectName") or "Relux XML Export"
+    )
     rooms: list[dict[str, Any]] = []
 
     for r_el in root.findall(".//Room"):
@@ -376,23 +405,46 @@ def _parse_relux_xml(xml_text: str) -> dict[str, Any]:
         for l_el in r_el.findall(".//Luminaire"):
             lums.append(
                 {
-                    "code": l_el.attrib.get("code") or l_el.findtext("Name") or "Glamox C95-R 4000 DALI 840 MP",
-                    "quantity": _safe_int(l_el.attrib.get("quantity") or l_el.findtext("Quantity"), 1),
-                    "flux_lm": _safe_float(l_el.attrib.get("flux") or l_el.findtext("Flux"), 0.0) or None,
-                    "wattage_w": _safe_float(l_el.attrib.get("power") or l_el.findtext("Power"), 0.0) or None,
+                    "code": l_el.attrib.get("code")
+                    or l_el.findtext("Name")
+                    or "Glamox C95-R 4000 DALI 840 MP",
+                    "quantity": _safe_int(
+                        l_el.attrib.get("quantity") or l_el.findtext("Quantity"), 1
+                    ),
+                    "flux_lm": _safe_float(
+                        l_el.attrib.get("flux") or l_el.findtext("Flux"), 0.0
+                    )
+                    or None,
+                    "wattage_w": _safe_float(
+                        l_el.attrib.get("power") or l_el.findtext("Power"), 0.0
+                    )
+                    or None,
                 }
             )
         rooms.append(
             {
                 "room_id": r_el.attrib.get("id") or r_el.findtext("Id"),
                 "name": r_el.attrib.get("name") or r_el.findtext("Name") or "Room",
-                "zone_code": r_el.attrib.get("zone") or r_el.findtext("Zone") or "OFFICE_WRITING",
-                "length_m": _safe_float(r_el.attrib.get("length") or r_el.findtext("Length"), 6.0),
-                "width_m": _safe_float(r_el.attrib.get("width") or r_el.findtext("Width"), 4.0),
-                "height_m": _safe_float(r_el.attrib.get("height") or r_el.findtext("Height"), 2.8),
-                "em_lux": _safe_float(r_el.attrib.get("em_lux") or r_el.findtext("EmLux"), 0.0) or None,
-                "u0": _safe_float(r_el.attrib.get("u0") or r_el.findtext("U0"), 0.0) or None,
-                "ugr": _safe_float(r_el.attrib.get("ugr") or r_el.findtext("UGR"), 0.0) or None,
+                "zone_code": r_el.attrib.get("zone")
+                or r_el.findtext("Zone")
+                or "OFFICE_WRITING",
+                "length_m": _safe_float(
+                    r_el.attrib.get("length") or r_el.findtext("Length"), 6.0
+                ),
+                "width_m": _safe_float(
+                    r_el.attrib.get("width") or r_el.findtext("Width"), 4.0
+                ),
+                "height_m": _safe_float(
+                    r_el.attrib.get("height") or r_el.findtext("Height"), 2.8
+                ),
+                "em_lux": _safe_float(
+                    r_el.attrib.get("em_lux") or r_el.findtext("EmLux"), 0.0
+                )
+                or None,
+                "u0": _safe_float(r_el.attrib.get("u0") or r_el.findtext("U0"), 0.0)
+                or None,
+                "ugr": _safe_float(r_el.attrib.get("ugr") or r_el.findtext("UGR"), 0.0)
+                or None,
                 "luminaires": lums,
             }
         )
@@ -404,11 +456,15 @@ def _parse_relux_csv(csv_text: str) -> dict[str, Any]:
     reader = csv.DictReader(io.StringIO(csv_text))
     rooms_map: dict[str, dict[str, Any]] = {}
     for row in reader:
-        r_name = str(row.get("room") or row.get("Room") or row.get("room_name") or "Room 1").strip()
+        r_name = str(
+            row.get("room") or row.get("Room") or row.get("room_name") or "Room 1"
+        ).strip()
         if r_name not in rooms_map:
             rooms_map[r_name] = {
                 "name": r_name,
-                "zone_code": row.get("zone_code") or row.get("zone") or "OFFICE_WRITING",
+                "zone_code": row.get("zone_code")
+                or row.get("zone")
+                or "OFFICE_WRITING",
                 "length_m": _safe_float(row.get("length_m") or row.get("length"), 6.0),
                 "width_m": _safe_float(row.get("width_m") or row.get("width"), 4.0),
                 "height_m": _safe_float(row.get("height_m") or row.get("height"), 2.8),
@@ -416,13 +472,19 @@ def _parse_relux_csv(csv_text: str) -> dict[str, Any]:
             }
         rooms_map[r_name]["luminaires"].append(
             {
-                "code": row.get("luminaire") or row.get("luminaire_code") or "Glamox C95-R 4000 DALI 840 MP",
+                "code": row.get("luminaire")
+                or row.get("luminaire_code")
+                or "Glamox C95-R 4000 DALI 840 MP",
                 "quantity": _safe_int(row.get("quantity") or row.get("qty"), 1),
                 "flux_lm": _safe_float(row.get("flux_lm"), 0.0) or None,
                 "wattage_w": _safe_float(row.get("wattage_w"), 0.0) or None,
             }
         )
-    return {"project_name": "Relux CSV Schedule", "source_tool": "relux", "rooms": list(rooms_map.values())}
+    return {
+        "project_name": "Relux CSV Schedule",
+        "source_tool": "relux",
+        "rooms": list(rooms_map.values()),
+    }
 
 
 def parse_dali_address_csv(csv_content: str) -> dict[str, Any]:
@@ -433,9 +495,15 @@ def parse_dali_address_csv(csv_content: str) -> dict[str, Any]:
         devices.append(
             {
                 "universe": _safe_int(row.get("universe") or row.get("line") or 1, 1),
-                "short_address": _safe_int(row.get("short_address") or row.get("address"), 0),
-                "address_type": str(row.get("address_type") or row.get("type") or "ECG").upper(),
-                "device_model": str(row.get("device_model") or row.get("model") or "Glamox C95-R DALI"),
+                "short_address": _safe_int(
+                    row.get("short_address") or row.get("address"), 0
+                ),
+                "address_type": str(
+                    row.get("address_type") or row.get("type") or "ECG"
+                ).upper(),
+                "device_model": str(
+                    row.get("device_model") or row.get("model") or "Glamox C95-R DALI"
+                ),
                 "group": _safe_int(row.get("group"), 0),
                 "room": str(row.get("room") or ""),
             }

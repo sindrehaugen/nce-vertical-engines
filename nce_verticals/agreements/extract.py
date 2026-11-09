@@ -38,24 +38,32 @@ class KickbackTier(BaseModel):
 
 class ExtractedFieldString(BaseModel):
     value: str | None = Field(default=None, description="The extracted text value")
-    confidence: float = Field(default=0.0, description="Confidence score from 0.0 to 100.0")
+    confidence: float = Field(
+        default=0.0, description="Confidence score from 0.0 to 100.0"
+    )
 
 
 class ExtractedFieldInt(BaseModel):
     value: int | None = Field(default=None, description="The extracted integer value")
-    confidence: float = Field(default=0.0, description="Confidence score from 0.0 to 100.0")
+    confidence: float = Field(
+        default=0.0, description="Confidence score from 0.0 to 100.0"
+    )
 
 
 class ExtractedFieldFloat(BaseModel):
     value: float | None = Field(default=None, description="The extracted float value")
-    confidence: float = Field(default=0.0, description="Confidence score from 0.0 to 100.0")
+    confidence: float = Field(
+        default=0.0, description="Confidence score from 0.0 to 100.0"
+    )
 
 
 class ExtractedKickbackTiers(BaseModel):
     value: list[KickbackTier] | None = Field(
         default=None, description="The extracted list of kickback tiers"
     )
-    confidence: float = Field(default=0.0, description="Confidence score from 0.0 to 100.0")
+    confidence: float = Field(
+        default=0.0, description="Confidence score from 0.0 to 100.0"
+    )
 
 
 class ExtractedAgreementModel(BaseModel):
@@ -66,7 +74,9 @@ class ExtractedAgreementModel(BaseModel):
     paymentTermsDays: ExtractedFieldInt = Field(default_factory=ExtractedFieldInt)
     frameDiscountPct: ExtractedFieldFloat = Field(default_factory=ExtractedFieldFloat)
     volumeCommitment: ExtractedFieldFloat = Field(default_factory=ExtractedFieldFloat)
-    kickbackTiers: ExtractedKickbackTiers = Field(default_factory=ExtractedKickbackTiers)
+    kickbackTiers: ExtractedKickbackTiers = Field(
+        default_factory=ExtractedKickbackTiers
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -203,7 +213,9 @@ async def do_extract_agreement(
         if not document_text and row:
             if "content" in row and row["content"]:
                 document_text = str(row["content"])
-            elif isinstance(metadata, dict) and (metadata.get("text") or metadata.get("content")):
+            elif isinstance(metadata, dict) and (
+                metadata.get("text") or metadata.get("content")
+            ):
                 document_text = str(metadata.get("text") or metadata.get("content"))
 
     if not document_text and getattr(engine, "mongo_db", None) is not None:
@@ -211,15 +223,21 @@ async def do_extract_agreement(
             doc_payload = await engine.mongo_db["memory_payloads"].find_one(
                 {"_id": str(source_doc_ref)}
             )
-            if doc_payload and (doc_payload.get("raw_data") or doc_payload.get("content")):
-                document_text = str(doc_payload.get("raw_data") or doc_payload.get("content"))
+            if doc_payload and (
+                doc_payload.get("raw_data") or doc_payload.get("content")
+            ):
+                document_text = str(
+                    doc_payload.get("raw_data") or doc_payload.get("content")
+                )
         except Exception:
             pass
 
     provider = get_provider(metadata)
 
     # 2. Call the isolated OCR extraction function
-    extracted = await _call_ocr_extraction(provider, source_doc_ref, document_text=document_text)
+    extracted = await _call_ocr_extraction(
+        provider, source_doc_ref, document_text=document_text
+    )
 
     # 3. Apply the confidence gate to each field
     autogreen_thresh = float(cfg.NCE_AGREEMENTS_OCR_AUTOGREEN_THRESHOLD)

@@ -78,7 +78,9 @@ def _creds() -> tuple[str, str] | None:
     api_key = resolve_secret("NCE_SYSTEM_DESIGN_LUCID_API_KEY")
     if not api_key:
         return None  # Phase 1b not configured — clean no-op
-    base_url = resolve_secret("NCE_SYSTEM_DESIGN_LUCID_BASE_URL") or _LUCID_DEFAULT_BASE_URL
+    base_url = (
+        resolve_secret("NCE_SYSTEM_DESIGN_LUCID_BASE_URL") or _LUCID_DEFAULT_BASE_URL
+    )
     return api_key, base_url
 
 
@@ -239,7 +241,8 @@ async def do_publish_design_docs(
     creds = _creds()
     if creds is None:
         log.debug(
-            "do_publish_design_docs: Lucid credentials unset — no-op (namespace=%s)", namespace_id
+            "do_publish_design_docs: Lucid credentials unset — no-op (namespace=%s)",
+            namespace_id,
         )
         return {"lucid_url": None}
 
@@ -266,7 +269,9 @@ async def do_publish_design_docs(
         )
 
     body = resp.json()
-    lucid_url: str = body.get("editUrl") or body.get("url") or body.get("diagramUrl", "")
+    lucid_url: str = (
+        body.get("editUrl") or body.get("url") or body.get("diagramUrl", "")
+    )
     log.info(
         "do_publish_design_docs: published design=%s ns=%s lucid_url=%s",
         design_id,

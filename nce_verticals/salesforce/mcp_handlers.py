@@ -39,7 +39,9 @@ async def _enforce_entra_if_configured(
     gate = get_global_entra_gate()
     try:
         principal = await gate.verify_request(tool_name, arguments, engine=engine)
-        token = principal.raw_access_token if principal else arguments.get("entra_token")
+        token = (
+            principal.raw_access_token if principal else arguments.get("entra_token")
+        )
         return token, None
     except EntraVerificationError as exc:
         return None, json.dumps(
@@ -57,7 +59,9 @@ async def _enforce_entra_if_configured(
 
 async def handle_sf_query_soql(engine: Any, arguments: dict[str, Any]) -> str:
     """Execute a SOQL query against Salesforce (or standalone read-model)."""
-    entra_token, err = await _enforce_entra_if_configured("sf_query_soql", engine, arguments)
+    entra_token, err = await _enforce_entra_if_configured(
+        "sf_query_soql", engine, arguments
+    )
     if err:
         return err
 
@@ -68,7 +72,9 @@ async def handle_sf_query_soql(engine: Any, arguments: dict[str, Any]) -> str:
     max_records = int(arguments.get("max_records", 100))
     ops = get_global_salesforce_ops()
     try:
-        res = await ops.query_soql(soql, entra_token=entra_token, max_records=max_records)
+        res = await ops.query_soql(
+            soql, entra_token=entra_token, max_records=max_records
+        )
         return json.dumps(res, default=str)
     except Exception as exc:
         log.exception("handle_sf_query_soql failed")
@@ -77,7 +83,9 @@ async def handle_sf_query_soql(engine: Any, arguments: dict[str, Any]) -> str:
 
 async def handle_sf_get_record(engine: Any, arguments: dict[str, Any]) -> str:
     """Fetch a single Salesforce SObject record by ID."""
-    entra_token, err = await _enforce_entra_if_configured("sf_get_record", engine, arguments)
+    entra_token, err = await _enforce_entra_if_configured(
+        "sf_get_record", engine, arguments
+    )
     if err:
         return err
 
@@ -89,7 +97,9 @@ async def handle_sf_get_record(engine: Any, arguments: dict[str, Any]) -> str:
 
     ops = get_global_salesforce_ops()
     try:
-        res = await ops.get_record(sobject, record_id, fields=fields, entra_token=entra_token)
+        res = await ops.get_record(
+            sobject, record_id, fields=fields, entra_token=entra_token
+        )
         return json.dumps(res, default=str)
     except Exception as exc:
         return json.dumps({"error": str(exc)})
@@ -97,7 +107,9 @@ async def handle_sf_get_record(engine: Any, arguments: dict[str, Any]) -> str:
 
 async def handle_sf_create_record(engine: Any, arguments: dict[str, Any]) -> str:
     """Create a new record in Salesforce for any standard or custom SObject."""
-    entra_token, err = await _enforce_entra_if_configured("sf_create_record", engine, arguments)
+    entra_token, err = await _enforce_entra_if_configured(
+        "sf_create_record", engine, arguments
+    )
     if err:
         return err
 
@@ -116,7 +128,9 @@ async def handle_sf_create_record(engine: Any, arguments: dict[str, Any]) -> str
 
 async def handle_sf_update_record(engine: Any, arguments: dict[str, Any]) -> str:
     """Update an existing Salesforce SObject record by ID."""
-    entra_token, err = await _enforce_entra_if_configured("sf_update_record", engine, arguments)
+    entra_token, err = await _enforce_entra_if_configured(
+        "sf_update_record", engine, arguments
+    )
     if err:
         return err
 
@@ -124,11 +138,15 @@ async def handle_sf_update_record(engine: Any, arguments: dict[str, Any]) -> str
     record_id = str(arguments.get("record_id") or "").strip()
     payload = arguments.get("payload") or arguments.get("data") or {}
     if not sobject or not record_id or not isinstance(payload, dict) or not payload:
-        return json.dumps({"error": "sobject, record_id, and non-empty payload dict are required"})
+        return json.dumps(
+            {"error": "sobject, record_id, and non-empty payload dict are required"}
+        )
 
     ops = get_global_salesforce_ops()
     try:
-        res = await ops.update_record(sobject, record_id, payload, entra_token=entra_token)
+        res = await ops.update_record(
+            sobject, record_id, payload, entra_token=entra_token
+        )
         return json.dumps(res, default=str)
     except Exception as exc:
         return json.dumps({"error": str(exc)})
@@ -136,7 +154,9 @@ async def handle_sf_update_record(engine: Any, arguments: dict[str, Any]) -> str
 
 async def handle_sf_delete_record(engine: Any, arguments: dict[str, Any]) -> str:
     """Delete a Salesforce SObject record by ID."""
-    entra_token, err = await _enforce_entra_if_configured("sf_delete_record", engine, arguments)
+    entra_token, err = await _enforce_entra_if_configured(
+        "sf_delete_record", engine, arguments
+    )
     if err:
         return err
 
@@ -187,12 +207,16 @@ async def _handle_crm_entity_tool(
 
 async def handle_sf_manage_account(engine: Any, arguments: dict[str, Any]) -> str:
     """Read or write Salesforce Account records (`action`: list, get, create, update, delete)."""
-    return await _handle_crm_entity_tool("Account", "sf_manage_account", engine, arguments)
+    return await _handle_crm_entity_tool(
+        "Account", "sf_manage_account", engine, arguments
+    )
 
 
 async def handle_sf_manage_contact(engine: Any, arguments: dict[str, Any]) -> str:
     """Read or write Salesforce Contact records (`action`: list, get, create, update, delete)."""
-    return await _handle_crm_entity_tool("Contact", "sf_manage_contact", engine, arguments)
+    return await _handle_crm_entity_tool(
+        "Contact", "sf_manage_contact", engine, arguments
+    )
 
 
 async def handle_sf_manage_lead(engine: Any, arguments: dict[str, Any]) -> str:
@@ -202,7 +226,9 @@ async def handle_sf_manage_lead(engine: Any, arguments: dict[str, Any]) -> str:
 
 async def handle_sf_manage_opportunity(engine: Any, arguments: dict[str, Any]) -> str:
     """Read or write Salesforce Opportunity records (`action`: list, get, create, update, delete)."""
-    return await _handle_crm_entity_tool("Opportunity", "sf_manage_opportunity", engine, arguments)
+    return await _handle_crm_entity_tool(
+        "Opportunity", "sf_manage_opportunity", engine, arguments
+    )
 
 
 async def handle_sf_manage_case(engine: Any, arguments: dict[str, Any]) -> str:
@@ -217,7 +243,9 @@ async def handle_sf_log_activity(engine: Any, arguments: dict[str, Any]) -> str:
 
 async def handle_sf_sync_now(engine: Any, arguments: dict[str, Any]) -> str:
     """Trigger an immediate bidirectional sync between Salesforce and the local read-model."""
-    entra_token, err = await _enforce_entra_if_configured("sf_sync_now", engine, arguments)
+    entra_token, err = await _enforce_entra_if_configured(
+        "sf_sync_now", engine, arguments
+    )
     if err:
         return err
 
@@ -232,7 +260,9 @@ async def handle_sf_sync_now(engine: Any, arguments: dict[str, Any]) -> str:
             from nce.db_utils import scoped_pg_session
 
             async with scoped_pg_session(engine.pg_pool, namespace_id) as db_conn:
-                sync_eng = SalesforceSyncEngine(ops=ops, conn=db_conn, namespace_id=namespace_id)
+                sync_eng = SalesforceSyncEngine(
+                    ops=ops, conn=db_conn, namespace_id=namespace_id
+                )
                 summary = await sync_eng.run_sync(
                     sobject_types=sobject_types,
                     since_iso=since_iso,
@@ -240,7 +270,9 @@ async def handle_sf_sync_now(engine: Any, arguments: dict[str, Any]) -> str:
                 )
                 return json.dumps({"status": "ok", "sync": summary}, default=str)
 
-        sync_eng = SalesforceSyncEngine(ops=ops, conn=conn, namespace_id=namespace_id or None)
+        sync_eng = SalesforceSyncEngine(
+            ops=ops, conn=conn, namespace_id=namespace_id or None
+        )
         summary = await sync_eng.run_sync(
             sobject_types=sobject_types,
             since_iso=since_iso,

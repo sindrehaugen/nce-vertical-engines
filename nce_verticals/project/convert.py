@@ -376,7 +376,9 @@ def _degradation_detail(reasons: list[str]) -> str | None:
     """Human-readable explanation for *reasons*; ``None`` when not degraded."""
     if not reasons:
         return None
-    return " ".join(_DEGRADED_DETAIL[code] for code in reasons if code in _DEGRADED_DETAIL)
+    return " ".join(
+        _DEGRADED_DETAIL[code] for code in reasons if code in _DEGRADED_DETAIL
+    )
 
 
 # ---------------------------------------------------------------------------

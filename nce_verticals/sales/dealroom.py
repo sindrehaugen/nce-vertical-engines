@@ -167,7 +167,9 @@ async def do_open_dealroom(
 
             if not is_priced:
                 unpriced_reason = "no_price_on_record"
-                log.warning("No price on record for line %s; returning it unpriced", label)
+                log.warning(
+                    "No price on record for line %s; returning it unpriced", label
+                )
             else:
                 # When priced, check if dynamic pricing override / resolution applies
                 product_info = params.get("product_override", {}).get(label)
@@ -176,12 +178,18 @@ async def do_open_dealroom(
                     p = product_info or {}
                     c = customer_info or {}
                     has_price_on_record = bool(
-                        (p.get("base_price") is not None and p.get("base_as_of") is not None)
+                        (
+                            p.get("base_price") is not None
+                            and p.get("base_as_of") is not None
+                        )
                         or (
                             p.get("supplier_list_price") is not None
                             and p.get("supplier_list_as_of") is not None
                         )
-                        or (c.get("bid_price") is not None and c.get("bid_as_of") is not None)
+                        or (
+                            c.get("bid_price") is not None
+                            and c.get("bid_as_of") is not None
+                        )
                     )
                     if not has_price_on_record:
                         unpriced_reason = "no_price_on_record"
@@ -198,7 +206,9 @@ async def do_open_dealroom(
                             unit_price = dg_price(cost, dg_pct)
                             total_price = unit_price * quantity
                         except Exception as e:
-                            log.warning("Price resolution failed for line %s: %s", label, e)
+                            log.warning(
+                                "Price resolution failed for line %s: %s", label, e
+                            )
                             unpriced_reason = "price_resolution_failed"
                 else:
                     if stored_unit_price is None:
@@ -208,7 +218,11 @@ async def do_open_dealroom(
                         total_price = (
                             stored_line_total
                             if stored_line_total is not None
-                            else (unit_price * quantity if unit_price is not None else None)
+                            else (
+                                unit_price * quantity
+                                if unit_price is not None
+                                else None
+                            )
                         )
 
             if unpriced_reason is not None:

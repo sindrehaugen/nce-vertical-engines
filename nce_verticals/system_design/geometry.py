@@ -538,7 +538,11 @@ async def fetch_geometry_by_labels(
     )
     by_label: dict[str, dict[str, Any]] = {}
     for row in rows:
-        geom = {key: _json_native(value) for key, value in row.items() if key != "node_label"}
+        geom = {
+            key: _json_native(value)
+            for key, value in row.items()
+            if key != "node_label"
+        }
         geom["meta"] = _decode_meta(row["meta"])
         by_label[row["node_label"]] = geom
     return by_label
@@ -797,7 +801,9 @@ async def bump_design_version(
         actual = await fetch_design_version(conn, ns_uuid, design_label)
         raise VersionConflictError(
             design_id=design_id,
-            expected=int(expected_version) if expected_version is not None else INITIAL_VERSION,
+            expected=int(expected_version)
+            if expected_version is not None
+            else INITIAL_VERSION,
             actual=actual,
         )
 
@@ -813,7 +819,9 @@ async def bump_design_version(
 # ---------------------------------------------------------------------------
 
 
-def _geometry_of(payload: dict[str, Any], key: str = "geometry") -> dict[str, Any] | None:
+def _geometry_of(
+    payload: dict[str, Any], key: str = "geometry"
+) -> dict[str, Any] | None:
     """Return the optional geometry dict on an authoring payload item.
 
     Absent, ``None``, ``{}`` **and an object whose every member is ``null``**
@@ -874,26 +882,35 @@ async def do_author_geometry(
     Returns:
         The number of geometry rows written.
     """
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
     written = 0
 
     for rack in racks or []:
         geom = _geometry_of(rack)
         if geom is not None:
-            await upsert_node_geometry(conn, ns_uuid, rack_label(design_id, rack["rack_ref"]), geom)
+            await upsert_node_geometry(
+                conn, ns_uuid, rack_label(design_id, rack["rack_ref"]), geom
+            )
             written += 1
 
     for dev in devices:
         dev_ref: str = dev["device_ref"]
         geom = _geometry_of(dev)
         if geom is not None:
-            await upsert_node_geometry(conn, ns_uuid, device_label(design_id, dev_ref), geom)
+            await upsert_node_geometry(
+                conn, ns_uuid, device_label(design_id, dev_ref), geom
+            )
             written += 1
         for port in dev.get("ports", []):
             port_geom = _geometry_of(port)
             if port_geom is not None:
                 await upsert_node_geometry(
-                    conn, ns_uuid, port_label(design_id, dev_ref, port["port_ref"]), port_geom
+                    conn,
+                    ns_uuid,
+                    port_label(design_id, dev_ref, port["port_ref"]),
+                    port_geom,
                 )
                 written += 1
 
@@ -901,7 +918,9 @@ async def do_author_geometry(
         cable_ref = cnx.get("cable_ref")
         cable_geom = _geometry_of(cnx, "cable_geometry")
         if cable_ref and cable_geom is not None:
-            await upsert_node_geometry(conn, ns_uuid, cable_label(design_id, cable_ref), cable_geom)
+            await upsert_node_geometry(
+                conn, ns_uuid, cable_label(design_id, cable_ref), cable_geom
+            )
             written += 1
 
     log.info(
@@ -940,7 +959,9 @@ async def do_author_functional_location_geometry(
     Returns:
         The number of geometry rows written.
     """
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
     written = 0
 
     for building in buildings:
@@ -970,7 +991,9 @@ async def do_author_functional_location_geometry(
                     await upsert_node_geometry(
                         conn,
                         ns_uuid,
-                        _fl_label(namespace_slug, site_name, bld_name, flr_name, room["name"]),
+                        _fl_label(
+                            namespace_slug, site_name, bld_name, flr_name, room["name"]
+                        ),
                         room_geom,
                     )
                     written += 1

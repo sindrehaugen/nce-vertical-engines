@@ -140,7 +140,9 @@ def forecast_rebate(
         }
 
     # Highest tier where annual_spend >= tier["min_spend"].
-    sorted_tiers = sorted(kickback_tiers, key=lambda t: float(t["min_spend"]), reverse=True)
+    sorted_tiers = sorted(
+        kickback_tiers, key=lambda t: float(t["min_spend"]), reverse=True
+    )
     matched_tier: dict[str, Any] | None = None
     for tier in sorted_tiers:
         if annual_spend >= float(tier["min_spend"]):
@@ -334,7 +336,9 @@ async def _fetch_bom_pipeline(
     namespace_id: uuid.UUID,
 ) -> list[dict[str, Any]]:
     """Read BOM pipeline rows.  Returns [] if table not yet created."""
-    exists = await conn.fetchval("SELECT to_regclass('public.procurement_bom_pipeline')")
+    exists = await conn.fetchval(
+        "SELECT to_regclass('public.procurement_bom_pipeline')"
+    )
     if exists is None:
         log.info(
             "[procurement-frontier] procurement_bom_pipeline absent — returning empty BOM rows"
@@ -358,9 +362,13 @@ async def _fetch_kickback_tiers(
     supplier_id: str | None,
 ) -> list[dict[str, Any]]:
     """Read kickback tier definitions.  Returns [] if table absent."""
-    exists = await conn.fetchval("SELECT to_regclass('public.procurement_kickback_tiers')")
+    exists = await conn.fetchval(
+        "SELECT to_regclass('public.procurement_kickback_tiers')"
+    )
     if exists is None:
-        log.info("[procurement-frontier] procurement_kickback_tiers absent — returning empty tiers")
+        log.info(
+            "[procurement-frontier] procurement_kickback_tiers absent — returning empty tiers"
+        )
         return []
     if supplier_id:
         rows = await conn.fetch(
@@ -455,7 +463,9 @@ async def _fetch_supplier_margin_rebate_rates(
     namespace_id: uuid.UUID,
 ) -> dict[str, dict[str, float]]:
     """Read margin_rate + rebate_rate from procurement_kickback_tiers.  Degrades if absent."""
-    exists = await conn.fetchval("SELECT to_regclass('public.procurement_kickback_tiers')")
+    exists = await conn.fetchval(
+        "SELECT to_regclass('public.procurement_kickback_tiers')"
+    )
     if exists is None:
         return {}
     rows = await conn.fetch(
@@ -559,7 +569,9 @@ async def do_recommend_move_spend(
         savings_stats = await _fetch_supplier_savings_stats(conn, namespace_id)
 
     # Merge by supplier_id
-    savings_by_id: dict[str, dict[str, Any]] = {s["supplier_id"]: s for s in savings_stats}
+    savings_by_id: dict[str, dict[str, Any]] = {
+        s["supplier_id"]: s for s in savings_stats
+    }
     merged: list[dict[str, Any]] = []
     for r in recal_stats:
         sid = r["supplier_id"]
@@ -634,7 +646,9 @@ async def do_whatif_spend(
         spend_stats = await _fetch_supplier_savings_stats(conn, namespace_id)
         rates = await _fetch_supplier_margin_rebate_rates(conn, namespace_id)
 
-    spend_by_id: dict[str, float] = {s["supplier_id"]: s["total_spend"] for s in spend_stats}
+    spend_by_id: dict[str, float] = {
+        s["supplier_id"]: s["total_spend"] for s in spend_stats
+    }
     current_spend = spend_by_id.get(from_id, 0.0)
 
     from_rates = rates.get(from_id, {"margin_rate": 0.0, "rebate_rate": 0.0})
@@ -643,7 +657,9 @@ async def do_whatif_spend(
     from_supplier = {"supplier_id": from_id, **from_rates}
     to_supplier = {"supplier_id": to_id, **to_rates}
 
-    result = simulate_whatif_spend(current_spend, shift_fraction, from_supplier, to_supplier)
+    result = simulate_whatif_spend(
+        current_spend, shift_fraction, from_supplier, to_supplier
+    )
     log.info(
         "[procurement-frontier] whatif_spend namespace=%s from=%s to=%s shift=%.2f net_delta=%.2f",
         namespace_id,

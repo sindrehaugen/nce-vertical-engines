@@ -208,10 +208,14 @@ def retention_days() -> int:
     try:
         parsed = int(raw.strip())
     except (AttributeError, ValueError):
-        log.warning("archive sweep: unparseable %s=%r — using default", RETENTION_DAYS_ENV, raw)
+        log.warning(
+            "archive sweep: unparseable %s=%r — using default", RETENTION_DAYS_ENV, raw
+        )
         return DEFAULT_RETENTION_DAYS
     if parsed <= 0:
-        log.warning("archive sweep: non-positive %s=%r — using default", RETENTION_DAYS_ENV, raw)
+        log.warning(
+            "archive sweep: non-positive %s=%r — using default", RETENTION_DAYS_ENV, raw
+        )
         return DEFAULT_RETENTION_DAYS
     return parsed
 
@@ -264,7 +268,9 @@ def _jsonable(value: Any) -> Any:
 
 
 def _rows_to_json(rows: list[asyncpg.Record]) -> list[dict[str, Any]]:
-    return [{str(key): _jsonable(val) for key, val in dict(row).items()} for row in rows]
+    return [
+        {str(key): _jsonable(val) for key, val in dict(row).items()} for row in rows
+    ]
 
 
 async def _serialise_node(
@@ -472,7 +478,9 @@ async def archive_and_drop_node(
     object cannot be re-read.
     """
     target_bucket = bucket if bucket is not None else cfg.NCE_ANCHOR_BUCKET
-    port_labels = await _port_labels_of(conn, ns_uuid, [label] if node_type == "DEVICE" else [])
+    port_labels = await _port_labels_of(
+        conn, ns_uuid, [label] if node_type == "DEVICE" else []
+    )
     labels = [label] + [p for p in port_labels if p != label]
 
     blob = await _serialise_node(conn, ns_uuid, labels)
@@ -480,7 +488,9 @@ async def archive_and_drop_node(
     await _store(minio_client, target_bucket, key, blob)
     await _read_back(minio_client, target_bucket, key, blob)
 
-    receipt = await _record_and_drop(conn, ns_uuid, label, node_type, key, target_bucket, labels)
+    receipt = await _record_and_drop(
+        conn, ns_uuid, label, node_type, key, target_bucket, labels
+    )
     receipt["archive_key"] = key
     receipt["archive_bucket"] = target_bucket
     return receipt
@@ -583,11 +593,16 @@ async def run_design_archive_sweep(
 
     for ns_uuid in namespaces:
         try:
-            await _sweep_namespace(pg_pool, minio_client, ns_uuid, cutoff, target_bucket, result)
+            await _sweep_namespace(
+                pg_pool, minio_client, ns_uuid, cutoff, target_bucket, result
+            )
         except Exception as exc:  # noqa: BLE001 — one bad tenant must not stop the sweep
             result["failed"] += 1
             log.error(
-                "archive sweep: namespace %s failed: %s: %s", ns_uuid, type(exc).__name__, exc
+                "archive sweep: namespace %s failed: %s: %s",
+                ns_uuid,
+                type(exc).__name__,
+                exc,
             )
 
     log.info("archive sweep complete (cutoff=%s): %s", cutoff.isoformat(), result)

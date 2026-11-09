@@ -474,7 +474,9 @@ def rq_sync_bom_on_po(
         return {"ok": False, "error": f"invalid_namespace_id: {exc}"}
 
     # Resolve Redis client: caller-supplied takes precedence; fall back to registry.
-    effective_redis = redis_client if redis_client is not None else _get_registered_redis_client()
+    effective_redis = (
+        redis_client if redis_client is not None else _get_registered_redis_client()
+    )
 
     log.info(
         "[automation.po] project=%s bom=%s status=%s value=%s",
@@ -529,11 +531,15 @@ def rq_sync_bom_on_goods_receipt(
     try:
         ns_uuid = UUID(namespace_id)
     except (ValueError, AttributeError) as exc:
-        log.error("[automation.goods_receipt] invalid namespace_id=%r: %s", namespace_id, exc)
+        log.error(
+            "[automation.goods_receipt] invalid namespace_id=%r: %s", namespace_id, exc
+        )
         return {"ok": False, "error": f"invalid_namespace_id: {exc}"}
 
     # Resolve Redis client: caller-supplied takes precedence; fall back to registry.
-    effective_redis = redis_client if redis_client is not None else _get_registered_redis_client()
+    effective_redis = (
+        redis_client if redis_client is not None else _get_registered_redis_client()
+    )
 
     log.info(
         "[automation.goods_receipt] project=%s bom=%s status=%s value=%s",
@@ -620,7 +626,9 @@ async def _handle_goods_receipt_created(
     status: str = payload.get("status", "DELIVERED")
     # Fail-closed: absent project_value key → None → Tier-4 in the RQ task.
     raw_value_gr = payload.get("project_value")
-    project_value: float | None = float(raw_value_gr) if raw_value_gr is not None else None
+    project_value: float | None = (
+        float(raw_value_gr) if raw_value_gr is not None else None
+    )
 
     if not (namespace_id and project_id and bom_line_label):
         log.warning(

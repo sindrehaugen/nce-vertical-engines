@@ -369,7 +369,9 @@ def _validate_label_shape(label: str, design_id: str) -> str:
     """
     node_type = node_type_of_label(label)
     if node_type is None:
-        raise ValueError(f"{label!r} is not a node label (expected '<TYPE>:<DESIGN_ID>:...')")
+        raise ValueError(
+            f"{label!r} is not a node label (expected '<TYPE>:<DESIGN_ID>:...')"
+        )
     if node_type not in RETIRABLE_NODE_TYPES:
         raise ValueError(
             f"{label!r} is a {node_type} node and cannot be retired directly; "
@@ -407,7 +409,10 @@ async def _fetch_state(
         str(ns_uuid),
         labels,
     )
-    return {r["node_label"]: {"node_type": r["node_type"], "status": r["status"]} for r in rows}
+    return {
+        r["node_label"]: {"node_type": r["node_type"], "status": r["status"]}
+        for r in rows
+    }
 
 
 async def _fetch_existing_nodes(
@@ -531,7 +536,9 @@ async def do_retire_planned(
         RetireDeniedError: one or more nodes are not in a retirable state.
             Nothing was written.
     """
-    ns_uuid = namespace_id if isinstance(namespace_id, UUID) else UUID(str(namespace_id))
+    ns_uuid = (
+        namespace_id if isinstance(namespace_id, UUID) else UUID(str(namespace_id))
+    )
     if not isinstance(design_id, str) or not design_id.strip():
         raise ValueError("design_id is required")
 
@@ -563,18 +570,28 @@ async def do_retire_planned(
     for label in labels:
         row = state.get(label)
         if label not in existing:
-            denials.append({"node_label": label, "reason": DENY_NODE_ABSENT, "status": None})
+            denials.append(
+                {"node_label": label, "reason": DENY_NODE_ABSENT, "status": None}
+            )
             continue
         if row is None:
-            denials.append({"node_label": label, "reason": DENY_STATE_ROW_ABSENT, "status": None})
+            denials.append(
+                {"node_label": label, "reason": DENY_STATE_ROW_ABSENT, "status": None}
+            )
             continue
         status = row["status"]
         if status is None:
-            denials.append({"node_label": label, "reason": DENY_STATUS_UNDECLARED, "status": None})
+            denials.append(
+                {"node_label": label, "reason": DENY_STATUS_UNDECLARED, "status": None}
+            )
             continue
         if status != RETIRABLE_STATUS:
             denials.append(
-                {"node_label": label, "reason": DENY_STATUS_NOT_PLANNED, "status": status}
+                {
+                    "node_label": label,
+                    "reason": DENY_STATUS_NOT_PLANNED,
+                    "status": status,
+                }
             )
     if denials:
         raise RetireDeniedError(denials)

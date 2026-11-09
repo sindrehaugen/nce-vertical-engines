@@ -315,7 +315,9 @@ def _quantise_qty(value: Decimal, where: str) -> Decimal:
     try:
         return value.quantize(_QTY_SCALE, rounding=ROUND_HALF_UP)
     except DecimalException as exc:
-        raise ValueError(f"{where}: quantity is too large to express to 3dp: {value!r}") from exc
+        raise ValueError(
+            f"{where}: quantity is too large to express to 3dp: {value!r}"
+        ) from exc
 
 
 def _as_quantity(value: Any, where: str) -> Decimal:
@@ -622,7 +624,9 @@ async def mirror_item_at_location(
     item_label = _inventory_item_label(sku, location_id)
     await _upsert_kg_node(conn, ns_uuid, location_label, _NODE_TYPE_STOCK_LOCATION)
     await _upsert_kg_node(conn, ns_uuid, item_label, _NODE_TYPE_INVENTORY_ITEM)
-    await _upsert_kg_edge(conn, ns_uuid, item_label, _PRED_AT, location_label, _FRESH_CONFIDENCE)
+    await _upsert_kg_edge(
+        conn, ns_uuid, item_label, _PRED_AT, location_label, _FRESH_CONFIDENCE
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -700,7 +704,9 @@ async def do_stock_levels(engine: NCEEngine, params: dict[str, Any]) -> dict[str
 # ---------------------------------------------------------------------------
 
 
-async def do_transfer_stock(engine: NCEEngine, params: dict[str, Any]) -> dict[str, Any]:
+async def do_transfer_stock(
+    engine: NCEEngine, params: dict[str, Any]
+) -> dict[str, Any]:
     """Move *qty* units of *sku* from one stock location to another.
 
     Parameters
@@ -762,14 +768,18 @@ async def do_transfer_stock(engine: NCEEngine, params: dict[str, Any]) -> dict[s
     to_location = _as_location_uuid(params.get("to_location"), "to_location")
 
     if from_location == to_location:
-        raise ValueError("do_transfer_stock: 'from_location' and 'to_location' must differ")
+        raise ValueError(
+            "do_transfer_stock: 'from_location' and 'to_location' must differ"
+        )
 
     first, second = _canonical_lock_order(from_location, to_location)
     decrement_first = first == from_location
 
     async with scoped_pg_session(engine.pg_pool, ns_uuid) as conn:
         if decrement_first:
-            from_on_hand = await decrement_on_hand(conn, ns_uuid, sku, from_location, qty)
+            from_on_hand = await decrement_on_hand(
+                conn, ns_uuid, sku, from_location, qty
+            )
             await append_transaction(
                 conn,
                 ns_uuid,
@@ -800,7 +810,9 @@ async def do_transfer_stock(engine: NCEEngine, params: dict[str, Any]) -> dict[s
                 reason_category=REASON_TRANSFER_IN,
                 ref=str(from_location),
             )
-            from_on_hand = await decrement_on_hand(conn, ns_uuid, sku, from_location, qty)
+            from_on_hand = await decrement_on_hand(
+                conn, ns_uuid, sku, from_location, qty
+            )
             await append_transaction(
                 conn,
                 ns_uuid,
@@ -840,7 +852,9 @@ async def do_transfer_stock(engine: NCEEngine, params: dict[str, Any]) -> dict[s
 # ---------------------------------------------------------------------------
 
 
-async def do_record_consumption(engine: NCEEngine, params: dict[str, Any]) -> dict[str, Any]:
+async def do_record_consumption(
+    engine: NCEEngine, params: dict[str, Any]
+) -> dict[str, Any]:
     """Decrement stock when it is picked/used at one location (e.g. a
     Field Tech work-order); realises demand, no destination location.
 
@@ -983,7 +997,9 @@ def evaluate_cable_drum_cut(
             try:
                 rem_dec = Decimal(str(rem_raw))
                 if rem_dec > 0:
-                    parsed_drums.append({"drum_id": str(drum_id), "remaining_m": rem_dec, "raw": d})
+                    parsed_drums.append(
+                        {"drum_id": str(drum_id), "remaining_m": rem_dec, "raw": d}
+                    )
             except (ValueError, TypeError, DecimalException):
                 continue
 
@@ -1051,7 +1067,9 @@ def evaluate_cable_drum_cut(
 
     return {
         "passed": True,
-        "selected_drum_id": cuts[0]["drum_id"] if len(cuts) == 1 else "spliced_multiple",
+        "selected_drum_id": cuts[0]["drum_id"]
+        if len(cuts) == 1
+        else "spliced_multiple",
         "cut_length_m": float(req),
         "remnant_length_m": float(last_remnant),
         "cuts": cuts,

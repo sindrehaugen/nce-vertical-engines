@@ -174,7 +174,9 @@ class NeatPulseTelemetryAdapter(TelemetryAdapter):
         transport: httpx.AsyncBaseTransport | None = None,
     ) -> None:
         self._endpoint_url = (
-            (endpoint_url or live_env_str("NCE_ASSETS_NEAT_ENDPOINT_URL") or "").strip().rstrip("/")
+            (endpoint_url or live_env_str("NCE_ASSETS_NEAT_ENDPOINT_URL") or "")
+            .strip()
+            .rstrip("/")
         )
         self._api_key = api_key or live_env_str("NCE_ASSETS_NEAT_API_KEY")
         self._org_id = org_id or live_env_str("NCE_ASSETS_NEAT_ORG_ID")
@@ -216,7 +218,10 @@ class NeatPulseTelemetryAdapter(TelemetryAdapter):
         resp = await client.request(
             method,
             f"{self._endpoint_url}/v1/orgs/{self._org_id}{path}",
-            headers={"Accept": "application/json", "Authorization": f"Bearer {self._api_key}"},
+            headers={
+                "Accept": "application/json",
+                "Authorization": f"Bearer {self._api_key}",
+            },
         )
         resp.raise_for_status()
         return resp
@@ -259,7 +264,10 @@ class NeatPulseTelemetryAdapter(TelemetryAdapter):
             ) as client:
                 endpoint = await self._find_endpoint_by_serial(client, serial)
                 if endpoint is None:
-                    log.info("NeatPulseTelemetryAdapter: no Neat endpoint with serial %s", serial)
+                    log.info(
+                        "NeatPulseTelemetryAdapter: no Neat endpoint with serial %s",
+                        serial,
+                    )
                     return []
                 endpoint_id = str(endpoint.get("id") or "")
                 if not endpoint_id:
@@ -285,7 +293,9 @@ class NeatPulseTelemetryAdapter(TelemetryAdapter):
                 )
                 sensor_data = sensor_resp.json()
                 if isinstance(sensor_data, dict):
-                    samples.extend(_numeric_samples(sensor_data, now, "neat_pulse_sensor"))
+                    samples.extend(
+                        _numeric_samples(sensor_data, now, "neat_pulse_sensor")
+                    )
 
                 return samples
         except Exception as exc:

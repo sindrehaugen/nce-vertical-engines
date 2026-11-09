@@ -33,7 +33,9 @@ class EntraSecurityGate:
 
     def __init__(self, authenticator: EntraIDAuthenticator | None = None) -> None:
         self.authenticator = authenticator or EntraIDAuthenticator()
-        self._audit_ring: collections.deque[dict[str, Any]] = collections.deque(maxlen=500)
+        self._audit_ring: collections.deque[dict[str, Any]] = collections.deque(
+            maxlen=500
+        )
 
     @property
     def config(self) -> EntraConfig:
@@ -87,14 +89,20 @@ class EntraSecurityGate:
         try:
             principal = await self.authenticator.resolve_and_verify_caller(args)
             if principal is not None and required_role:
-                role_match = any(r.lower() == required_role.lower() for r in principal.matched_roles)
+                role_match = any(
+                    r.lower() == required_role.lower() for r in principal.matched_roles
+                )
                 if not role_match and self.config.enforce_mode == "strict":
                     raise EntraVerificationError(
                         f"Caller '{principal.upn}' lacks required Entra App Role '{required_role}'",
                         code="MISSING_REQUIRED_ROLE",
                     )
 
-            decision = "ALLOW" if principal is not None or self.config.enforce_mode == "disabled" else "AUDIT_WARN"
+            decision = (
+                "ALLOW"
+                if principal is not None or self.config.enforce_mode == "disabled"
+                else "AUDIT_WARN"
+            )
             reason = (
                 f"Verified Entra principal {principal.upn} ({principal.auth_method})"
                 if principal

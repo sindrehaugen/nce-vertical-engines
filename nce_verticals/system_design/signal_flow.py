@@ -301,7 +301,8 @@ def inspect_port_signal_flow(
                 {
                     "from_port": src_lbl,
                     "from_device": src_dev,
-                    "from_device_name": src_dev_node.get("properties", {}).get("name") or src_dev,
+                    "from_device_name": src_dev_node.get("properties", {}).get("name")
+                    or src_dev,
                     "cable_label": cable_lbl,
                     "signal_format": src_cap.get("signal_format"),
                     "signal_version": src_cap.get("signal_version"),
@@ -329,7 +330,8 @@ def inspect_port_signal_flow(
                 {
                     "to_port": dst_lbl,
                     "to_device": dst_dev,
-                    "to_device_name": dst_dev_node.get("properties", {}).get("name") or dst_dev,
+                    "to_device_name": dst_dev_node.get("properties", {}).get("name")
+                    or dst_dev,
                     "cable_label": cable_lbl,
                     "signal_format": dst_cap.get("signal_format"),
                     "signal_version": dst_cap.get("signal_version"),
@@ -429,7 +431,9 @@ def inspect_device_signal_flow(
             if dst_dev and dst_dev != device_label:
                 downstream_devices.add(dst_dev)
 
-        attached_cables = [cable_lbl for pair, cable_lbl in cable_by_ports.items() if p_lbl in pair]
+        attached_cables = [
+            cable_lbl for pair, cable_lbl in cable_by_ports.items() if p_lbl in pair
+        ]
 
         port_summaries.append(
             {
@@ -456,8 +460,12 @@ def inspect_device_signal_flow(
         "ports": port_summaries,
         "summary": {
             "total_ports": len(ports),
-            "input_ports": sum(1 for p in port_summaries if p["port_direction"] == "input"),
-            "output_ports": sum(1 for p in port_summaries if p["port_direction"] == "output"),
+            "input_ports": sum(
+                1 for p in port_summaries if p["port_direction"] == "input"
+            ),
+            "output_ports": sum(
+                1 for p in port_summaries if p["port_direction"] == "output"
+            ),
             "bidirectional_ports": sum(
                 1 for p in port_summaries if p["port_direction"] == "bidirectional"
             ),
@@ -634,7 +642,9 @@ def inspect_design_signal_flow(
             }
         )
 
-    tot_power = sum(float(c.get("power_draw_watts") or 0.0) for c in device_caps.values())
+    tot_power = sum(
+        float(c.get("power_draw_watts") or 0.0) for c in device_caps.values()
+    )
     tot_heat = sum(float(c.get("heat_btu_hr") or 0.0) for c in device_caps.values())
 
     return {
@@ -745,7 +755,9 @@ async def do_inspect_signal_flow(
                 if r["cable_length_m"] is not None
                 else None,
                 "cable_type": r["cable_type"],
-                "meta": json.loads(r["meta"]) if isinstance(r["meta"], str) else (r["meta"] or {}),
+                "meta": json.loads(r["meta"])
+                if isinstance(r["meta"], str)
+                else (r["meta"] or {}),
             }
             for r in rows_geo
         }

@@ -289,7 +289,9 @@ async def _namespace_slug(
     the ``lives_in`` edge on a permission error would report a successful
     projection for an asset whose room never landed.
     """
-    slug = await conn.fetchval("SELECT slug FROM namespaces WHERE id = $1::uuid", str(namespace_id))
+    slug = await conn.fetchval(
+        "SELECT slug FROM namespaces WHERE id = $1::uuid", str(namespace_id)
+    )
     if slug is None:
         raise ValueError(f"namespace {namespace_id} does not exist")
     return str(slug)

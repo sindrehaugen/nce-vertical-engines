@@ -124,11 +124,17 @@ async def do_upsert_vendor(
     if existing_payload_ref and engine.mongo_client:
         try:
             async with scoped_mongo_session(engine.mongo_client, ns_uuid) as db:
-                doc = await db.episodes.find_one({"_id": ObjectId(existing_payload_ref)})
+                doc = await db.episodes.find_one(
+                    {"_id": ObjectId(existing_payload_ref)}
+                )
                 if doc:
                     existing_doc = doc
         except Exception as e:
-            log.warning("Failed to fetch MongoDB payload for ref %s: %s", existing_payload_ref, e)
+            log.warning(
+                "Failed to fetch MongoDB payload for ref %s: %s",
+                existing_payload_ref,
+                e,
+            )
 
     # Idempotent merge: start with existing, override with new
     merged_feed = {**(existing_doc.get("feed_fields") or {}), **new_feed}
@@ -260,7 +266,9 @@ async def do_get_vendor(
                 if doc:
                     mongo_doc = doc
         except Exception as e:
-            log.warning("Failed to fetch MongoDB payload for ref %s: %s", row["payload_ref"], e)
+            log.warning(
+                "Failed to fetch MongoDB payload for ref %s: %s", row["payload_ref"], e
+            )
 
     scorecard_data = None
     if scorecard_row:
@@ -376,7 +384,9 @@ async def do_seed_vendors(
                 for row in srm_rows:
                     raw_json = row["source_json"]
                     source_json = (
-                        json.loads(raw_json) if isinstance(raw_json, str) else dict(raw_json or {})
+                        json.loads(raw_json)
+                        if isinstance(raw_json, str)
+                        else dict(raw_json or {})
                     )
                     name = (
                         row["name"]
@@ -394,13 +404,19 @@ async def do_seed_vendors(
                         or source_json.get("vatnumber")
                     )
                     if raw_orgnr:
-                        clean_orgnr = re.sub(r"[^A-Za-z0-9]", "", str(raw_orgnr)).strip().upper()
+                        clean_orgnr = (
+                            re.sub(r"[^A-Za-z0-9]", "", str(raw_orgnr)).strip().upper()
+                        )
                     else:
                         clean_source_id = (
-                            re.sub(r"[^A-Za-z0-9_]", "", str(row["source_id"])).strip().upper()
+                            re.sub(r"[^A-Za-z0-9_]", "", str(row["source_id"]))
+                            .strip()
+                            .upper()
                         )
                         clean_orgnr = (
-                            f"SRM_{clean_source_id}" if clean_source_id else f"SRM_{row['id']}"
+                            f"SRM_{clean_source_id}"
+                            if clean_source_id
+                            else f"SRM_{row['id']}"
                         )
 
                     source_id = f"sales_read_model:{row['source_id']}"
@@ -487,7 +503,9 @@ async def do_seed_vendors(
             name = item["name"]
             clean_slug = re.sub(r"[^A-Z0-9]", "", name.upper())[:32]
             if not clean_slug:
-                clean_slug = hashlib.sha256(name.encode("utf-8")).hexdigest()[:16].upper()
+                clean_slug = (
+                    hashlib.sha256(name.encode("utf-8")).hexdigest()[:16].upper()
+                )
             fallback_orgnr = f"NET_{clean_slug}"
             source_id = f"nettailer:{name}"
             feed_fields = {
@@ -603,7 +621,9 @@ async def do_seed_vendors(
                 elif cand_source == "nettailer":
                     net_seeded += 1
             except Exception as e:
-                log.error("do_seed_vendors: failed to upsert candidate %s: %s", cand_name, e)
+                log.error(
+                    "do_seed_vendors: failed to upsert candidate %s: %s", cand_name, e
+                )
 
     return {
         "ok": True,

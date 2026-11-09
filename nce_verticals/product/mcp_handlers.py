@@ -88,7 +88,9 @@ def resolve_elnummer_query(query: str) -> str | None:
 # ---------------------------------------------------------------------------
 
 
-async def do_search_products(engine: NCEEngine, params: dict[str, Any]) -> dict[str, Any]:
+async def do_search_products(
+    engine: NCEEngine, params: dict[str, Any]
+) -> dict[str, Any]:
     """Hybrid lexical search over product_catalog, which is global by design.
 
     The product catalogue is shared across every tenant -- its ``namespace_id``
@@ -396,7 +398,9 @@ async def handle_product_enrich(engine: NCEEngine, arguments: dict[str, Any]) ->
 
 
 @mcp_handler
-async def handle_product_match_bom_line(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_product_match_bom_line(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: product_match_bom_line — resolve a free-text BOM line to the best SKU.
 
     Delegates ranking to the C1 ``resolve()`` primitive.  When a ``decision``
@@ -411,7 +415,9 @@ async def handle_product_match_bom_line(engine: NCEEngine, arguments: dict[str, 
 
 
 @mcp_handler
-async def handle_product_ingest_spec(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_product_ingest_spec(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: product_ingest_spec — ingest product spec/datasheet text into cognitive substrate.
 
     Goes through the C2 ``@governed`` gate (confirm-only default).  Without
@@ -464,7 +470,9 @@ async def handle_product_ingest_spec(engine: NCEEngine, arguments: dict[str, Any
 
 
 @mcp_handler
-async def handle_product_golden_record(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_product_golden_record(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: product_golden_record — compute and fetch field-level golden record for a product.
 
     Resolves field winners via C1 survivorship, writes provenance to v3_cognitive_ledger,

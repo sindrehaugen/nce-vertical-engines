@@ -94,7 +94,9 @@ _SPEC_BOUNDS: dict[str, tuple[float, float]] = {
 # European and Norwegian Compliance String & Enum Specifications
 # ---------------------------------------------------------------------------
 
-_CPR_FIRE_CLASSES: frozenset[str] = frozenset({"Aca", "B1ca", "B2ca", "Cca", "Dca", "Eca", "Fca"})
+_CPR_FIRE_CLASSES: frozenset[str] = frozenset(
+    {"Aca", "B1ca", "B2ca", "Cca", "Dca", "Eca", "Fca"}
+)
 _IK_RATINGS: frozenset[str] = frozenset({f"IK{i:02d}" for i in range(11)})
 _WEEE_CATEGORIES: frozenset[str] = frozenset({"1", "2", "3", "4", "5", "6"})
 
@@ -239,7 +241,10 @@ def _validate_spec_value(field_name: str, value: Any) -> tuple[bool, str | None]
         try:
             num = float(value)
             if not (min_v <= num <= max_v):
-                return False, f"Field {field_name!r} value {num} out of bounds [{min_v}, {max_v}]"
+                return (
+                    False,
+                    f"Field {field_name!r} value {num} out of bounds [{min_v}, {max_v}]",
+                )
             return True, None
         except (ValueError, TypeError):
             return False, f"Field {field_name!r} value {value!r} is not a valid number"
@@ -255,7 +260,9 @@ def _validate_spec_value(field_name: str, value: Any) -> tuple[bool, str | None]
 
     if field_name == "cpr_fire_class":
         val_str = str(value).strip()
-        match = next((c for c in _CPR_FIRE_CLASSES if c.lower() == val_str.lower()), None)
+        match = next(
+            (c for c in _CPR_FIRE_CLASSES if c.lower() == val_str.lower()), None
+        )
         if match is None:
             return (
                 False,
@@ -293,7 +300,12 @@ def _validate_spec_value(field_name: str, value: Any) -> tuple[bool, str | None]
     if field_name in ("rohs_compliant", "ce_marked"):
         if isinstance(value, bool):
             return True, None
-        if isinstance(value, str) and value.strip().lower() in ("true", "false", "1", "0"):
+        if isinstance(value, str) and value.strip().lower() in (
+            "true",
+            "false",
+            "1",
+            "0",
+        ):
             return True, None
         return False, f"Field {field_name!r} must be a boolean, got {value!r}"
 
@@ -301,7 +313,10 @@ def _validate_spec_value(field_name: str, value: Any) -> tuple[bool, str | None]
         allowed = _STRING_ENUM_SPECS[field_name]
         val_str = str(value).strip()
         if val_str not in allowed:
-            return False, f"Field {field_name!r} must be one of {sorted(allowed)}, got {value!r}"
+            return (
+                False,
+                f"Field {field_name!r} must be one of {sorted(allowed)}, got {value!r}",
+            )
         return True, None
 
     return True, None
@@ -350,7 +365,8 @@ def validate_european_product_compliance(etim_specs: dict[str, Any]) -> dict[str
             elif key == "cpr_fire_class":
                 val_str = str(val).strip()
                 match = next(
-                    (c for c in _CPR_FIRE_CLASSES if c.lower() == val_str.lower()), val_str
+                    (c for c in _CPR_FIRE_CLASSES if c.lower() == val_str.lower()),
+                    val_str,
                 )
                 validated_specs[key] = match
                 compliance["cpr_compliant"] = True
@@ -363,7 +379,9 @@ def validate_european_product_compliance(etim_specs: dict[str, Any]) -> dict[str
                 compliance["weee_compliant"] = True
             elif key in ("rohs_compliant", "ce_marked"):
                 b_val = (
-                    val if isinstance(val, bool) else (str(val).strip().lower() in ("true", "1"))
+                    val
+                    if isinstance(val, bool)
+                    else (str(val).strip().lower() in ("true", "1"))
                 )
                 validated_specs[key] = b_val
                 if b_val:
@@ -499,8 +517,12 @@ async def _fetch_product_row(
 
 
 class EnrichedFieldProposal(BaseModel):
-    field_name: str = Field(description="Name of the product specification or attribute field")
-    field_value: str = Field(description="Enriched value for the field based on product details")
+    field_name: str = Field(
+        description="Name of the product specification or attribute field"
+    )
+    field_value: str = Field(
+        description="Enriched value for the field based on product details"
+    )
     confidence: float = Field(
         default=0.0, description="Confidence score from 0.0 to 1.0 (or 0.0 to 100.0)"
     )
@@ -568,7 +590,9 @@ async def _build_proposals(
             missing_fields,
             trigger_context,
         )
-        proposals_by_field = {p.field_name: p for p in enrichment_result.proposals if p.field_name}
+        proposals_by_field = {
+            p.field_name: p for p in enrichment_result.proposals if p.field_name
+        }
     except Exception as exc:
         log.warning("[enrich] cognitive provider call failed: %s", exc)
         proposals_by_field = {}
@@ -682,7 +706,9 @@ async def do_enrich_product(
         provider = get_provider(metadata)
 
     # --- Build per-field proposals via cognitive provider ---
-    proposals = await _build_proposals(provider, missing_fields, product_row, trigger_context)
+    proposals = await _build_proposals(
+        provider, missing_fields, product_row, trigger_context
+    )
 
     proposals_written = 0
     auto_merged = 0
@@ -702,7 +728,9 @@ async def do_enrich_product(
             or field_name in ("elnummer", "ip_rating", "rohs_compliant", "ce_marked")
         )
         is_valid_spec, _ = (
-            _validate_spec_value(field_name, field_value) if is_spec_field else (True, None)
+            _validate_spec_value(field_name, field_value)
+            if is_spec_field
+            else (True, None)
         )
         needs_review: bool = is_money_legal or below_threshold or (not is_valid_spec)
 
@@ -839,7 +867,9 @@ async def accept_enrichment_proposal(
         ns_uuid,
     )
     if row is None:
-        raise ValueError(f"enrichment proposal {enrichment_id!r} not found or already reviewed")
+        raise ValueError(
+            f"enrichment proposal {enrichment_id!r} not found or already reviewed"
+        )
 
     product_id_str = str(row["product_id"])
     field_name = str(row["field_name"])

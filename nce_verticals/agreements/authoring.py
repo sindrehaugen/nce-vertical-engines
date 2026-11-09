@@ -160,7 +160,10 @@ async def _append_ledger_entry(
     """
     ledger_id = uuid.uuid4()
     recorded_at = await conn.fetchval("SELECT now()")
-    full_payload: dict[str, Any] = {**payload, "recorded_at_iso": recorded_at.isoformat()}
+    full_payload: dict[str, Any] = {
+        **payload,
+        "recorded_at_iso": recorded_at.isoformat(),
+    }
     await conn.execute(
         """
         INSERT INTO v3_cognitive_ledger (
@@ -245,7 +248,9 @@ async def do_create_agreement(engine: Any, params: dict[str, Any]) -> dict[str, 
         raise ValueError("terms must be a JSON object (dict) when provided")
 
     agreement_id_raw = params.get("agreement_id")
-    agreement_uuid = uuid.UUID(str(agreement_id_raw)) if agreement_id_raw else uuid.uuid4()
+    agreement_uuid = (
+        uuid.UUID(str(agreement_id_raw)) if agreement_id_raw else uuid.uuid4()
+    )
     source_id = str(agreement_uuid)
 
     terms_written: list[str] = []
@@ -341,7 +346,10 @@ async def do_create_agreement(engine: Any, params: dict[str, Any]) -> dict[str, 
     #    (graph.write_agreement_to_graph_and_memories) so the drafted values are
     #    durable and answerable ("what are our payment terms with X") the moment
     #    the agreement is authored, not just after signing.
-    summary_parts = [f"Agreement ID: {agreement_uuid}", f"Lifecycle: {_LIFECYCLE_DRAFT} (authored)"]
+    summary_parts = [
+        f"Agreement ID: {agreement_uuid}",
+        f"Lifecycle: {_LIFECYCLE_DRAFT} (authored)",
+    ]
     if supplier_id:
         summary_parts.append(f"Supplier ID / Vendor: {supplier_id}")
     if customer_id:

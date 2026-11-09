@@ -15,7 +15,10 @@ Supports:
 
 from nce_verticals.salesforce.auth import SalesforceAuthConfig, SalesforceTokenManager
 from nce_verticals.salesforce.client import SalesforceAPIError, SalesforceClient
-from nce_verticals.salesforce.operations import SalesforceOperations, get_global_salesforce_ops
+from nce_verticals.salesforce.operations import (
+    SalesforceOperations,
+    get_global_salesforce_ops,
+)
 from nce_verticals.salesforce.sync import SalesforceSyncEngine
 from nce_verticals.salesforce.webhooks import SalesforceWebhookReceiver
 

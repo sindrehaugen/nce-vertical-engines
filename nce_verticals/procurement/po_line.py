@@ -129,12 +129,20 @@ async def upsert_po_line_node(
     Guarded by assert_owner against Contract-A ownership registry.
     Connects PO -[contains]-> PO_LINE and PO_LINE -[fulfills]-> BOM_LINE.
     """
-    ns_uuid = namespace_id if isinstance(namespace_id, UUID) else UUID(str(namespace_id))
-    status_enum = status if isinstance(status, POLineStatus) else POLineStatus(str(status).upper())
+    ns_uuid = (
+        namespace_id if isinstance(namespace_id, UUID) else UUID(str(namespace_id))
+    )
+    status_enum = (
+        status
+        if isinstance(status, POLineStatus)
+        else POLineStatus(str(status).upper())
+    )
     status_str = status_enum.value
     transition = f"status:{status_str.lower()}"
 
-    await assert_owner(conn, ns_uuid, NODE_TYPE_PO_LINE, _PROCUREMENT_ENGINE, transition)
+    await assert_owner(
+        conn, ns_uuid, NODE_TYPE_PO_LINE, _PROCUREMENT_ENGINE, transition
+    )
 
     lbl = po_line_label(po_number, line_ref)
     calculated_total = (
@@ -280,7 +288,9 @@ async def update_po_line_status(
     Guarded by assert_owner against Contract-A ownership registry.
     Emits C4 graph write event with payload contract matching project/automation.py.
     """
-    ns_uuid = namespace_id if isinstance(namespace_id, UUID) else UUID(str(namespace_id))
+    ns_uuid = (
+        namespace_id if isinstance(namespace_id, UUID) else UUID(str(namespace_id))
+    )
 
     # Read current status from relational store if not provided
     effective_current = current_status
@@ -316,7 +326,9 @@ async def update_po_line_status(
     nxt_str = nxt_enum.value
     transition = f"status:{nxt_str.lower()}"
 
-    await assert_owner(conn, ns_uuid, NODE_TYPE_PO_LINE, _PROCUREMENT_ENGINE, transition)
+    await assert_owner(
+        conn, ns_uuid, NODE_TYPE_PO_LINE, _PROCUREMENT_ENGINE, transition
+    )
 
     lbl = po_line_label(po_number, line_ref)
 
@@ -346,7 +358,8 @@ async def update_po_line_status(
         "line_ref": line_ref,
         "project_id": effective_project_id or "",
         "bom_line_label": effective_bom_line_label or "",
-        "id": effective_bom_line_label or "",  # backward-compatibility with project/automation.py
+        "id": effective_bom_line_label
+        or "",  # backward-compatibility with project/automation.py
         "status": nxt_str,
         "project_value": project_value,
     }

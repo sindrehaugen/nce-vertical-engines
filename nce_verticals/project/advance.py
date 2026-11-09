@@ -86,7 +86,9 @@ def _quote_id_from_project_label(project_label: str) -> str:
     """
     prefix = "PROJECT:"
     if not project_label.upper().startswith(prefix):
-        raise ValueError(f"project_label {project_label!r} does not start with 'PROJECT:'")
+        raise ValueError(
+            f"project_label {project_label!r} does not start with 'PROJECT:'"
+        )
     return project_label[len(prefix) :]
 
 
@@ -275,7 +277,9 @@ async def read_current_phase(
     project_id:
         Project label, e.g. ``"PROJECT:Q123"``.
     """
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
     async with scoped_pg_session(engine.pg_pool, ns_uuid) as conn:
         return await _read_current_phase(conn, ns_uuid, project_id)
 
@@ -366,7 +370,10 @@ async def do_advance_phase(
             exc,
             exc_info=True,
         )
-        return {"ok": False, "error": f"do_advance_phase: failed to read current phase: {exc}"}
+        return {
+            "ok": False,
+            "error": f"do_advance_phase: failed to read current phase: {exc}",
+        }
 
     if current_phase is None:
         return {

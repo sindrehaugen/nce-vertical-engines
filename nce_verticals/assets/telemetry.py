@@ -381,7 +381,9 @@ def select_telemetry_adapter(platform: str) -> TelemetryAdapter:
     vendor_api = VENDOR_PLATFORMS.get(name)
     if vendor_api is None:
         known = ", ".join(sorted([MOCK_PLATFORM, *VENDOR_PLATFORMS]))
-        raise ValueError(f"do_pull_telemetry: unknown telemetry platform {name!r} (known: {known})")
+        raise ValueError(
+            f"do_pull_telemetry: unknown telemetry platform {name!r} (known: {known})"
+        )
 
     if _real_adapter_enabled(name):
         if name in ("ymcs", "yealink"):
@@ -440,7 +442,9 @@ def _validated_samples(samples: Sequence[TelemetrySample]) -> list[TelemetrySamp
     for sample in samples:
         metric = str(sample.metric or "").strip()
         if not metric:
-            raise ValueError("do_pull_telemetry: adapter returned a sample with a blank 'metric'")
+            raise ValueError(
+                "do_pull_telemetry: adapter returned a sample with a blank 'metric'"
+            )
         value = float(sample.value)
         if not math.isfinite(value):
             raise ValueError(
@@ -480,7 +484,9 @@ async def _require_asset_in_namespace(
             str(ns_uuid),
         )
     if row is None:
-        raise ValueError(f"do_pull_telemetry: asset {asset_id} is not in namespace {ns_uuid}")
+        raise ValueError(
+            f"do_pull_telemetry: asset {asset_id} is not in namespace {ns_uuid}"
+        )
     return row["serial"]
 
 
@@ -528,7 +534,9 @@ async def _insert_samples(
 # ---------------------------------------------------------------------------
 
 
-async def do_pull_telemetry(engine: NCEEngine, params: dict[str, Any]) -> dict[str, Any]:
+async def do_pull_telemetry(
+    engine: NCEEngine, params: dict[str, Any]
+) -> dict[str, Any]:
     """Pull one asset's telemetry through a :class:`TelemetryAdapter` and store it.
 
     Writes NOTHING but ``telemetry_samples`` rows: no ``kg_nodes``, no

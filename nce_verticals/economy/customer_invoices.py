@@ -114,7 +114,9 @@ class CustomerInvoiceAlreadyExistsError(ValueError):
 
     def __init__(self, billing_candidate_id: Any) -> None:
         self.billing_candidate_id = billing_candidate_id
-        super().__init__(f"BILLING_CANDIDATE {billing_candidate_id} already has a customer invoice")
+        super().__init__(
+            f"BILLING_CANDIDATE {billing_candidate_id} already has a customer invoice"
+        )
 
 
 def _parse_uuid(val: Any, field_name: str) -> UUID:
@@ -221,7 +223,11 @@ async def do_propose_customer_invoice(
     ns_uuid = _parse_uuid(namespace_id, "namespace_id")
     candidate_uuid = _parse_uuid(billing_candidate_id, "billing_candidate_id")
 
-    if isinstance(due_date_days, bool) or not isinstance(due_date_days, int) or due_date_days < 0:
+    if (
+        isinstance(due_date_days, bool)
+        or not isinstance(due_date_days, int)
+        or due_date_days < 0
+    ):
         raise ValueError("due_date_days must be an integer >= 0")
 
     rate_assumed = vat_rate_pct is None
@@ -231,7 +237,9 @@ async def do_propose_customer_invoice(
         try:
             rate = Decimal(str(vat_rate_pct))
         except (InvalidOperation, ValueError) as exc:
-            raise ValueError(f"vat_rate_pct is not a valid number: {vat_rate_pct!r}") from exc
+            raise ValueError(
+                f"vat_rate_pct is not a valid number: {vat_rate_pct!r}"
+            ) from exc
         if not rate.is_finite() or rate < Decimal("0") or rate > Decimal("100"):
             raise ValueError("vat_rate_pct must be between 0 and 100")
     else:
@@ -261,7 +269,9 @@ async def do_propose_customer_invoice(
     invoice_id = uuid4()
     invoice_label = f"{_NODE_TYPE_CUSTOMER_INVOICE}:{invoice_id}"
 
-    await _upsert_customer_invoice_node(conn, ns_uuid, invoice_label, candidate["node_label"])
+    await _upsert_customer_invoice_node(
+        conn, ns_uuid, invoice_label, candidate["node_label"]
+    )
 
     try:
         await conn.execute(
@@ -303,7 +313,9 @@ async def do_propose_customer_invoice(
         "customer_invoice_id": str(invoice_id),
         "customer_invoice_label": invoice_label,
         "billing_candidate_id": str(candidate_uuid),
-        "customer_id": str(candidate["customer_id"]) if candidate["customer_id"] else None,
+        "customer_id": str(candidate["customer_id"])
+        if candidate["customer_id"]
+        else None,
         "issue_date": str(issue_date),
         "due_date": str(due_date),
         "currency": candidate["currency"],

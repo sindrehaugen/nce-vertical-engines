@@ -182,7 +182,9 @@ def _formats_compatible(
     if src_fmt_up != dst_fmt_up:
         if (src_fmt_up, dst_fmt_up) in _CROSS_FORMAT_COMPAT:
             return True, ""
-        return False, (f"format mismatch: output '{src_fmt}' cannot drive input '{dst_fmt}'")
+        return False, (
+            f"format mismatch: output '{src_fmt}' cannot drive input '{dst_fmt}'"
+        )
 
     # Same format — version check where applicable.
     version_table: dict[str, int] | None = None
@@ -286,7 +288,9 @@ def check_power_heat_budget(
     CheckResult
         Always ``passed=True``; ``reasons`` lists aggregate totals.
     """
-    total_power = sum(float(d.get("power_draw_watts") or 0) for d in device_capabilities)
+    total_power = sum(
+        float(d.get("power_draw_watts") or 0) for d in device_capabilities
+    )
     total_heat = sum(float(d.get("heat_btu_hr") or 0) for d in device_capabilities)
 
     reasons = [
@@ -316,8 +320,12 @@ def check_spof_redundancy(
     -------
     CheckResult
     """
-    primary_count = sum(1 for d in device_capabilities if d.get("redundancy_role") == "primary")
-    secondary_count = sum(1 for d in device_capabilities if d.get("redundancy_role") == "secondary")
+    primary_count = sum(
+        1 for d in device_capabilities if d.get("redundancy_role") == "primary"
+    )
+    secondary_count = sum(
+        1 for d in device_capabilities if d.get("redundancy_role") == "secondary"
+    )
 
     reasons: list[str] = []
     if primary_count > 0 and secondary_count == 0:
@@ -365,7 +373,9 @@ def check_avixa_checkpoint_conformance(
     for d in device_caps:
         label = d.get("node_label", "<unknown>")
         if not d.get("device_category"):
-            reasons.append(f"DEVICE '{label}': missing 'device_category' (AVIXA required)")
+            reasons.append(
+                f"DEVICE '{label}': missing 'device_category' (AVIXA required)"
+            )
 
     for p in port_caps:
         label = p.get("node_label", "<unknown>")
@@ -409,10 +419,14 @@ def check_electrical_nek_compliance(
     if not circuits:
         return {
             "passed": True,
-            "reasons": ["No electrical circuits provided; NEK 400 compliance check skipped."],
+            "reasons": [
+                "No electrical circuits provided; NEK 400 compliance check skipped."
+            ],
         }
 
-    kurs_res = generate_kursfortegnelse(circuits=circuits, earthing_system=earthing_system)
+    kurs_res = generate_kursfortegnelse(
+        circuits=circuits, earthing_system=earthing_system
+    )
     reasons = list(kurs_res.get("all_violations", []))
     passed = bool(kurs_res.get("passed", False))
     if not reasons and passed:
@@ -505,7 +519,9 @@ def check_dnv_marine_compliance(
     if cables:
         for c in cables:
             is_emerg = bool(c.get("is_emergency_circuit", False))
-            c_res = validate_marine_cable_iec60092(cable_spec=c, is_emergency_circuit=is_emerg)
+            c_res = validate_marine_cable_iec60092(
+                cable_spec=c, is_emergency_circuit=is_emerg
+            )
             if not c_res.get("compliant", False):
                 passed = False
                 reasons.extend(c_res.get("violations", []))
@@ -516,7 +532,9 @@ def check_dnv_marine_compliance(
         or marine_config.get("hazardous_areas")
         or marine_config.get("equipment")
     )
-    if not atex_items and ("device_spec" in marine_config or "location_env" in marine_config):
+    if not atex_items and (
+        "device_spec" in marine_config or "location_env" in marine_config
+    ):
         dev = marine_config.get("device_spec") or {}
         env = marine_config.get("location_env") or {}
         atex_items = [{"device_spec": dev, "location_env": env}]
@@ -597,7 +615,9 @@ def check_electronics_qc_compliance(
         if not derate_res.get("passed", False):
             passed = False
             for v in derate_res.get("violations", []):
-                reasons.append(v.get("message", str(v)) if isinstance(v, dict) else str(v))
+                reasons.append(
+                    v.get("message", str(v)) if isinstance(v, dict) else str(v)
+                )
 
     # 2. EU electronics compliance (RoHS 3, REACH SVHC, IPC/JEDEC J-STD-033 MSL)
     bom = electronics_config.get("bom_lines") or electronics_config.get("bom")
@@ -614,7 +634,9 @@ def check_electronics_qc_compliance(
         if not eu_res.get("passed", False):
             passed = False
             for v in eu_res.get("violations", []):
-                reasons.append(v.get("message", str(v)) if isinstance(v, dict) else str(v))
+                reasons.append(
+                    v.get("message", str(v)) if isinstance(v, dict) else str(v)
+                )
 
     # 3. EN 61340-5-1 ESD Workstation validation
     esd_cfg = (
@@ -669,14 +691,18 @@ def run_all_validations(
     (electrical_circuits, marine_config, electronics_config) are None,
     returns exactly the 5 baseline checks for full backward-compatibility.
     """
-    r1 = check_signal_flow_continuity(input_port_labels or [], connected_to_targets or set())
+    r1 = check_signal_flow_continuity(
+        input_port_labels or [], connected_to_targets or set()
+    )
     r2 = check_port_format_compatibility(connections or [], cap_by_label or {})
     r3 = check_power_heat_budget(device_caps or [])
     r4 = check_spof_redundancy(device_caps or [])
     r5 = check_avixa_checkpoint_conformance(device_caps or [], port_caps or [])
     checks = [r1, r2, r3, r4, r5]
     if electrical_circuits is not None:
-        checks.append(check_electrical_nek_compliance(electrical_circuits, earthing_system))
+        checks.append(
+            check_electrical_nek_compliance(electrical_circuits, earthing_system)
+        )
     if marine_config is not None:
         checks.append(check_dnv_marine_compliance(marine_config))
     if electronics_config is not None:

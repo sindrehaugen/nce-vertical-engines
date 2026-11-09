@@ -57,7 +57,9 @@ log = logging.getLogger("nce_verticals.procurement.mcp_handlers")
 
 
 @mcp_handler
-async def handle_procurement_calculate_tco(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_procurement_calculate_tco(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: procurement_calculate_tco — TCO breakdown for one (supplier, bom_line) pair.
 
     Required arguments:
@@ -74,7 +76,9 @@ async def handle_procurement_calculate_tco(engine: NCEEngine, arguments: dict[st
 
 
 @mcp_handler
-async def handle_procurement_rank_suppliers(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_procurement_rank_suppliers(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: procurement_rank_suppliers — rank supplier candidates for one BOM line.
 
     Required arguments:
@@ -102,7 +106,10 @@ async def handle_procurement_rank_suppliers(engine: NCEEngine, arguments: dict[s
                 try:
                     res = await a2a_client.call_tool(
                         "vendors_get_tier_status",
-                        {"namespace_id": str(namespace_id), "vendor_id": supplier_id_str},
+                        {
+                            "namespace_id": str(namespace_id),
+                            "vendor_id": supplier_id_str,
+                        },
                     )
                     if isinstance(res, str):
                         res = json.loads(res)
@@ -153,7 +160,10 @@ async def handle_procurement_rank_suppliers(engine: NCEEngine, arguments: dict[s
                 try:
                     res = await a2a_client.call_tool(
                         "vendors_get_vendor",
-                        {"namespace_id": str(namespace_id), "vendor_id": supplier_id_str},
+                        {
+                            "namespace_id": str(namespace_id),
+                            "vendor_id": supplier_id_str,
+                        },
                     )
                     if isinstance(res, str):
                         res = json.loads(res)
@@ -208,7 +218,9 @@ async def handle_procurement_rank_suppliers(engine: NCEEngine, arguments: dict[s
 
 
 @mcp_handler
-async def handle_procurement_evaluate_match(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_procurement_evaluate_match(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: procurement_evaluate_match — three-way match evaluation (PO × GR × invoice).
 
     Required arguments:
@@ -227,7 +239,9 @@ async def handle_procurement_evaluate_match(engine: NCEEngine, arguments: dict[s
 
 
 @mcp_handler
-async def handle_procurement_aggregate_savings(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_procurement_aggregate_savings(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: procurement_aggregate_savings — aggregate realized/lost savings and leakage candidates.
 
     Required arguments:
@@ -241,7 +255,9 @@ async def handle_procurement_aggregate_savings(engine: NCEEngine, arguments: dic
 
 
 @mcp_handler
-async def handle_procurement_resolve_bids(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_procurement_resolve_bids(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: procurement_resolve_bids — resolve best BID prices for articles from cache.
 
     Required arguments:
@@ -262,7 +278,9 @@ async def handle_procurement_resolve_bids(engine: NCEEngine, arguments: dict[str
 
 
 @mcp_handler
-async def handle_procurement_forecast_rebate(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_procurement_forecast_rebate(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: procurement_forecast_rebate — forecast year-end rebate band.
 
     Required arguments:
@@ -293,12 +311,16 @@ async def handle_procurement_recommend_move_spend(
         result = await frontier.do_recommend_move_spend(engine, arguments)
         return json.dumps(result, default=str)
     except Exception as exc:
-        log.exception("[procurement-frontier] handle_procurement_recommend_move_spend error")
+        log.exception(
+            "[procurement-frontier] handle_procurement_recommend_move_spend error"
+        )
         return json.dumps({"error": str(exc)}, default=str)
 
 
 @mcp_handler
-async def handle_procurement_whatif_spend(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_procurement_whatif_spend(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: procurement_whatif_spend — simulate a hypothetical spend shift.
 
     Required arguments:
@@ -322,7 +344,9 @@ async def handle_procurement_whatif_spend(engine: NCEEngine, arguments: dict[str
 
 
 @mcp_handler
-async def handle_procurement_generate_po(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_procurement_generate_po(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: procurement_generate_po — generate a draft purchase order and lines.
 
     Governed Actor tool (admin_only, mutation, confirm-first).
@@ -362,7 +386,9 @@ async def handle_procurement_generate_po(engine: NCEEngine, arguments: dict[str,
     idempotency_key = str(arguments.get("idempotency_key") or "").strip()
     if not idempotency_key:
         weights_hash = hashlib.sha256(
-            json.dumps(weights or {}, separators=(",", ":"), sort_keys=True, default=str).encode()
+            json.dumps(
+                weights or {}, separators=(",", ":"), sort_keys=True, default=str
+            ).encode()
         ).hexdigest()
         idempotency_key = _derive_po_idempotency_key(
             str(namespace_id),
@@ -389,7 +415,9 @@ async def handle_procurement_generate_po(engine: NCEEngine, arguments: dict[str,
 
 
 @mcp_handler
-async def handle_procurement_submit_po(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_procurement_submit_po(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: procurement_submit_po — submit a purchase order via transport.
 
     Governed Actor tool (admin_only, mutation, confirm-first).
@@ -424,8 +452,12 @@ async def handle_procurement_submit_po(engine: NCEEngine, arguments: dict[str, A
     if not idempotency_key:
         idempotency_key = _derive_submit_idempotency_key(str(namespace_id), po_number)
 
-    transport_method = str(arguments.get("transport_method") or "manual").lower().strip()
-    transport = NetsetPoTransport() if transport_method == "netset" else ManualPoTransport()
+    transport_method = (
+        str(arguments.get("transport_method") or "manual").lower().strip()
+    )
+    transport = (
+        NetsetPoTransport() if transport_method == "netset" else ManualPoTransport()
+    )
     a2a_client = arguments.get("a2a_client")
     redis_client = getattr(engine, "redis_pool", None) or arguments.get("redis_client")
 

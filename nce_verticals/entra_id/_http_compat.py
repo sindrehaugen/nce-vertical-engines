@@ -26,12 +26,22 @@ except ImportError:
             return _json.loads(self.text) if self.text else {}
 
     class Timeout:
-        def __init__(self, connect: float = 4.0, read: float = 5.0, write: float = 4.0, pool: float = 4.0) -> None:
+        def __init__(
+            self,
+            connect: float = 4.0,
+            read: float = 5.0,
+            write: float = 4.0,
+            pool: float = 4.0,
+        ) -> None:
             self.timeout = max(connect, read)
 
     class AsyncClient:
         def __init__(self, timeout: Timeout | float | None = None) -> None:
-            self._timeout = timeout.timeout if isinstance(timeout, Timeout) else float(timeout or 5.0)
+            self._timeout = (
+                timeout.timeout
+                if isinstance(timeout, Timeout)
+                else float(timeout or 5.0)
+            )
 
         async def __aenter__(self) -> AsyncClient:
             return self
@@ -62,10 +72,17 @@ except ImportError:
                 req_headers.setdefault("Content-Type", "application/json")
             elif data is not None:
                 body_bytes = urllib.parse.urlencode(data).encode("utf-8")
-                req_headers.setdefault("Content-Type", "application/x-www-form-urlencoded")
+                req_headers.setdefault(
+                    "Content-Type", "application/x-www-form-urlencoded"
+                )
 
             def _sync_call() -> _CompatResponse:
-                req = urllib.request.Request(full_url, data=body_bytes, headers=req_headers, method=method.upper())
+                req = urllib.request.Request(
+                    full_url,
+                    data=body_bytes,
+                    headers=req_headers,
+                    method=method.upper(),
+                )
                 try:
                     with urllib.request.urlopen(req, timeout=self._timeout) as resp:
                         return _CompatResponse(resp.status, resp.read())

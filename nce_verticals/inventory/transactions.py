@@ -178,7 +178,9 @@ def _quantise_qty(value: Decimal, where: str) -> Decimal:
     try:
         return value.quantize(_QTY_SCALE, rounding=ROUND_HALF_UP)
     except DecimalException as exc:
-        raise ValueError(f"{where}: quantity is too large to express to 3dp: {value!r}") from exc
+        raise ValueError(
+            f"{where}: quantity is too large to express to 3dp: {value!r}"
+        ) from exc
 
 
 def _quantise_cost(value: Decimal, where: str) -> Decimal:
@@ -187,7 +189,9 @@ def _quantise_cost(value: Decimal, where: str) -> Decimal:
     try:
         return value.quantize(_COST_SCALE, rounding=ROUND_HALF_UP)
     except DecimalException as exc:
-        raise ValueError(f"{where}: cost is too large to express to 2dp: {value!r}") from exc
+        raise ValueError(
+            f"{where}: cost is too large to express to 2dp: {value!r}"
+        ) from exc
 
 
 def _as_ns_uuid(raw: Any, field: str) -> UUID:
@@ -221,11 +225,17 @@ def _assert_sign_matches_category(reason_category: str, delta: Decimal) -> None:
     ``adjustment`` is deliberately unconstrained: a manual correction can
     move quantity either way. ``goods_receipt`` requires a positive delta,
     same as ``transfer_in``."""
-    if reason_category in (REASON_TRANSFER_IN, REASON_GOODS_RECEIPT) and delta <= _ZERO_QTY:
+    if (
+        reason_category in (REASON_TRANSFER_IN, REASON_GOODS_RECEIPT)
+        and delta <= _ZERO_QTY
+    ):
         raise ValueError(
             f"append_transaction: {reason_category!r} requires a positive delta, got {delta}"
         )
-    if reason_category in (REASON_TRANSFER_OUT, REASON_CONSUMPTION) and delta >= _ZERO_QTY:
+    if (
+        reason_category in (REASON_TRANSFER_OUT, REASON_CONSUMPTION)
+        and delta >= _ZERO_QTY
+    ):
         raise ValueError(
             f"append_transaction: {reason_category!r} requires a negative delta, got {delta}"
         )
@@ -321,7 +331,7 @@ async def append_transaction(
 # (no config class), mirrors economy/matching.py's load_economy_thresholds().
 # ---------------------------------------------------------------------------
 
-_CONFIG_DATA_DIR = Path(__file__).parents[3] / "nce" / "config_data"
+_CONFIG_DATA_DIR = Path(__file__).resolve().parents[1] / "config_data"
 _VALUATION_CONFIG_FILENAME = "inventory-valuation.json"
 
 
@@ -405,7 +415,9 @@ def _compute_average(rows: Sequence[Mapping[str, Any]]) -> _ValuationResult:
     return _ValuationResult(total_value=running_value, remaining_qty=running_qty)
 
 
-def _compute_valuation(rows: Sequence[Mapping[str, Any]], method: str) -> _ValuationResult:
+def _compute_valuation(
+    rows: Sequence[Mapping[str, Any]], method: str
+) -> _ValuationResult:
     if method == "fifo":
         return _compute_fifo(rows)
     if method == "average":

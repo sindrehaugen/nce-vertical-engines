@@ -83,7 +83,9 @@ async def handle_sales_ping(engine: NCEEngine, arguments: dict[str, Any]) -> str
 
 
 @mcp_handler
-async def handle_sales_get_signed_baseline(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_sales_get_signed_baseline(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: sales_get_signed_baseline — read the Sales-frozen signed baseline.
 
     This is the cross-engine (A2A) read seam that Project's
@@ -128,7 +130,9 @@ async def handle_sales_get_signed_baseline(engine: NCEEngine, arguments: dict[st
 
 
 @mcp_handler
-async def handle_sales_add_quote_line(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_sales_add_quote_line(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: sales_add_quote_line — add one manually picked line to a quote.
 
     The manual-pick origination path for BOM_LINE: a human picks an article and
@@ -183,7 +187,9 @@ async def handle_sales_add_quote_line(engine: NCEEngine, arguments: dict[str, An
 
 
 @mcp_handler
-async def handle_sales_import_quote_lines(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_sales_import_quote_lines(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: sales_import_quote_lines — bulk-import externally-sourced lines onto a quote.
 
     The EXTERNAL-IMPORT origination path for BOM_LINE (charter Wave B-5):
@@ -278,7 +284,9 @@ async def handle_sales_clone_quote(engine: NCEEngine, arguments: dict[str, Any])
 
 
 @mcp_handler
-async def handle_sales_get_quote_lines(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_sales_get_quote_lines(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: sales_get_quote_lines — read every BOM_LINE on one quote.
 
     The cross-engine (A2A) READ seam that System Design's
@@ -311,7 +319,9 @@ async def handle_sales_get_quote_lines(engine: NCEEngine, arguments: dict[str, A
 
 
 @mcp_handler
-async def handle_sales_request_signature(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_sales_request_signature(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: sales_request_signature — request e-signature for a sales quote.
 
     Surfaces Sales quote signing orchestration via C7 SignTransport.
@@ -357,7 +367,9 @@ async def handle_sales_request_signature(engine: NCEEngine, arguments: dict[str,
 
 
 @mcp_handler
-async def handle_sales_create_customer(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_sales_create_customer(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: sales_create_customer — create a customer account through write routing.
 
     Governed mutation tool. Routes to native NCE graph / read-model or external D365
@@ -530,7 +542,9 @@ async def handle_sales_edit_deal(engine: NCEEngine, arguments: dict[str, Any]) -
 
 
 @mcp_handler
-async def handle_sales_calculate_commission(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_sales_calculate_commission(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: sales_calculate_commission — calculate DB-weighted sales commissions.
 
     Arguments
@@ -555,7 +569,9 @@ async def handle_sales_calculate_commission(engine: NCEEngine, arguments: dict[s
 
 
 @mcp_handler
-async def handle_sales_divergence_log(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_sales_divergence_log(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: sales_divergence_log — read Sales divergence log and evaluate parity window.
 
     Evaluates discrepancies logged during C5 'both' mode synchronization between
@@ -593,7 +609,9 @@ async def handle_sales_divergence_log(engine: NCEEngine, arguments: dict[str, An
 
 
 @mcp_handler
-async def handle_sales_morning_brief_slice(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_sales_morning_brief_slice(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: sales_morning_brief_slice — read morning brief metrics for Sales vertical.
 
     Exposes open pipeline value, at-risk deals count, and won deals value/count for a given lookback period.
@@ -674,7 +692,9 @@ async def handle_sales_draft_quote(engine: NCEEngine, arguments: dict[str, Any])
 
 
 @mcp_handler
-async def handle_sales_open_dealroom(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_sales_open_dealroom(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: sales_open_dealroom — materialise a live web quote (DealRoom).
 
     Wave B-4 (2026-09-20): the REST route (POST /api/sales/dealroom,

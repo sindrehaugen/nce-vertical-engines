@@ -32,7 +32,9 @@ def _quote_id_from_project_label(project_label: str) -> str:
     """Extract the quote_id fragment from a PROJECT:{QUOTE} label."""
     prefix = "PROJECT:"
     if not project_label.upper().startswith(prefix):
-        raise ValueError(f"project_label {project_label!r} does not start with 'PROJECT:'")
+        raise ValueError(
+            f"project_label {project_label!r} does not start with 'PROJECT:'"
+        )
     return project_label[len(prefix) :].strip()
 
 
@@ -54,11 +56,17 @@ async def do_detect_scope_creep(
     """
     raw_ns = params.get("namespace_id")
     if not raw_ns:
-        return {"ok": False, "error": "do_detect_scope_creep: 'namespace_id' is required"}
+        return {
+            "ok": False,
+            "error": "do_detect_scope_creep: 'namespace_id' is required",
+        }
     try:
         ns_uuid = UUID(str(raw_ns)) if not isinstance(raw_ns, UUID) else raw_ns
     except (ValueError, AttributeError) as exc:
-        return {"ok": False, "error": f"do_detect_scope_creep: invalid namespace_id: {exc}"}
+        return {
+            "ok": False,
+            "error": f"do_detect_scope_creep: invalid namespace_id: {exc}",
+        }
 
     project_id = str(params.get("project_id") or "").strip()
     if not project_id:
@@ -163,7 +171,9 @@ async def do_detect_scope_creep(
                     "label": co_label,
                     "node_id": str(co_id),
                     "value": co_value,
-                    "amended_bom_line": amends_row["object_label"] if amends_row else None,
+                    "amended_bom_line": amends_row["object_label"]
+                    if amends_row
+                    else None,
                 }
             )
 
@@ -178,7 +188,9 @@ async def do_detect_scope_creep(
         "change_orders": change_orders_list,
         "delta_signed_vs_current": total_creep_value,
         "signed_total_nok": signed_total_nok if sales_available else None,
-        "current_total_nok": current_total_nok if sales_available else total_creep_value,
+        "current_total_nok": current_total_nok
+        if sales_available
+        else total_creep_value,
         "sales_available": sales_available,
     }
 
@@ -313,7 +325,9 @@ async def do_status_report(
         margin_fact = f"Margin trinity: signed={fmt_margin(trinity.get('signed'))}, estimated={fmt_margin(trinity.get('estimated'))}, actual={fmt_margin(trinity.get('actual'))}"
         margin_label = f"PROJECT:{quote_id}:STATUS:MARGIN:{margin_fact}"
 
-        gate_fact = f"Gate dwell: current phase is {current_phase} (dwell: {dwell_days} days)"
+        gate_fact = (
+            f"Gate dwell: current phase is {current_phase} (dwell: {dwell_days} days)"
+        )
         gate_fact_label = f"PROJECT:{quote_id}:STATUS:GATE:{gate_fact}"
 
         creep_fact = f"Scope creep delta: {delta:,.1f} NOK"

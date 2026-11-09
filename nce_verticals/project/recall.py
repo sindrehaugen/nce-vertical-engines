@@ -175,7 +175,9 @@ async def do_recall_similar_projects(
             {
                 "project": r["name"],
                 "slip_reason": slip_reason,
-                "similarity": float(r["similarity"] if r["similarity"] is not None else 0.0),
+                "similarity": float(
+                    r["similarity"] if r["similarity"] is not None else 0.0
+                ),
             }
         )
 
@@ -252,23 +254,38 @@ async def do_record_project_outcome(
     """
     raw_ns = params.get("namespace_id")
     if not raw_ns:
-        return {"ok": False, "error": "do_record_project_outcome: 'namespace_id' is required"}
+        return {
+            "ok": False,
+            "error": "do_record_project_outcome: 'namespace_id' is required",
+        }
     try:
         ns_uuid = UUID(str(raw_ns)) if not isinstance(raw_ns, UUID) else raw_ns
     except ValueError as exc:
-        return {"ok": False, "error": f"do_record_project_outcome: invalid namespace_id: {exc}"}
+        return {
+            "ok": False,
+            "error": f"do_record_project_outcome: invalid namespace_id: {exc}",
+        }
 
     project_id = str(params.get("project_id") or "").strip()
     if not project_id:
-        return {"ok": False, "error": "do_record_project_outcome: 'project_id' is required"}
+        return {
+            "ok": False,
+            "error": "do_record_project_outcome: 'project_id' is required",
+        }
 
     description = str(params.get("description") or "").strip()
     if not description:
-        return {"ok": False, "error": "do_record_project_outcome: 'description' is required"}
+        return {
+            "ok": False,
+            "error": "do_record_project_outcome: 'description' is required",
+        }
 
     slip_reason = str(params.get("slip_reason") or "").strip()
     if not slip_reason:
-        return {"ok": False, "error": "do_record_project_outcome: 'slip_reason' is required"}
+        return {
+            "ok": False,
+            "error": "do_record_project_outcome: 'slip_reason' is required",
+        }
 
     margin_drift = params.get("margin_drift")
     gate_dwell_time = params.get("gate_dwell_time")
@@ -411,7 +428,9 @@ async def do_record_project_outcome(
             # degradation register means a dropped signal is VISIBLE at
             # GET /api/health/degradations instead of living in a log nobody tails.
             log.error(
-                "do_record_project_outcome: decision feedback write failed: %s", exc, exc_info=True
+                "do_record_project_outcome: decision feedback write failed: %s",
+                exc,
+                exc_info=True,
             )
             try:
                 from nce.degradation import record_degradation
@@ -426,8 +445,12 @@ async def do_record_project_outcome(
                         "not. C10 learning is degraded until this is resolved."
                     ),
                 )
-            except Exception:  # pragma: no cover - the register must never mask the real error
-                log.exception("do_record_project_outcome: degradation register unavailable")
+            except (
+                Exception
+            ):  # pragma: no cover - the register must never mask the real error
+                log.exception(
+                    "do_record_project_outcome: degradation register unavailable"
+                )
 
     return {
         "ok": True,

@@ -282,7 +282,11 @@ async def do_create_restock_po(*args: Any, **kwargs: Any) -> dict[str, Any]:
         engine = kwargs.get("engine", args[0] if args else None)
         params = kwargs["params"]
         return await _dispatch_restock_po(engine, params)
-    if len(args) >= 2 and isinstance(args[1], dict) and not isinstance(args[0], asyncpg.Connection):
+    if (
+        len(args) >= 2
+        and isinstance(args[1], dict)
+        and not isinstance(args[0], asyncpg.Connection)
+    ):
         engine = args[0]
         params = args[1]
         return await _dispatch_restock_po(engine, params)
@@ -320,7 +324,9 @@ async def _dispatch_restock_po(engine: Any, params: dict[str, Any]) -> dict[str,
     confirm = bool(params.get("confirm", False))
     idempotency_key = params.get("idempotency_key")
     if not idempotency_key:
-        idempotency_key = _derive_restock_idempotency_key(str(ns_uuid), sku, po_number, location)
+        idempotency_key = _derive_restock_idempotency_key(
+            str(ns_uuid), sku, po_number, location
+        )
     else:
         idempotency_key = str(idempotency_key).strip()
 

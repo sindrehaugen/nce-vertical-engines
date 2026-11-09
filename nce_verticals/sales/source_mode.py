@@ -89,7 +89,9 @@ async def get_d365_client(engine: NCEEngine) -> DataverseClient | None:
         token = await token_mgr.get_access_token()
         return DataverseClient(cfg.NCE_D365_ORG_URL, token)
     except Exception as exc:
-        log.warning("[sales.source_mode] DataverseClient initialization failed: %s", exc)
+        log.warning(
+            "[sales.source_mode] DataverseClient initialization failed: %s", exc
+        )
         return None
 
 
@@ -99,7 +101,9 @@ async def get_d365_client(engine: NCEEngine) -> DataverseClient | None:
 
 
 # 1. Customers
-async def do_list_customers(engine: NCEEngine, params: dict[str, Any]) -> dict[str, Any]:
+async def do_list_customers(
+    engine: NCEEngine, params: dict[str, Any]
+) -> dict[str, Any]:
     namespace_id = params.get("namespace_id")
     if not namespace_id:
         raise ValueError("namespace_id is required")
@@ -184,7 +188,11 @@ async def do_list_customers(engine: NCEEngine, params: dict[str, Any]) -> dict[s
                 sj = r["source_json"]
                 if isinstance(sj, str):
                     sj = json.loads(sj)
-                mapped = {**(sj or {}), "_id": sj.get("accountid"), "_deleted": r["is_deleted"]}
+                mapped = {
+                    **(sj or {}),
+                    "_id": sj.get("accountid"),
+                    "_deleted": r["is_deleted"],
+                }
                 items.append(mapped)
             return {
                 "entity": "accounts",
@@ -244,7 +252,9 @@ async def do_list_customers(engine: NCEEngine, params: dict[str, Any]) -> dict[s
 
 
 # 2. Customer Profile
-async def do_customer_profile(engine: NCEEngine, params: dict[str, Any]) -> dict[str, Any]:
+async def do_customer_profile(
+    engine: NCEEngine, params: dict[str, Any]
+) -> dict[str, Any]:
     namespace_id = params.get("namespace_id")
     if not namespace_id:
         raise ValueError("namespace_id is required")
@@ -254,7 +264,10 @@ async def do_customer_profile(engine: NCEEngine, params: dict[str, Any]) -> dict
         raise ValueError("accountid is required")
 
     mode = await resolve(
-        engine.pg_pool, engine="sales", function="customer_profile", namespace_id=ns_uuid
+        engine.pg_pool,
+        engine="sales",
+        function="customer_profile",
+        namespace_id=ns_uuid,
     )
 
     async def native_reader() -> dict[str, Any]:
@@ -269,7 +282,10 @@ async def do_customer_profile(engine: NCEEngine, params: dict[str, Any]) -> dict
                 accountid,
             )
             if not row:
-                return {"error": "unknown_company", "detail": f"Ukjent selskap: {accountid!r}"}
+                return {
+                    "error": "unknown_company",
+                    "detail": f"Ukjent selskap: {accountid!r}",
+                }
             import json
 
             sj = row["source_json"]
@@ -390,7 +406,9 @@ async def do_customer_profile(engine: NCEEngine, params: dict[str, Any]) -> dict
 
 
 # 3-10. Generic single opportunity / quote / agreement reads / dashboards
-async def do_sales_overview(engine: NCEEngine, params: dict[str, Any]) -> dict[str, Any]:
+async def do_sales_overview(
+    engine: NCEEngine, params: dict[str, Any]
+) -> dict[str, Any]:
     namespace_id = params.get("namespace_id")
     if not namespace_id:
         raise ValueError("namespace_id is required")
@@ -460,7 +478,9 @@ async def do_seller_detail(engine: NCEEngine, params: dict[str, Any]) -> dict[st
     )
 
 
-async def do_sales_dashboard(engine: NCEEngine, params: dict[str, Any]) -> dict[str, Any]:
+async def do_sales_dashboard(
+    engine: NCEEngine, params: dict[str, Any]
+) -> dict[str, Any]:
     namespace_id = params.get("namespace_id")
     if not namespace_id:
         raise ValueError("namespace_id is required")
@@ -564,7 +584,9 @@ async def do_sales_manager(engine: NCEEngine, params: dict[str, Any]) -> dict[st
     )
 
 
-async def do_list_agreements(engine: NCEEngine, params: dict[str, Any]) -> dict[str, Any]:
+async def do_list_agreements(
+    engine: NCEEngine, params: dict[str, Any]
+) -> dict[str, Any]:
     namespace_id = params.get("namespace_id")
     if not namespace_id:
         raise ValueError("namespace_id is required")
@@ -598,7 +620,9 @@ async def do_list_agreements(engine: NCEEngine, params: dict[str, Any]) -> dict[
     )
 
 
-async def do_agreement_detail(engine: NCEEngine, params: dict[str, Any]) -> dict[str, Any]:
+async def do_agreement_detail(
+    engine: NCEEngine, params: dict[str, Any]
+) -> dict[str, Any]:
     namespace_id = params.get("namespace_id")
     if not namespace_id:
         raise ValueError("namespace_id is required")
@@ -607,7 +631,10 @@ async def do_agreement_detail(engine: NCEEngine, params: dict[str, Any]) -> dict
     if not agreementid:
         raise ValueError("agreementid is required")
     mode = await resolve(
-        engine.pg_pool, engine="sales", function="agreement_detail", namespace_id=ns_uuid
+        engine.pg_pool,
+        engine="sales",
+        function="agreement_detail",
+        namespace_id=ns_uuid,
     )
 
     async def native_reader() -> dict[str, Any]:

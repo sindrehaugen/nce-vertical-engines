@@ -136,7 +136,9 @@ log = logging.getLogger("nce_verticals.inventory.mcp_handlers")
 _MCP_INVENTORY_DISABLED_CODE: int = -32005  # MCP_SCOPE_FORBIDDEN
 
 
-async def _check_inventory_enabled(engine: NCEEngine, arguments: dict[str, Any]) -> None:
+async def _check_inventory_enabled(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> None:
     """Check namespace opt-in; raise McpError(-32005) if not enabled.
 
     Also raises the pre-existing ``ValueError("namespace_id is required")``
@@ -180,7 +182,9 @@ def _insufficient_stock_error(exc: InsufficientStockError) -> str:
 
 
 @mcp_handler
-async def handle_inventory_stock_levels(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_inventory_stock_levels(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: inventory_stock_levels — live per-SKU-per-location stock (Watcher, read-only).
 
     Requires ``namespace_id``; optionally filters by ``sku`` and/or
@@ -196,7 +200,9 @@ async def handle_inventory_stock_levels(engine: NCEEngine, arguments: dict[str, 
 
 
 @mcp_handler
-async def handle_inventory_transfer_stock(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_inventory_transfer_stock(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: inventory_transfer_stock — warehouse<->van / van<->van stock move (Actor).
 
     Requires ``namespace_id``, ``sku``, ``qty``, ``from_location``, and
@@ -217,7 +223,9 @@ async def handle_inventory_transfer_stock(engine: NCEEngine, arguments: dict[str
 
 
 @mcp_handler
-async def handle_inventory_record_consumption(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_inventory_record_consumption(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: inventory_record_consumption — pick/use stock for a job (Actor).
 
     Requires ``namespace_id``, ``sku``, ``qty``, ``location``; optionally
@@ -263,7 +271,9 @@ async def handle_inventory_record_goods_receipt(
 
 
 @mcp_handler
-async def handle_inventory_recommend_restock(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_inventory_recommend_restock(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: inventory_recommend_restock — per-SKU restock recommendations (Watcher).
 
     Requires ``namespace_id``; optionally filters by ``location`` and/or
@@ -279,7 +289,9 @@ async def handle_inventory_recommend_restock(engine: NCEEngine, arguments: dict[
 
 
 @mcp_handler
-async def handle_inventory_forecast_demand(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_inventory_forecast_demand(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: inventory_forecast_demand — pipeline-weighted demand forecast (Watcher).
 
     Requires ``namespace_id``; optionally accepts ``horizon_days`` (which
@@ -295,7 +307,9 @@ async def handle_inventory_forecast_demand(engine: NCEEngine, arguments: dict[st
 
 
 @mcp_handler
-async def handle_inventory_reserve_stock(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_inventory_reserve_stock(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: inventory_reserve_stock — reserve available stock for a project (Actor).
 
     Requires ``namespace_id``, ``sku``, ``qty``, ``location`` and
@@ -313,7 +327,9 @@ async def handle_inventory_reserve_stock(engine: NCEEngine, arguments: dict[str,
 
 
 @mcp_handler
-async def handle_inventory_release_stock(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_inventory_release_stock(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: inventory_release_stock — release previously-reserved stock (Actor).
 
     Requires ``namespace_id``, ``sku``, ``qty``, ``location`` and
@@ -331,7 +347,9 @@ async def handle_inventory_release_stock(engine: NCEEngine, arguments: dict[str,
 
 
 @mcp_handler
-async def handle_inventory_reserve_kit(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_inventory_reserve_kit(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: inventory_reserve_kit — reserve stock for kit/package (Actor).
 
     Requires ``namespace_id``, ``project_id``, ``location``, and ``items``.
@@ -350,7 +368,9 @@ async def handle_inventory_reserve_kit(engine: NCEEngine, arguments: dict[str, A
 
 
 @mcp_handler
-async def handle_inventory_release_kit(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_inventory_release_kit(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: inventory_release_kit — release kit/package reservation (Actor).
 
     Requires ``namespace_id``, ``project_id``, ``location``, and ``items``.
@@ -367,7 +387,9 @@ async def handle_inventory_release_kit(engine: NCEEngine, arguments: dict[str, A
 
 
 @mcp_handler
-async def handle_inventory_record_rma(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_inventory_record_rma(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: inventory_record_rma — record a return with its WEEE state (Actor).
 
     Requires ``namespace_id``, ``rma_ref``, ``sku``, ``location``, ``qty``
@@ -383,7 +405,9 @@ async def handle_inventory_record_rma(engine: NCEEngine, arguments: dict[str, An
 
 
 @mcp_handler
-async def handle_inventory_valuation(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_inventory_valuation(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: inventory_valuation — FIFO/average-cost money value of stock (Watcher).
 
     Requires ``namespace_id``, ``sku`` and ``location``. Read-only
@@ -443,7 +467,9 @@ async def handle_inventory_reconcile_dead_stock(
 
 
 @mcp_handler
-async def handle_inventory_restock_from_rma(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_inventory_restock_from_rma(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: inventory_restock_from_rma — return a repairable unit to stock (Actor).
 
     Requires ``namespace_id`` and ``rma_ref``; ``sku``, ``location_id`` and
@@ -461,7 +487,9 @@ async def handle_inventory_restock_from_rma(engine: NCEEngine, arguments: dict[s
 
 
 @mcp_handler
-async def handle_inventory_dispose_rma_weee(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_inventory_dispose_rma_weee(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: inventory_dispose_rma_weee — WEEE take-back disposal leg (Actor).
 
     Requires ``namespace_id``, ``rma_ref`` and ``disposal_ref``. Actor /
@@ -484,7 +512,9 @@ async def handle_inventory_dispose_rma_weee(engine: NCEEngine, arguments: dict[s
 
 
 @mcp_handler
-async def handle_inventory_create_restock_po(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_inventory_create_restock_po(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: inventory_create_restock_po — create restock PO via C2 and submit (Actor).
 
     Requires ``namespace_id``, ``sku``, ``po_number``, ``supplier_id``, ``line_items``;

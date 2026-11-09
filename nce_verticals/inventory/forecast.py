@@ -191,7 +191,9 @@ def _quantise_score(value: Decimal, where: str) -> Decimal:
     try:
         return value.quantize(_SCORE_SCALE, rounding=ROUND_HALF_UP)
     except DecimalException as exc:
-        raise ValueError(f"{where}: value is too large to express to 4dp: {value!r}") from exc
+        raise ValueError(
+            f"{where}: value is too large to express to 4dp: {value!r}"
+        ) from exc
 
 
 def _as_ns_uuid(raw: Any, field: str) -> UUID:
@@ -227,7 +229,7 @@ def _sku_from_product_label(label: str) -> str:
 # replenishment.py's load_inventory_reorder_points_config().
 # ---------------------------------------------------------------------------
 
-_CONFIG_DATA_DIR = Path(__file__).parents[3] / "nce" / "config_data"
+_CONFIG_DATA_DIR = Path(__file__).resolve().parents[1] / "config_data"
 _FORECAST_WEIGHTS_CONFIG_FILENAME = "inventory-forecast-weights.json"
 
 
@@ -291,14 +293,18 @@ def _parse_stage_days_to_close(raw: Mapping[str, Any]) -> dict[str, int]:
             days = value
         elif isinstance(value, float):
             if not value.is_integer():
-                raise ValueError(f"{where}: must be a whole number of days, got {value!r}")
+                raise ValueError(
+                    f"{where}: must be a whole number of days, got {value!r}"
+                )
             days = int(value)
         else:
             raise ValueError(
                 f"{where}: expected an int number of days, got {type(value).__name__} {value!r}"
             )
         if days < 0:
-            raise ValueError(f"{where}: must be a non-negative number of days, got {days!r}")
+            raise ValueError(
+                f"{where}: must be a non-negative number of days, got {days!r}"
+            )
         days_by_stage[str(stage)] = days
     return days_by_stage
 
@@ -323,15 +329,19 @@ def _horizon_state(
     if days is None:
         return _HORIZON_NO_POLICY
     if created_at is None:
-        raise ValueError("kg_edges.created_at: required to decide horizon membership, got None")
+        raise ValueError(
+            "kg_edges.created_at: required to decide horizon membership, got None"
+        )
     # kg_edges.created_at is TIMESTAMPTZ; compare tz-aware UTC on both sides.
     created = (
-        created_at if created_at.tzinfo is not None else created_at.replace(tzinfo=timezone.utc)
+        created_at
+        if created_at.tzinfo is not None
+        else created_at.replace(tzinfo=timezone.utc)
     )
     expected_close = created + timedelta(days=days)
-    horizon_end = (now if now.tzinfo is not None else now.replace(tzinfo=timezone.utc)) + timedelta(
-        days=horizon_days
-    )
+    horizon_end = (
+        now if now.tzinfo is not None else now.replace(tzinfo=timezone.utc)
+    ) + timedelta(days=horizon_days)
     return _HORIZON_WITHIN if expected_close <= horizon_end else _HORIZON_OUTSIDE
 
 
@@ -441,8 +451,12 @@ def _compute_forecast_lines(
         stage = str(row["stage"])
         confidence = _as_decimal(row["confidence"], "kg_edges.confidence")
         weight = stage_weights.get(stage)
-        state = _horizon_state(row["created_at"], stage, stage_days_to_close, horizon_days, now)
-        within_horizon = None if state == _HORIZON_NO_POLICY else state == _HORIZON_WITHIN
+        state = _horizon_state(
+            row["created_at"], stage, stage_days_to_close, horizon_days, now
+        )
+        within_horizon = (
+            None if state == _HORIZON_NO_POLICY else state == _HORIZON_WITHIN
+        )
         if weight is None or state != _HORIZON_WITHIN:
             lines.append(
                 _ForecastLine(
@@ -456,7 +470,9 @@ def _compute_forecast_lines(
                 )
             )
             continue
-        contribution = _quantise_score(weight * confidence, "forecast_line.contribution")
+        contribution = _quantise_score(
+            weight * confidence, "forecast_line.contribution"
+        )
         lines.append(
             _ForecastLine(
                 subject_label=str(row["subject_label"]),
@@ -479,7 +495,8 @@ def _build_sku_forecast(sku: str, lines: Sequence[_ForecastLine]) -> dict[str, A
     counted = [ln for ln in lines if ln.counted]
     excluded = [ln for ln in lines if not ln.counted]
     counted_citations = (
-        ", ".join(f"{ln.subject_label}[{ln.stage}]" for ln in counted) or "no pipeline lines"
+        ", ".join(f"{ln.subject_label}[{ln.stage}]" for ln in counted)
+        or "no pipeline lines"
     )
     rationale = (
         f"{sku}: forecasted demand score {total} from {len(counted)} pipeline line(s) "
@@ -489,11 +506,11 @@ def _build_sku_forecast(sku: str, lines: Sequence[_ForecastLine]) -> dict[str, A
     out_of_horizon = [ln for ln in excluded if ln.stage_weight is not None]
     if unweighted:
         citations = ", ".join(f"{ln.subject_label}[{ln.stage}]" for ln in unweighted)
-        rationale += (
-            f"; {len(unweighted)} line(s) excluded -- no stage_weight configured for: {citations}"
-        )
+        rationale += f"; {len(unweighted)} line(s) excluded -- no stage_weight configured for: {citations}"
     if out_of_horizon:
-        citations = ", ".join(f"{ln.subject_label}[{ln.stage}]" for ln in out_of_horizon)
+        citations = ", ".join(
+            f"{ln.subject_label}[{ln.stage}]" for ln in out_of_horizon
+        )
         rationale += (
             f"; {len(out_of_horizon)} line(s) excluded -- expected close date not within the "
             f"requested horizon (or the stage has no stage_days_to_close policy): {citations}"
@@ -523,7 +540,9 @@ def _build_sku_forecast(sku: str, lines: Sequence[_ForecastLine]) -> dict[str, A
 # ---------------------------------------------------------------------------
 
 
-async def do_forecast_demand(engine: NCEEngine, params: dict[str, Any]) -> dict[str, Any]:
+async def do_forecast_demand(
+    engine: NCEEngine, params: dict[str, Any]
+) -> dict[str, Any]:
     """Pipeline-aware demand forecast, per SKU, from Knowledge Graph pipeline
     lines weighted by configured pipeline-stage probabilities. **Writes
     nothing** -- see module docstring.
@@ -579,7 +598,9 @@ async def do_forecast_demand(engine: NCEEngine, params: dict[str, Any]) -> dict[
 
     config = load_inventory_forecast_weights_config()
     stage_weights = _parse_stage_weights(config.get("stage_weights") or {})
-    stage_days_to_close = _parse_stage_days_to_close(config.get("stage_days_to_close") or {})
+    stage_days_to_close = _parse_stage_days_to_close(
+        config.get("stage_days_to_close") or {}
+    )
     now = datetime.now(timezone.utc)
 
     async with scoped_pg_session(engine.pg_pool, ns_uuid) as conn:
@@ -605,7 +626,11 @@ async def do_forecast_demand(engine: NCEEngine, params: dict[str, Any]) -> dict[
     forecasts: list[dict[str, Any]] = []
     for sku in skus_to_report:
         lines = _compute_forecast_lines(
-            rows_by_sku.get(sku, []), stage_weights, stage_days_to_close, horizon_days, now
+            rows_by_sku.get(sku, []),
+            stage_weights,
+            stage_days_to_close,
+            horizon_days,
+            now,
         )
         forecasts.append(_build_sku_forecast(sku, lines))
 

@@ -345,7 +345,9 @@ async def do_propose_design(
             if ns_metadata_row and isinstance(ns_metadata_row["metadata"], str)
             else (ns_metadata_row["metadata"] if ns_metadata_row else {})
         ) or {}
-        ns_override = ns_metadata.get("system_design", {}).get("outcome_weighting_enabled")
+        ns_override = ns_metadata.get("system_design", {}).get(
+            "outcome_weighting_enabled"
+        )
         if ns_override is not None:
             outcome_weighting_enabled = bool(ns_override)
 
@@ -407,7 +409,11 @@ async def do_propose_design(
         outcomes=outcomes,
     )
 
-    if outcome_weighting_enabled and coverage["attributed_outcomes"] == 0 and len(candidates) > 0:
+    if (
+        outcome_weighting_enabled
+        and coverage["attributed_outcomes"] == 0
+        and len(candidates) > 0
+    ):
         try:
             from nce.degradation import record_degradation
 
@@ -419,7 +425,9 @@ async def do_propose_design(
                 onboarding_hint="Design recall is similarity-only: 0 attributed outcomes; record 5 to unlock.",
             )
         except Exception:
-            log.warning("Failed to record degradation event in propose_design", exc_info=True)
+            log.warning(
+                "Failed to record degradation event in propose_design", exc_info=True
+            )
 
     # 4. Build proposed BOM lines from ranked evidence.
     proposed_lines = _build_proposed_lines(ranked)

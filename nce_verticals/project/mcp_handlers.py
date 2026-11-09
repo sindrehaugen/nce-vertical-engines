@@ -62,7 +62,9 @@ log = logging.getLogger("nce_verticals.project.mcp_handlers")
 
 
 @mcp_handler
-async def handle_project_can_enter_phase(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_project_can_enter_phase(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: project_can_enter_phase — phase-gate readiness check.
 
     Requires ``namespace_id``, ``project`` (dict with ``current_phase`` and
@@ -83,7 +85,9 @@ async def handle_project_can_enter_phase(engine: NCEEngine, arguments: dict[str,
 
 
 @mcp_handler
-async def handle_project_convert_signed_quote(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_project_convert_signed_quote(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: project_convert_signed_quote — Sales→Project bridge (P2).
 
     Requires ``namespace_id``, ``quote_id``, ``signed_by``, and
@@ -116,7 +120,9 @@ async def handle_project_convert_signed_quote(engine: NCEEngine, arguments: dict
 
 
 @mcp_handler
-async def handle_project_advance_phase(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_project_advance_phase(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: project_advance_phase — phase-transition Actor (M7.W4a).
 
     Requires ``namespace_id``, ``project_id``, ``target_phase``, and
@@ -145,7 +151,9 @@ async def handle_project_advance_phase(engine: NCEEngine, arguments: dict[str, A
 
 
 @mcp_handler
-async def handle_project_suggest_pl(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_project_suggest_pl(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: project_suggest_pl — Suggest project lead (Module 7.Wave 11).
 
     Requires ``namespace_id`` and ``project_id`` in *arguments*.
@@ -157,7 +165,9 @@ async def handle_project_suggest_pl(engine: NCEEngine, arguments: dict[str, Any]
 
 
 @mcp_handler
-async def handle_project_record_outcome(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_project_record_outcome(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: project_record_outcome — Record project outcome signals at G5.
 
     Requires ``namespace_id``, ``project_id``, ``description``, and
@@ -204,7 +214,9 @@ async def handle_project_generate_case_study_edge(
 
 
 @mcp_handler
-async def handle_project_recall_similar(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_project_recall_similar(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: project_recall_similar — Recall similar past slipped projects (Wave PJ-3).
 
     Requires ``namespace_id`` and ``project_id`` in *arguments*.
@@ -246,7 +258,9 @@ async def handle_project_capacity(engine: NCEEngine, arguments: dict[str, Any]) 
 
 
 @mcp_handler
-async def handle_project_detect_scope_creep(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_project_detect_scope_creep(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: project_detect_scope_creep — Scope creep detection vs signed baseline (Wave PJ-4).
 
     Requires ``namespace_id`` and ``project_id`` in *arguments*.
@@ -261,7 +275,9 @@ async def handle_project_detect_scope_creep(engine: NCEEngine, arguments: dict[s
 
 
 @mcp_handler
-async def handle_project_status_report(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_project_status_report(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: project_status_report — Status report narrative and margin-trinity (Wave PJ-4).
 
     Requires ``namespace_id`` and ``project_id`` in *arguments*.
@@ -277,7 +293,10 @@ async def handle_project_status_report(engine: NCEEngine, arguments: dict[str, A
             params["estimated_cost_nok"] = float(params["estimated_cost_nok"])
         except (ValueError, TypeError):
             raise ValueError("estimated_cost_nok must be a valid float")
-    if "estimated_revenue_nok" in params and params["estimated_revenue_nok"] is not None:
+    if (
+        "estimated_revenue_nok" in params
+        and params["estimated_revenue_nok"] is not None
+    ):
         try:
             params["estimated_revenue_nok"] = float(params["estimated_revenue_nok"])
         except (ValueError, TypeError):

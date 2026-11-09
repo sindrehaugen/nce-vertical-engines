@@ -141,9 +141,13 @@ async def do_generate_close_narrative(
         *period_id* is not a non-empty string.
     """
     if not isinstance(period_id, str) or not period_id.strip():
-        raise ValueError("do_generate_close_narrative: period_id must be a non-empty string")
+        raise ValueError(
+            "do_generate_close_narrative: period_id must be a non-empty string"
+        )
 
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
     clean_period_id = period_id.strip()
 
     claims = await _collect_period_claim_ids(conn, ns_uuid, clean_period_id)

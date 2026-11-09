@@ -131,7 +131,9 @@ def _as_rows(payload: Any) -> list[dict[str, Any]]:
     return []
 
 
-def _samples_from_status_bearing_row(row: dict[str, Any], now: datetime) -> list[TelemetrySample]:
+def _samples_from_status_bearing_row(
+    row: dict[str, Any], now: datetime
+) -> list[TelemetrySample]:
     samples: list[TelemetrySample] = []
     status = row.get("status") if isinstance(row.get("status"), dict) else {}
     code = status.get("code")
@@ -168,7 +170,9 @@ class QSysReflectTelemetryAdapter(TelemetryAdapter):
         transport: httpx.AsyncBaseTransport | None = None,
     ) -> None:
         self._endpoint_url = (
-            (endpoint_url or live_env_str("NCE_ASSETS_QSYS_ENDPOINT_URL") or "").strip().rstrip("/")
+            (endpoint_url or live_env_str("NCE_ASSETS_QSYS_ENDPOINT_URL") or "")
+            .strip()
+            .rstrip("/")
         )
         self._api_key = api_key or live_env_str("NCE_ASSETS_QSYS_API_KEY")
         self._timeout = min(timeout, 4.9)
@@ -200,7 +204,10 @@ class QSysReflectTelemetryAdapter(TelemetryAdapter):
         resp = await client.request(
             method,
             f"{self._endpoint_url}/{path}",
-            headers={"Accept": "application/json", "Authorization": f"Bearer {self._api_key}"},
+            headers={
+                "Accept": "application/json",
+                "Authorization": f"Bearer {self._api_key}",
+            },
         )
         resp.raise_for_status()
         return resp
@@ -257,7 +264,8 @@ class QSysReflectTelemetryAdapter(TelemetryAdapter):
                             return _samples_from_status_bearing_row(item, now)
 
                 log.info(
-                    "QSysReflectTelemetryAdapter: no core or item with serialNumber %s", serial
+                    "QSysReflectTelemetryAdapter: no core or item with serialNumber %s",
+                    serial,
                 )
                 return []
         except Exception as exc:

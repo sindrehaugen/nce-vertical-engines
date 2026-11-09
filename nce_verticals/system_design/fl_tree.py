@@ -72,7 +72,9 @@ def derive_fl_kind(label: str, depth: int | None = None) -> str:
     Kinds: site | building | floor | room | desk | vessel
     """
     upper = label.upper()
-    if any(k in upper for k in (":VESSEL:", ":SKIP:", ":BOAT:", "VESSEL", "MS ", "SS ")):
+    if any(
+        k in upper for k in (":VESSEL:", ":SKIP:", ":BOAT:", "VESSEL", "MS ", "SS ")
+    ):
         return "vessel"
     if any(k in upper for k in (":DESK:", ":POS:", ":POSITION:", "DESK", "POS-")):
         return "desk"
@@ -157,7 +159,10 @@ async def get_fl_node(
     # 2. In-memory fallback
     bucket = _MEM_NODES.get(ns_str, {})
     for node in bucket.values():
-        if node.get("label") == node_id_or_label or str(node.get("id")) == node_id_or_label:
+        if (
+            node.get("label") == node_id_or_label
+            or str(node.get("id")) == node_id_or_label
+        ):
             return _format_node_dict(node)
 
     raise FLNodeNotFoundError(
@@ -431,7 +436,9 @@ async def move_fl_node(
         raise InvalidMoveError(f"Cannot move node {target_label!r} under itself")
 
     # Cycle Detection: verify new_parent is not a descendant of target
-    descendants = await get_fl_children(conn, namespace_id, target_label, recursive=True)
+    descendants = await get_fl_children(
+        conn, namespace_id, target_label, recursive=True
+    )
     descendant_labels = {d["label"] for d in descendants}
     if new_parent_label in descendant_labels:
         raise CycleDetectedError(
@@ -499,7 +506,12 @@ async def move_fl_node(
         }
     )
 
-    log.info("Moved FL node %s under new parent %s by %s", target_label, new_parent_label, actor)
+    log.info(
+        "Moved FL node %s under new parent %s by %s",
+        target_label,
+        new_parent_label,
+        actor,
+    )
     return {
         "node": target,
         "new_parent": new_parent,
@@ -542,7 +554,9 @@ async def merge_fl_nodes(
     )
 
     # Get absorbed's children before reparenting (for audit and execution)
-    children = await get_fl_children(conn, namespace_id, absorbed_label, recursive=False)
+    children = await get_fl_children(
+        conn, namespace_id, absorbed_label, recursive=False
+    )
     children_labels = [c["label"] for c in children]
 
     audit_entry = {

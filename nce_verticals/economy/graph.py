@@ -201,7 +201,9 @@ def _quantise_ore(value: Decimal, where: str) -> Decimal:
     try:
         return value.quantize(_ORE, rounding=ROUND_HALF_UP)
     except DecimalException as exc:
-        raise ValueError(f"{where}: amount is too large to express in øre: {value!r}") from exc
+        raise ValueError(
+            f"{where}: amount is too large to express in øre: {value!r}"
+        ) from exc
 
 
 def _sum_exact(amounts: list[Decimal]) -> Decimal:
@@ -251,7 +253,9 @@ async def _upsert_node(
     registered per-dimension in node-ownership.json (see that constant's
     comment), so its ownership check must name the dimension it writes.
     """
-    await assert_owner(conn, namespace_id, entity_type, _ECONOMY_ENGINE, transition=transition)
+    await assert_owner(
+        conn, namespace_id, entity_type, _ECONOMY_ENGINE, transition=transition
+    )
 
     await conn.execute(
         """
@@ -327,7 +331,9 @@ async def upsert_invoice_node(
     source_id: str | None = None,
 ) -> str:
     """Upsert an INVOICE node. Returns its label."""
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
     label = _invoice_label(invoice_id)
     await _upsert_node(conn, ns_uuid, label, _NODE_TYPE_INVOICE, source_id)
     return label
@@ -348,7 +354,9 @@ async def upsert_posting_node(
     ``POSTING:{event_id}`` and a SQL query on ``economy_postings`` address
     the exact same ledger entry.
     """
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
     label = _posting_label(event_id)
     await _upsert_node(conn, ns_uuid, label, _NODE_TYPE_POSTING, source_id)
     return label
@@ -362,7 +370,9 @@ async def upsert_period_node(
     source_id: str | None = None,
 ) -> str:
     """Upsert a PERIOD node (an accounting period / close). Returns its label."""
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
     label = _period_label(period_id)
     await _upsert_node(conn, ns_uuid, label, _NODE_TYPE_PERIOD, source_id)
     return label
@@ -383,10 +393,17 @@ async def upsert_margin_node(
     that transition, so this call is denied unless node-ownership.json
     registers Economy for MARGIN/``actual`` specifically.
     """
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
     label = _margin_label(quote_id)
     await _upsert_node(
-        conn, ns_uuid, label, _NODE_TYPE_MARGIN, source_id, transition=_MARGIN_TRANSITION_ACTUAL
+        conn,
+        ns_uuid,
+        label,
+        _NODE_TYPE_MARGIN,
+        source_id,
+        transition=_MARGIN_TRANSITION_ACTUAL,
     )
     return label
 
@@ -411,7 +428,9 @@ async def upsert_recognized_in_edge(
     ``project/convert.py``'s ``_CONTAINS_CONFIDENCE`` convention for a
     deterministic assignment rather than a scored match).
     """
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
     await _upsert_edge(
         conn,
         ns_uuid,
@@ -438,7 +457,9 @@ async def upsert_has_margin_edge(
     itself (kg_edges has no FK to kg_nodes, so this cross-engine write is
     always safe; mirrors procurement/graph.py's ``upsert_offers_edge``).
     """
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
     await _upsert_edge(
         conn,
         ns_uuid,
@@ -473,7 +494,9 @@ async def find_posted_to_po(
 
     Namespace-scoped explicitly (rule 8) — never relies on RLS alone.
     """
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
     invoice_label = _invoice_label(invoice_id)
     return await conn.fetchval(
         """
@@ -505,7 +528,9 @@ async def upsert_invoice_from_procurement(
         ``{"invoice_label": str, "po_label": str | None}`` — ``po_label`` is
         ``None`` when no ``posted_to`` edge exists yet for this invoice.
     """
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
     invoice_label = await upsert_invoice_node(
         conn, ns_uuid, invoice_id=invoice_id, source_id=source_id
     )
@@ -576,7 +601,9 @@ async def persist_financial_event(
         This is the Python-level half of the storage backstop; migration
         048's DB trigger is the other half.
     """
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
 
     postings = event.get("postings")
     if not postings:
@@ -597,7 +624,9 @@ async def persist_financial_event(
     amounts: list[Decimal] = []
     for index, posting in enumerate(postings):
         if not isinstance(posting, dict):
-            raise ValueError(f"persist_financial_event: postings[{index}] must be an object")
+            raise ValueError(
+                f"persist_financial_event: postings[{index}] must be an object"
+            )
         account = posting.get("account")
         if not isinstance(account, str) or not account.strip():
             raise ValueError(

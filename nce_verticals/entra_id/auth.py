@@ -43,7 +43,13 @@ HTTP_TIMEOUT = httpx.Timeout(connect=4.0, read=5.0, write=4.0, pool=4.0)
 class EntraVerificationError(PermissionError):
     """Raised when Entra ID identity verification or allowlist check fails."""
 
-    def __init__(self, message: str, *, code: str = "ENTRA_ACCESS_DENIED", details: dict[str, Any] | None = None):
+    def __init__(
+        self,
+        message: str,
+        *,
+        code: str = "ENTRA_ACCESS_DENIED",
+        details: dict[str, Any] | None = None,
+    ):
         super().__init__(message)
         self.code = code
         self.details = details or {}
@@ -76,7 +82,9 @@ class EntraConfig:
 
         tenant_id = os.environ.get("NCE_ENTRA_TENANT_ID", "").strip()
         default_mode = "strict" if tenant_id else "disabled"
-        enforce_mode = os.environ.get("NCE_ENTRA_ENFORCE_MODE", default_mode).strip().lower()
+        enforce_mode = (
+            os.environ.get("NCE_ENTRA_ENFORCE_MODE", default_mode).strip().lower()
+        )
         if enforce_mode not in ("strict", "audit_only", "disabled"):
             enforce_mode = default_mode
 
@@ -88,11 +96,24 @@ class EntraConfig:
             allowed_group_ids=[g.strip() for g in groups_raw.split(",") if g.strip()],
             allowed_app_roles=[r.strip() for r in roles_raw.split(",") if r.strip()],
             allowed_upns=[u.strip().lower() for u in upns_raw.split(",") if u.strip()],
-            blocked_upns=[u.strip().lower() for u in blocked_raw.split(",") if u.strip()],
-            require_graph_check=os.environ.get("NCE_ENTRA_REQUIRE_GRAPH_CHECK", "true").lower() in ("1", "true", "yes"),
-            allow_os_silent_auth=os.environ.get("NCE_ENTRA_ALLOW_OS_SILENT", "true").lower() in ("1", "true", "yes"),
-            allow_device_code_flow=os.environ.get("NCE_ENTRA_ALLOW_DEVICE_CODE", "true").lower() in ("1", "true", "yes"),
-            session_ttl_seconds=max(300, min(86400, int(os.environ.get("NCE_ENTRA_SESSION_TTL", "28800")))),
+            blocked_upns=[
+                u.strip().lower() for u in blocked_raw.split(",") if u.strip()
+            ],
+            require_graph_check=os.environ.get(
+                "NCE_ENTRA_REQUIRE_GRAPH_CHECK", "true"
+            ).lower()
+            in ("1", "true", "yes"),
+            allow_os_silent_auth=os.environ.get(
+                "NCE_ENTRA_ALLOW_OS_SILENT", "true"
+            ).lower()
+            in ("1", "true", "yes"),
+            allow_device_code_flow=os.environ.get(
+                "NCE_ENTRA_ALLOW_DEVICE_CODE", "true"
+            ).lower()
+            in ("1", "true", "yes"),
+            session_ttl_seconds=max(
+                300, min(86400, int(os.environ.get("NCE_ENTRA_SESSION_TTL", "28800")))
+            ),
         )
 
     def to_safe_dict(self) -> dict[str, Any]:
@@ -150,7 +171,9 @@ def _decode_jwt_payload_unverified(token: str) -> dict[str, Any]:
     """Decode JWT payload segment (used prior to JWKS/Graph verification)."""
     parts = token.strip().split(".")
     if len(parts) != 3:
-        raise EntraVerificationError("Malformed JWT token format", code="INVALID_JWT_FORMAT")
+        raise EntraVerificationError(
+            "Malformed JWT token format", code="INVALID_JWT_FORMAT"
+        )
     payload_b64 = parts[1]
     pad = "=" * ((4 - len(payload_b64) % 4) % 4)
     try:
@@ -160,7 +183,9 @@ def _decode_jwt_payload_unverified(token: str) -> dict[str, Any]:
             raise ValueError("Payload is not a JSON object")
         return data
     except Exception as exc:
-        raise EntraVerificationError(f"Failed to decode JWT claims: {exc}", code="INVALID_JWT_CLAIMS") from exc
+        raise EntraVerificationError(
+            f"Failed to decode JWT claims: {exc}", code="INVALID_JWT_CLAIMS"
+        ) from exc
 
 
 class EntraIDAuthenticator:
@@ -169,7 +194,9 @@ class EntraIDAuthenticator:
     Operates both standalone (in-memory session cache) and integrated (Redis + Postgres).
     """
 
-    def __init__(self, config: EntraConfig | None = None, redis_client: Any = None) -> None:
+    def __init__(
+        self, config: EntraConfig | None = None, redis_client: Any = None
+    ) -> None:
         self.config = config or EntraConfig.from_env()
         self._redis = redis_client
         self._memory_sessions: dict[str, EntraPrincipal] = {}
@@ -186,7 +213,11 @@ class EntraIDAuthenticator:
         except Exception:
             hostname = "unknown-pc"
         try:
-            username = os.environ.get("USERNAME") or os.environ.get("USER") or getpass.getuser()
+            username = (
+                os.environ.get("USERNAME")
+                or os.environ.get("USER")
+                or getpass.getuser()
+            )
         except Exception:
             username = "unknown-user"
         return {"pc_hostname": hostname, "os_username": username}
@@ -231,7 +262,9 @@ class EntraIDAuthenticator:
 
         return None, "none"
 
-    async def start_device_code_flow(self, scopes: list[str] | None = None) -> dict[str, Any]:
+    async def start_device_code_flow(
+        self, scopes: list[str] | None = None
+    ) -> dict[str, Any]:
         """
         Initiate Microsoft Entra ID OAuth 2.0 Device Code flow so a user in Claude Desktop
         can sign in with their corporate Microsoft account.
@@ -241,7 +274,10 @@ class EntraIDAuthenticator:
                 "Entra ID tenant_id and client_id must be configured before starting Device Code flow.",
                 code="ENTRA_NOT_CONFIGURED",
             )
-        scope_str = " ".join(scopes or ["openid", "profile", "email", "User.Read", "GroupMember.Read.All"])
+        scope_str = " ".join(
+            scopes
+            or ["openid", "profile", "email", "User.Read", "GroupMember.Read.All"]
+        )
         url = f"https://login.microsoftonline.com/{self.config.entra_tenant_id}/oauth2/v2.0/devicecode"
         async with httpx.AsyncClient(timeout=HTTP_TIMEOUT) as client:
             resp = await client.post(
@@ -257,7 +293,9 @@ class EntraIDAuthenticator:
             return {
                 "user_code": data.get("user_code"),
                 "device_code": data.get("device_code"),
-                "verification_uri": data.get("verification_uri", "https://microsoft.com/devicelogin"),
+                "verification_uri": data.get(
+                    "verification_uri", "https://microsoft.com/devicelogin"
+                ),
                 "expires_in": data.get("expires_in", 900),
                 "interval": data.get("interval", 5),
                 "message": data.get("message"),
@@ -295,9 +333,13 @@ class EntraIDAuthenticator:
             token_data = resp.json()
             access_token = token_data.get("access_token") or token_data.get("id_token")
             if not access_token:
-                raise EntraVerificationError("No access_token returned from Entra ID", code="NO_ACCESS_TOKEN")
+                raise EntraVerificationError(
+                    "No access_token returned from Entra ID", code="NO_ACCESS_TOKEN"
+                )
 
-        return await self.verify_token_and_allowlist(access_token, auth_method="device_code")
+        return await self.verify_token_and_allowlist(
+            access_token, auth_method="device_code"
+        )
 
     async def _verify_with_microsoft_graph(
         self,
@@ -310,7 +352,10 @@ class EntraIDAuthenticator:
         2. Verify `accountEnabled` is True.
         3. Check transitive membership in the company's allowed Entra Security Groups.
         """
-        headers = {"Authorization": f"Bearer {access_token}", "Accept": "application/json"}
+        headers = {
+            "Authorization": f"Bearer {access_token}",
+            "Accept": "application/json",
+        }
         async with httpx.AsyncClient(timeout=HTTP_TIMEOUT) as client:
             me_resp = await client.get(
                 "https://graph.microsoft.com/v1.0/me?$select=id,userPrincipalName,displayName,accountEnabled,mail",
@@ -358,25 +403,39 @@ class EntraIDAuthenticator:
         exp = float(claims.get("exp", 0))
         nbf = float(claims.get("nbf", 0))
         if exp and now > exp + 60:
-            raise EntraVerificationError("Entra ID token has expired", code="TOKEN_EXPIRED")
+            raise EntraVerificationError(
+                "Entra ID token has expired", code="TOKEN_EXPIRED"
+            )
         if nbf and now + 60 < nbf:
-            raise EntraVerificationError("Entra ID token is not yet valid (nbf)", code="TOKEN_NOT_YET_VALID")
+            raise EntraVerificationError(
+                "Entra ID token is not yet valid (nbf)", code="TOKEN_NOT_YET_VALID"
+            )
 
         tid = str(claims.get("tid") or "").strip()
         oid = str(claims.get("oid") or claims.get("sub") or "").strip()
-        upn = str(
-            claims.get("preferred_username")
-            or claims.get("upn")
-            or claims.get("email")
-            or ""
-        ).strip().lower()
+        upn = (
+            str(
+                claims.get("preferred_username")
+                or claims.get("upn")
+                or claims.get("email")
+                or ""
+            )
+            .strip()
+            .lower()
+        )
         display_name = str(claims.get("name") or upn or oid)
 
         if not oid or not tid:
-            raise EntraVerificationError("Entra ID token is missing required 'oid' or 'tid' claims", code="MISSING_OID_TID")
+            raise EntraVerificationError(
+                "Entra ID token is missing required 'oid' or 'tid' claims",
+                code="MISSING_OID_TID",
+            )
 
         # 1. Verify Tenant ID matches company Entra Tenant ID
-        if self.config.entra_tenant_id and tid.lower() != self.config.entra_tenant_id.lower():
+        if (
+            self.config.entra_tenant_id
+            and tid.lower() != self.config.entra_tenant_id.lower()
+        ):
             raise EntraVerificationError(
                 f"Tenant ID mismatch: token tid '{tid}' is not authorized for tenant '{self.config.entra_tenant_id}'",
                 code="TENANT_MISMATCH",
@@ -459,7 +518,10 @@ class EntraIDAuthenticator:
                 )
 
         pc_ctx = self.get_local_pc_context()
-        ttl = min(self.config.session_ttl_seconds, int(max(300, (exp - now) if exp else self.config.session_ttl_seconds)))
+        ttl = min(
+            self.config.session_ttl_seconds,
+            int(max(300, (exp - now) if exp else self.config.session_ttl_seconds)),
+        )
         principal = EntraPrincipal(
             oid=oid,
             tid=tid,
@@ -491,7 +553,9 @@ class EntraIDAuthenticator:
             except Exception as exc:
                 log.debug("Redis session cache write skipped: %s", exc)
 
-    async def get_cached_session(self, oid: str | None = None, tid: str | None = None) -> EntraPrincipal | None:
+    async def get_cached_session(
+        self, oid: str | None = None, tid: str | None = None
+    ) -> EntraPrincipal | None:
         """Return an active, non-expired cached session if available."""
         now = time.time()
         if oid and tid:
@@ -540,12 +604,14 @@ class EntraIDAuthenticator:
         5. Raises `EntraVerificationError` if `enforce_mode == 'strict'` and verification fails.
         """
         args = arguments or {}
-        explicit_token = (
-            str(args.get("entra_token") or args.get("_entra_token") or "").strip()
-        )
+        explicit_token = str(
+            args.get("entra_token") or args.get("_entra_token") or ""
+        ).strip()
 
         if explicit_token:
-            return await self.verify_token_and_allowlist(explicit_token, auth_method="jwt_bearer")
+            return await self.verify_token_and_allowlist(
+                explicit_token, auth_method="jwt_bearer"
+            )
 
         cached = await self.get_cached_session(
             oid=args.get("entra_oid"),
@@ -557,7 +623,9 @@ class EntraIDAuthenticator:
         silent_token, method = await self.acquire_os_silent_token()
         if silent_token:
             try:
-                return await self.verify_token_and_allowlist(silent_token, auth_method=method)
+                return await self.verify_token_and_allowlist(
+                    silent_token, auth_method=method
+                )
             except EntraVerificationError:
                 if self.config.enforce_mode == "strict":
                     raise
@@ -566,7 +634,9 @@ class EntraIDAuthenticator:
             return None
 
         if self.config.enforce_mode == "audit_only":
-            log.warning("Entra ID audit_only mode: no verified Entra session for local caller")
+            log.warning(
+                "Entra ID audit_only mode: no verified Entra session for local caller"
+            )
             return None
 
         raise EntraVerificationError(

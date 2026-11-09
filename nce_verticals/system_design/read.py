@@ -302,7 +302,9 @@ async def _fetch_connections_and_capabilities(
         design_label,
         ns_uuid,
     )
-    connections = [{"from_port": r["from_port"], "to_port": r["to_port"]} for r in cnx_rows]
+    connections = [
+        {"from_port": r["from_port"], "to_port": r["to_port"]} for r in cnx_rows
+    ]
 
     # Collect distinct port labels from this design.
     port_labels: set[str] = set()
@@ -630,7 +632,11 @@ async def _fetch_capabilities_by_labels(
     )
     by_label: dict[str, dict[str, Any]] = {}
     for row in rows:
-        cap = {key: _json_native(value) for key, value in row.items() if key != "node_label"}
+        cap = {
+            key: _json_native(value)
+            for key, value in row.items()
+            if key != "node_label"
+        }
         cap["extra"] = _decode_extra(row["extra"])
         by_label[row["node_label"]] = cap
     return by_label
@@ -680,7 +686,9 @@ async def _fetch_node_state_by_labels(
     )
     return {
         row["node_label"]: {
-            key: _json_native(value) for key, value in row.items() if key != "node_label"
+            key: _json_native(value)
+            for key, value in row.items()
+            if key != "node_label"
         }
         for row in rows
     }
@@ -708,7 +716,9 @@ def _build_devices(
             ports_of_device.setdefault(edge["subject"], []).append(edge["object"])
 
     devices: list[dict[str, Any]] = []
-    for device in sorted(nodes_by_type.get(_ENTITY_DEVICE, []), key=lambda n: n["label"]):
+    for device in sorted(
+        nodes_by_type.get(_ENTITY_DEVICE, []), key=lambda n: n["label"]
+    ):
         port_labels = sorted(ports_of_device.get(device["label"], []))
         devices.append(
             {
@@ -751,11 +761,15 @@ def _build_racks(
     """
     return [
         {"node": rack, "capabilities": capabilities.get(rack["label"], {})}
-        for rack in sorted(nodes_by_type.get(_ENTITY_RACK, []), key=lambda n: n["label"])
+        for rack in sorted(
+            nodes_by_type.get(_ENTITY_RACK, []), key=lambda n: n["label"]
+        )
     ]
 
 
-def _group_nodes_by_type(nodes: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
+def _group_nodes_by_type(
+    nodes: list[dict[str, Any]],
+) -> dict[str, list[dict[str, Any]]]:
     """Bucket node rows by ``entity_type``.  Pure."""
     grouped: dict[str, list[dict[str, Any]]] = {}
     for node in nodes:
@@ -1000,7 +1014,9 @@ async def do_get_topology(
         "devices": _build_devices(nodes_by_type, edges, capabilities),
         # Debt D5 (M6.W14): RACK was authored since W12 and never projected.
         "racks": _build_racks(nodes_by_type, capabilities),
-        "cables": sorted(nodes_by_type.get(_ENTITY_CABLE, []), key=lambda n: n["label"]),
+        "cables": sorted(
+            nodes_by_type.get(_ENTITY_CABLE, []), key=lambda n: n["label"]
+        ),
         "edges": edges,
         # M6.W14: canvas geometry, keyed by node label; nodes without a
         # geometry row are absent rather than present-and-null.

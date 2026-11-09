@@ -235,7 +235,9 @@ def _quantise(value: Decimal, where: str) -> Decimal:
     try:
         return value.quantize(_ORE, rounding=ROUND_HALF_UP)
     except DecimalException as exc:
-        raise ValueError(f"{where}: amount is too large to express in øre: {value!r}") from exc
+        raise ValueError(
+            f"{where}: amount is too large to express in øre: {value!r}"
+        ) from exc
 
 
 def _as_actual_cost(value: Any, where: str) -> Decimal:
@@ -273,7 +275,9 @@ def _as_actual_cost(value: Any, where: str) -> Decimal:
             raise ValueError(f"{where}: amount must be finite (got {value!r})")
         decimal_value = value
     else:
-        raise ValueError(f"{where}: expected int/float/Decimal, got {type(value).__name__}")
+        raise ValueError(
+            f"{where}: expected int/float/Decimal, got {type(value).__name__}"
+        )
     return _quantise(decimal_value, where)
 
 
@@ -300,13 +304,21 @@ def _as_lines(raw: Any) -> list[dict[str, Any]]:
     lines: list[dict[str, Any]] = []
     for index, entry in enumerate(raw):
         if not isinstance(entry, dict):
-            raise ValueError(f"do_cascade_on_approval: lines[{index}] must be an object")
+            raise ValueError(
+                f"do_cascade_on_approval: lines[{index}] must be an object"
+            )
         label = str(entry.get("bom_line_label") or "").strip()
         if not label:
-            raise ValueError(f"do_cascade_on_approval: lines[{index}].bom_line_label is required")
+            raise ValueError(
+                f"do_cascade_on_approval: lines[{index}].bom_line_label is required"
+            )
         if "actual_cost" not in entry:
-            raise ValueError(f"do_cascade_on_approval: lines[{index}].actual_cost is required")
-        actual_cost = _as_actual_cost(entry["actual_cost"], f"lines[{index}].actual_cost")
+            raise ValueError(
+                f"do_cascade_on_approval: lines[{index}].actual_cost is required"
+            )
+        actual_cost = _as_actual_cost(
+            entry["actual_cost"], f"lines[{index}].actual_cost"
+        )
         lines.append(
             {
                 "bom_line_label": label,
@@ -525,10 +537,14 @@ def _compute_margin_snapshot(
 
     signed_margin_amount = signed_total_nok * signed_margin_pct
     actual_margin_amount = signed_total_nok - actual_cost_total
-    actual_margin_pct = (actual_margin_amount / signed_total_nok) if signed_total_nok != 0 else None
+    actual_margin_pct = (
+        (actual_margin_amount / signed_total_nok) if signed_total_nok != 0 else None
+    )
     margin_variance_amount = actual_margin_amount - signed_margin_amount
     margin_variance_pct = (
-        (actual_margin_pct - signed_margin_pct) if actual_margin_pct is not None else None
+        (actual_margin_pct - signed_margin_pct)
+        if actual_margin_pct is not None
+        else None
     )
     return {
         "signed_margin_pct": signed_margin_pct,
@@ -545,7 +561,9 @@ def _compute_margin_snapshot(
 # ---------------------------------------------------------------------------
 
 
-async def do_cascade_on_approval(engine: NCEEngine, params: dict[str, Any]) -> dict[str, Any]:
+async def do_cascade_on_approval(
+    engine: NCEEngine, params: dict[str, Any]
+) -> dict[str, Any]:
     """The 7-effect Stage-2 approval cascade — the single BOM-cost write-path.
 
     Parameters
@@ -610,7 +628,9 @@ async def do_cascade_on_approval(engine: NCEEngine, params: dict[str, Any]) -> d
 
     approval_id = str(params.get("approval_id") or "").strip()
     if not approval_id:
-        raise ValueError("do_cascade_on_approval: 'approval_id' is required (idempotency key)")
+        raise ValueError(
+            "do_cascade_on_approval: 'approval_id' is required (idempotency key)"
+        )
 
     quote_id = str(params.get("quote_id") or "").strip()
     if not quote_id:
@@ -669,7 +689,9 @@ async def do_cascade_on_approval(engine: NCEEngine, params: dict[str, Any]) -> d
                 )
             )
 
-            inserted = await _upsert_actual_cost(conn, ns_uuid, label, actual_cost, approval_id)
+            inserted = await _upsert_actual_cost(
+                conn, ns_uuid, label, actual_cost, approval_id
+            )
             if inserted:
                 bom_lines_written.append(label)
                 continue
@@ -679,7 +701,9 @@ async def do_cascade_on_approval(engine: NCEEngine, params: dict[str, Any]) -> d
             # constraint already guarantees the stored data is safe either
             # way; this is about giving the caller an honest answer.
             existing = await _read_existing_cost_row(conn, ns_uuid, label, approval_id)
-            if existing is None:  # pragma: no cover - unreachable, ON CONFLICT guarantees a row
+            if (
+                existing is None
+            ):  # pragma: no cover - unreachable, ON CONFLICT guarantees a row
                 raise RuntimeError(
                     f"do_cascade_on_approval: ON CONFLICT fired for {label!r}/{approval_id!r} "
                     f"but no row was found on read-back"
@@ -696,8 +720,12 @@ async def do_cascade_on_approval(engine: NCEEngine, params: dict[str, Any]) -> d
         # --- Margin-trinity inputs: READ the Sales-frozen dimension plus the
         # newly-summed actual cost. Never write sales_signed_baselines. ---
         baseline = await _read_signed_baseline(conn, ns_uuid, quote_id)
-        signed_margin_pct = baseline["signed_margin_pct"] if baseline is not None else None
-        signed_total_nok = baseline["signed_total_nok"] if baseline is not None else None
+        signed_margin_pct = (
+            baseline["signed_margin_pct"] if baseline is not None else None
+        )
+        signed_total_nok = (
+            baseline["signed_total_nok"] if baseline is not None else None
+        )
         actual_cost_total = await _read_actual_cost_total(conn, ns_uuid, quote_id)
         margin_snapshot = _compute_margin_snapshot(
             signed_margin_pct, signed_total_nok, actual_cost_total

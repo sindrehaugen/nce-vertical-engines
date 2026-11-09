@@ -254,7 +254,9 @@ def validate_dnv_switchboard_and_bus(
         )
 
     # 2. Require IMD on insulated IT systems
-    is_it_system = clean_earthing in IT_EARTHING_SYSTEMS or clean_earthing.startswith("IT")
+    is_it_system = clean_earthing in IT_EARTHING_SYSTEMS or clean_earthing.startswith(
+        "IT"
+    )
     if is_it_system and not has_imd:
         violations.append(
             f"Insulated IT system '{earthing_system}' requires an active Insulation "
@@ -275,7 +277,10 @@ def validate_dnv_switchboard_and_bus(
     consumers_evaluated: list[dict[str, Any]] = []
     for idx, c in enumerate(essential_consumers):
         name = str(
-            c.get("name") or c.get("consumer_id") or c.get("service") or f"consumer_{idx + 1}"
+            c.get("name")
+            or c.get("consumer_id")
+            or c.get("service")
+            or f"consumer_{idx + 1}"
         )
         service_type = str(c.get("service_type") or c.get("type") or name).lower()
         feed_count = int(c.get("feed_count") or 1)
@@ -356,7 +361,9 @@ def validate_dnv_switchboard_and_bus(
             "earthing_ok": clean_earthing not in PROHIBITED_EARTHING_SYSTEMS
             and "TN-C" not in clean_earthing
             and (not is_it_system or has_imd),
-            "switchboard_separation_ok": bool(clean_msb and clean_esb and clean_msb != clean_esb),
+            "switchboard_separation_ok": bool(
+                clean_msb and clean_esb and clean_msb != clean_esb
+            ),
             "thd_voltage_pct": thd_voltage_pct,
             "consumers_evaluated": consumers_evaluated,
         },
@@ -399,7 +406,9 @@ def validate_marine_cable_iec60092(
     flame_rating = str(cable_spec.get("flame_rating") or "").upper()
 
     # 1. Halogen-free sheath check (SHF1 / SHF2 per IEC 60092-350 / IEC 60092-360)
-    is_shf = sheath in VALID_MARINE_SHEATHS or any(s in sheath for s in ("SHF1", "SHF2"))
+    is_shf = sheath in VALID_MARINE_SHEATHS or any(
+        s in sheath for s in ("SHF1", "SHF2")
+    )
     is_halogen_free = bool(
         cable_spec.get("halogen_free")
         or cable_spec.get("lszh")
@@ -474,7 +483,9 @@ def validate_atex_and_environment(
     warnings: list[str] = []
 
     # 1. Resolve Location Preset & Requirements
-    env_type = str(location_env.get("type") or location_env.get("environment") or "").lower()
+    env_type = str(
+        location_env.get("type") or location_env.get("environment") or ""
+    ).lower()
     preset = LOCATION_ENVIRONMENT_PRESETS.get(env_type, {})
 
     req_ip = str(
@@ -502,7 +513,14 @@ def validate_atex_and_environment(
 
     if ex_zone_raw:
         clean_zone = str(ex_zone_raw).strip().lower()
-        if not clean_zone.startswith("zone_") and clean_zone in {"0", "1", "2", "20", "21", "22"}:
+        if not clean_zone.startswith("zone_") and clean_zone in {
+            "0",
+            "1",
+            "2",
+            "20",
+            "21",
+            "22",
+        }:
             clean_zone = f"zone_{clean_zone}"
 
         permissible_epls = ZONE_PERMISSIBLE_EPLS.get(clean_zone, set())
@@ -518,7 +536,11 @@ def validate_atex_and_environment(
         # If not direct, check ATEX category (e.g. 1G, 2G, 3G, 1D, 2D, 3D)
         if not device_epl:
             category = (
-                str(device_spec.get("atex_category") or device_spec.get("category") or "")
+                str(
+                    device_spec.get("atex_category")
+                    or device_spec.get("category")
+                    or ""
+                )
                 .strip()
                 .upper()
             )
@@ -553,7 +575,11 @@ def validate_atex_and_environment(
 
         # Temperature Class Check (T1 to T6)
         req_t_class = (
-            str(location_env.get("required_temp_class") or location_env.get("min_temp_class") or "")
+            str(
+                location_env.get("required_temp_class")
+                or location_env.get("min_temp_class")
+                or ""
+            )
             .strip()
             .upper()
         )
@@ -588,7 +614,10 @@ def validate_atex_and_environment(
 
     # 3. EN 60529 IP Rating Check
     dev_ip_str = str(
-        device_spec.get("ip_rating") or device_spec.get("ip") or device_spec.get("enclosure") or ""
+        device_spec.get("ip_rating")
+        or device_spec.get("ip")
+        or device_spec.get("enclosure")
+        or ""
     ).upper()
     d_solids, d_liquids = _parse_ip_code(dev_ip_str)
     r_solids, r_liquids = _parse_ip_code(req_ip)
@@ -601,7 +630,9 @@ def validate_atex_and_environment(
         )
 
     # 4. EN 62262 IK Rating Check
-    dev_ik_str = str(device_spec.get("ik_rating") or device_spec.get("ik") or "IK00").upper()
+    dev_ik_str = str(
+        device_spec.get("ik_rating") or device_spec.get("ik") or "IK00"
+    ).upper()
     dev_ik_val = _parse_ik_code(dev_ik_str)
     req_ik_val = _parse_ik_code(req_ik)
 

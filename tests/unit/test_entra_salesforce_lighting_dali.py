@@ -58,8 +58,16 @@ from nce_verticals.salesforce.webhooks import SalesforceWebhookReceiver
 
 
 def _make_mock_jwt(claims: dict) -> str:
-    hdr = base64.urlsafe_b64encode(b'{"alg":"RS256","typ":"JWT"}').rstrip(b"=").decode("ascii")
-    body = base64.urlsafe_b64encode(json.dumps(claims).encode("utf-8")).rstrip(b"=").decode("ascii")
+    hdr = (
+        base64.urlsafe_b64encode(b'{"alg":"RS256","typ":"JWT"}')
+        .rstrip(b"=")
+        .decode("ascii")
+    )
+    body = (
+        base64.urlsafe_b64encode(json.dumps(claims).encode("utf-8"))
+        .rstrip(b"=")
+        .decode("ascii")
+    )
     sig = base64.urlsafe_b64encode(b"mock-signature").rstrip(b"=").decode("ascii")
     return f"{hdr}.{body}.{sig}"
 
@@ -92,7 +100,9 @@ class TestEntraIDGate(unittest.IsolatedAsyncioTestCase):
             }
         )
 
-        principal = await gate.verify_request("sf_query_soql", {"entra_token": valid_token})
+        principal = await gate.verify_request(
+            "sf_query_soql", {"entra_token": valid_token}
+        )
         self.assertIsNotNone(principal)
         assert principal is not None
         self.assertEqual(principal.upn, "engineer@company.no")
@@ -111,7 +121,9 @@ class TestEntraIDGate(unittest.IsolatedAsyncioTestCase):
             }
         )
         with self.assertRaises(EntraVerificationError) as ctx:
-            await gate.verify_request("sf_create_record", {"entra_token": unauthorized_token})
+            await gate.verify_request(
+                "sf_create_record", {"entra_token": unauthorized_token}
+            )
         self.assertEqual(ctx.exception.code, "NOT_IN_COMPANY_ALLOWLIST")
 
         # Wrong Tenant ID must be denied
@@ -126,7 +138,9 @@ class TestEntraIDGate(unittest.IsolatedAsyncioTestCase):
             }
         )
         with self.assertRaises(EntraVerificationError) as ctx2:
-            await gate.verify_request("sf_query_soql", {"entra_token": wrong_tenant_token})
+            await gate.verify_request(
+                "sf_query_soql", {"entra_token": wrong_tenant_token}
+            )
         self.assertEqual(ctx2.exception.code, "TENANT_MISMATCH")
 
 
@@ -190,11 +204,17 @@ class TestSalesforceVerticalEngine(unittest.IsolatedAsyncioTestCase):
                 "sobject_type": "Opportunity",
                 "Id": "006ABC123456789",
                 "change_type": "UPSERT",
-                "record": {"Id": "006ABC123456789", "Name": "Oslo Hospital DALI-2 Upgrade", "StageName": "Closed Won"},
+                "record": {
+                    "Id": "006ABC123456789",
+                    "Name": "Oslo Hospital DALI-2 Upgrade",
+                    "StageName": "Closed Won",
+                },
             }
         ).encode("utf-8")
 
-        sig = base64.b64encode(hmac.new(b"my-sf-webhook-secret", body, hashlib.sha256).digest()).decode("ascii")
+        sig = base64.b64encode(
+            hmac.new(b"my-sf-webhook-secret", body, hashlib.sha256).digest()
+        ).decode("ascii")
         self.assertTrue(receiver.verify_signature(body, sig))
         self.assertFalse(receiver.verify_signature(body, "invalid-sig"))
 
@@ -208,7 +228,9 @@ class TestSalesforceVerticalEngine(unittest.IsolatedAsyncioTestCase):
 
 class TestLightingDaliAndGlamoxEngine(unittest.TestCase):
     def test_glamox_decoder_and_recommendations(self) -> None:
-        c95 = decode_glamox_code("Glamox C95-R 600x600 4000 TWH 827-865 MP DA-EM 3H SEN")
+        c95 = decode_glamox_code(
+            "Glamox C95-R 600x600 4000 TWH 827-865 MP DA-EM 3H SEN"
+        )
         self.assertTrue(c95["is_glamox"])
         self.assertEqual(c95["model"], "C95-R")
         self.assertEqual(c95["dimensions_mm"], "600x600")
@@ -218,7 +240,9 @@ class TestLightingDaliAndGlamoxEngine(unittest.TestCase):
         self.assertTrue(c95["has_emergency"])
         self.assertEqual(c95["emergency_duration_h"], 3)
         self.assertTrue(c95["has_integrated_sensor"])
-        self.assertEqual(c95["dali_ecg_addresses_per_unit"], 2)  # 1 DT8 + 1 DT1 Emergency
+        self.assertEqual(
+            c95["dali_ecg_addresses_per_unit"], 2
+        )  # 1 DT8 + 1 DT1 Emergency
         self.assertEqual(c95["dali_ecd_addresses_per_unit"], 1)  # 1 integrated sensor
 
         rec = recommend_glamox_luminaires("CAD_WORKSTATION", require_tunable_white=True)
@@ -295,7 +319,16 @@ class TestLightingDaliAndGlamoxEngine(unittest.TestCase):
             "4000K",
             "80",
             "30.0",
-            "0.65", "0.72", "0.78", "0.82", "0.85", "0.88", "0.90", "0.92", "0.94", "0.95",
+            "0.65",
+            "0.72",
+            "0.78",
+            "0.82",
+            "0.85",
+            "0.88",
+            "0.90",
+            "0.92",
+            "0.94",
+            "0.95",
             "0 90 180 270",
             "0 30 60 90",
             "420 360 150 0",
@@ -339,7 +372,10 @@ class TestLightingDaliAndGlamoxEngine(unittest.TestCase):
                         "width_m": 6.0,
                         "height_m": 2.8,
                         "luminaires": [
-                            {"code": "Glamox C95-R 600x600 4000 DALI 840 MP", "quantity": 14}
+                            {
+                                "code": "Glamox C95-R 600x600 4000 DALI 840 MP",
+                                "quantity": 14,
+                            }
                         ],
                     }
                 ],

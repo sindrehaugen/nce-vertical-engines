@@ -161,7 +161,8 @@ async def _upsert_fl_node(
             "entity_type": _NODE_TYPE_FL,
             "namespace_id": str(ns_uuid),
             "change_origin": "sync",
-            "system_design_source_id": source_id or existing.get("system_design_source_id"),
+            "system_design_source_id": source_id
+            or existing.get("system_design_source_id"),
             "created_at": existing.get("created_at", "2026-09-19T12:00:00Z"),
             "updated_at": "2026-09-19T12:00:00Z",
         }
@@ -288,7 +289,9 @@ async def _upsert_edge(
                 and e.get("object_label") == obj
             ):
                 e["confidence"] = float(confidence)
-                e["system_design_source_id"] = source_id or e.get("system_design_source_id")
+                e["system_design_source_id"] = source_id or e.get(
+                    "system_design_source_id"
+                )
                 e["updated_at"] = "2026-09-19T12:00:00Z"
                 return
         edges.append(
@@ -327,7 +330,9 @@ async def upsert_fl_path(
 
     Returns the authored node's canonical label.
     """
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
     label = fl_label(namespace_slug, *path_parts)
     await _upsert_fl_node(conn, ns_uuid, label, source_id)
     return label
@@ -344,7 +349,9 @@ async def upsert_fl_edge(
     source_id: str | None = None,
 ) -> None:
     """Upsert a single kg_edge for functional-location topology or metadata."""
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
     await _upsert_edge(conn, ns_uuid, subject, predicate, obj, confidence, source_id)
 
 
@@ -364,7 +371,9 @@ async def set_fl_category_edge(
 
     Replaces any previous has_category edge for this functional location.
     """
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
     category_label = f"ROOM_CATEGORY:{category_id.upper()}"
 
     if conn is not None and hasattr(conn, "execute"):
@@ -386,7 +395,10 @@ async def set_fl_category_edge(
         _MEM_EDGES[str(ns_uuid)] = [
             e
             for e in edges
-            if not (e.get("subject_label") == fl_label and e.get("predicate") == _PRED_HAS_CATEGORY)
+            if not (
+                e.get("subject_label") == fl_label
+                and e.get("predicate") == _PRED_HAS_CATEGORY
+            )
         ]
 
     await _upsert_edge(
@@ -407,7 +419,9 @@ async def get_fl_category_edge(
     fl_label: str,
 ) -> str | None:
     """Retrieve the room category ID assigned to a functional location, or None."""
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
 
     if conn is not None and hasattr(conn, "fetchrow"):
         row = await conn.fetchrow(
@@ -432,7 +446,10 @@ async def get_fl_category_edge(
 
     edges = _MEM_EDGES.get(str(ns_uuid), [])
     for e in edges:
-        if e.get("subject_label") == fl_label and e.get("predicate") == _PRED_HAS_CATEGORY:
+        if (
+            e.get("subject_label") == fl_label
+            and e.get("predicate") == _PRED_HAS_CATEGORY
+        ):
             obj_label = str(e.get("object_label", ""))
             return obj_label.removeprefix("ROOM_CATEGORY:")
     return None
@@ -447,7 +464,9 @@ async def assign_fl_responsible_edge(
     role: str = "primary",
 ) -> None:
     """Link an employee to a functional location via a responsible_for edge."""
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
     subject_label = f"EMPLOYEE:{employee_id}"
     source_id = f"role:{role}"
 
@@ -473,7 +492,9 @@ async def unassign_fl_responsible_edge(
 
     Returns True if an edge was found and removed, False otherwise.
     """
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
     subject_label = f"EMPLOYEE:{employee_id}"
 
     if conn is not None and hasattr(conn, "execute"):
@@ -516,7 +537,9 @@ async def list_fl_responsible_edges(
     fl_label: str,
 ) -> list[dict[str, Any]]:
     """List all employees responsible for a given functional location."""
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
 
     if conn is not None and hasattr(conn, "fetch"):
         rows = await conn.fetch(
@@ -537,7 +560,11 @@ async def list_fl_responsible_edges(
             subj = str(r["subject_label"])
             emp_id = subj.removeprefix("EMPLOYEE:")
             source_id = str(r["system_design_source_id"] or "")
-            role = source_id.removeprefix("role:") if source_id.startswith("role:") else "primary"
+            role = (
+                source_id.removeprefix("role:")
+                if source_id.startswith("role:")
+                else "primary"
+            )
             results.append(
                 {
                     "employee_id": emp_id,
@@ -554,11 +581,18 @@ async def list_fl_responsible_edges(
     edges = _MEM_EDGES.get(str(ns_uuid), [])
     results = []
     for e in edges:
-        if e.get("predicate") == _PRED_RESPONSIBLE_FOR and e.get("object_label") == fl_label:
+        if (
+            e.get("predicate") == _PRED_RESPONSIBLE_FOR
+            and e.get("object_label") == fl_label
+        ):
             subj = str(e.get("subject_label", ""))
             emp_id = subj.removeprefix("EMPLOYEE:")
             source_id = str(e.get("system_design_source_id") or "")
-            role = source_id.removeprefix("role:") if source_id.startswith("role:") else "primary"
+            role = (
+                source_id.removeprefix("role:")
+                if source_id.startswith("role:")
+                else "primary"
+            )
             results.append(
                 {
                     "employee_id": emp_id,
@@ -579,7 +613,9 @@ async def list_responsible_fl_edges_for_employee(
     employee_id: str,
 ) -> list[dict[str, Any]]:
     """List all functional locations assigned to a given employee."""
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
     subject_label = f"EMPLOYEE:{employee_id}"
 
     if conn is not None and hasattr(conn, "fetch"):
@@ -600,7 +636,11 @@ async def list_responsible_fl_edges_for_employee(
         for r in rows:
             obj_lbl = str(r["object_label"])
             source_id = str(r["system_design_source_id"] or "")
-            role = source_id.removeprefix("role:") if source_id.startswith("role:") else "primary"
+            role = (
+                source_id.removeprefix("role:")
+                if source_id.startswith("role:")
+                else "primary"
+            )
             results.append(
                 {
                     "fl_label": obj_lbl,
@@ -617,10 +657,17 @@ async def list_responsible_fl_edges_for_employee(
     edges = _MEM_EDGES.get(str(ns_uuid), [])
     results = []
     for e in edges:
-        if e.get("predicate") == _PRED_RESPONSIBLE_FOR and e.get("subject_label") == subject_label:
+        if (
+            e.get("predicate") == _PRED_RESPONSIBLE_FOR
+            and e.get("subject_label") == subject_label
+        ):
             obj_lbl = str(e.get("object_label", ""))
             source_id = str(e.get("system_design_source_id") or "")
-            role = source_id.removeprefix("role:") if source_id.startswith("role:") else "primary"
+            role = (
+                source_id.removeprefix("role:")
+                if source_id.startswith("role:")
+                else "primary"
+            )
             results.append(
                 {
                     "fl_label": obj_lbl,
@@ -722,7 +769,9 @@ async def do_author_functional_location(
     dict
         ``{"authored": {"nodes": int, "edges": int}}``
     """
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
     dl_list: list[dict] = design_lines or []  # type: ignore[type-arg]
 
     node_count = 0
@@ -739,7 +788,11 @@ async def do_author_functional_location(
     # 2. SITE node (root of the functional-location tree)
     # ------------------------------------------------------------------
     site_lbl = await upsert_fl_path(
-        conn, ns_uuid, namespace_slug=namespace_slug, path_parts=[site_name], source_id=source_id
+        conn,
+        ns_uuid,
+        namespace_slug=namespace_slug,
+        path_parts=[site_name],
+        source_id=source_id,
     )
     node_count += 1
 
@@ -865,19 +918,33 @@ async def do_author_functional_location(
 
         # DESIGN -[contains]-> DESIGN_LINE
         await _upsert_edge(
-            conn, ns_uuid, design_lbl, _PRED_CONTAINS, dl_lbl, _STRUCTURAL_CONFIDENCE, dl_source
+            conn,
+            ns_uuid,
+            design_lbl,
+            _PRED_CONTAINS,
+            dl_lbl,
+            _STRUCTURAL_CONFIDENCE,
+            dl_source,
         )
         edge_count += 1
 
         # SITE -[needs]-> DESIGN_LINE  (site-level association)
         await _upsert_edge(
-            conn, ns_uuid, site_lbl, _PRED_NEEDS, dl_lbl, _STRUCTURAL_CONFIDENCE, dl_source
+            conn,
+            ns_uuid,
+            site_lbl,
+            _PRED_NEEDS,
+            dl_lbl,
+            _STRUCTURAL_CONFIDENCE,
+            dl_source,
         )
         edge_count += 1
 
         # DESIGN_LINE -[references]-> PRODUCT  (cross-engine, by label)
         product_lbl = _product_label(manufacturer, mfr_part_no)
-        await _upsert_edge(conn, ns_uuid, dl_lbl, _PRED_REFERENCES, product_lbl, dl_conf, dl_source)
+        await _upsert_edge(
+            conn, ns_uuid, dl_lbl, _PRED_REFERENCES, product_lbl, dl_conf, dl_source
+        )
         edge_count += 1
 
     log.info(

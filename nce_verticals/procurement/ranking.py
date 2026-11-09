@@ -356,7 +356,9 @@ def do_rank_suppliers(
     w_own_stock = w_tco * 0.5
     w_tco_adjusted = w_tco * 0.5
 
-    w_lead_time = float(scoring_w.get("lead_time", scoring_w.get("lead_time_weight", 0.0)))
+    w_lead_time = float(
+        scoring_w.get("lead_time", scoring_w.get("lead_time_weight", 0.0))
+    )
 
     valid_leads = [
         int(str(c["lead_time_days"]))
@@ -371,7 +373,8 @@ def do_rank_suppliers(
     # Regulatory compliance gating setup
     # -----------------------------------------------------------------------
     has_regulatory_gating = (
-        "required_certifications" in bom_line and bom_line["required_certifications"] is not None
+        "required_certifications" in bom_line
+        and bom_line["required_certifications"] is not None
     ) or ("regulatory_scope" in bom_line and bom_line["regulatory_scope"] is not None)
 
     required_certs: list[str] = []
@@ -382,7 +385,9 @@ def do_rank_suppliers(
             if scope_str in _REGULATORY_SCOPE_MAP:
                 required_certs.extend(_REGULATORY_SCOPE_MAP[scope_str])
             elif scope_str in _REGULATORY_SCOPE_ALIASES:
-                required_certs.extend(_REGULATORY_SCOPE_MAP[_REGULATORY_SCOPE_ALIASES[scope_str]])
+                required_certs.extend(
+                    _REGULATORY_SCOPE_MAP[_REGULATORY_SCOPE_ALIASES[scope_str]]
+                )
 
         explicit_certs = bom_line.get("required_certifications")
         if isinstance(explicit_certs, list):
@@ -432,7 +437,9 @@ def do_rank_suppliers(
 
         if has_regulatory_gating:
             active_certs = _extract_candidate_certifications(candidate)
-            missing = [c for c in required_certs if not _check_cert_satisfied(c, active_certs)]
+            missing = [
+                c for c in required_certs if not _check_cert_satisfied(c, active_certs)
+            ]
             is_compliant = len(missing) == 0
             cand_entry["regulatory_compliant"] = is_compliant
             cand_entry["missing_certifications"] = missing

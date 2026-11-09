@@ -33,7 +33,11 @@ ROHS3_RESTRICTED_SUBSTANCES: dict[str, dict[str, Any]] = {
     "cadmium": {"symbol": "Cd", "max_pct": 0.01, "max_ppm": 100.0},
     "hexavalent_chromium": {"symbol": "Cr6+", "max_pct": 0.1, "max_ppm": 1000.0},
     "polybrominated_biphenyls": {"symbol": "PBB", "max_pct": 0.1, "max_ppm": 1000.0},
-    "polybrominated_diphenyl_ethers": {"symbol": "PBDE", "max_pct": 0.1, "max_ppm": 1000.0},
+    "polybrominated_diphenyl_ethers": {
+        "symbol": "PBDE",
+        "max_pct": 0.1,
+        "max_ppm": 1000.0,
+    },
     "bis_2_ethylhexyl_phthalate": {"symbol": "DEHP", "max_pct": 0.1, "max_ppm": 1000.0},
     "butyl_benzyl_phthalate": {"symbol": "BBP", "max_pct": 0.1, "max_ppm": 1000.0},
     "dibutyl_phthalate": {"symbol": "DBP", "max_pct": 0.1, "max_ppm": 1000.0},
@@ -139,8 +143,12 @@ def validate_component_derating(
     details: list[dict[str, Any]] = []
 
     for idx, comp in enumerate(components):
-        part_number = str(comp.get("part_number") or comp.get("part_no") or f"COMP-{idx + 1}")
-        raw_type = str(comp.get("type") or comp.get("category") or "generic").strip().lower()
+        part_number = str(
+            comp.get("part_number") or comp.get("part_no") or f"COMP-{idx + 1}"
+        )
+        raw_type = (
+            str(comp.get("type") or comp.get("category") or "generic").strip().lower()
+        )
 
         comp_violations: list[str] = []
         metrics: dict[str, Any] = {"part_number": part_number, "type": raw_type}
@@ -152,7 +160,14 @@ def validate_component_derating(
         elif raw_type in ("resistor", "res"):
             max_v_ratio = 0.75 - tighten_delta
             max_p_ratio = 0.50 - tighten_delta
-        elif raw_type in ("semiconductor", "diode", "transistor", "mosfet", "bjt", "ic"):
+        elif raw_type in (
+            "semiconductor",
+            "diode",
+            "transistor",
+            "mosfet",
+            "bjt",
+            "ic",
+        ):
             max_v_ratio = 0.75 - tighten_delta
             max_p_ratio = 0.70 - tighten_delta
         elif raw_type in ("inductor", "choke"):
@@ -167,9 +182,15 @@ def validate_component_derating(
 
         # 2. Voltage Stress Check
         v_applied = (
-            comp.get("voltage_applied") if "voltage_applied" in comp else comp.get("v_applied")
+            comp.get("voltage_applied")
+            if "voltage_applied" in comp
+            else comp.get("v_applied")
         )
-        v_rated = comp.get("voltage_rated") if "voltage_rated" in comp else comp.get("v_rated")
+        v_rated = (
+            comp.get("voltage_rated")
+            if "voltage_rated" in comp
+            else comp.get("v_rated")
+        )
         if v_applied is not None and v_rated is not None:
             v_app_f = float(v_applied)
             v_rat_f = float(v_rated)
@@ -318,8 +339,14 @@ def validate_component_derating(
                     )
 
         # 4. Thermal Junction Temperature Check
-        r_theta = comp.get("r_theta_ja") or comp.get("thermal_resistance_ja") or comp.get("r_th_ja")
-        tj_max_val = comp.get("tj_max") or comp.get("t_j_max") or comp.get("max_junction_temp_c")
+        r_theta = (
+            comp.get("r_theta_ja")
+            or comp.get("thermal_resistance_ja")
+            or comp.get("r_th_ja")
+        )
+        tj_max_val = (
+            comp.get("tj_max") or comp.get("t_j_max") or comp.get("max_junction_temp_c")
+        )
         if r_theta is not None and tj_max_val is not None:
             r_th_f = float(r_theta)
             tj_max_f = float(tj_max_val)
@@ -355,7 +382,9 @@ def validate_component_derating(
                         "parameter": "thermal_junction",
                         "applied_value": round(t_j, 2),
                         "rated_value": round(t_j_allowed, 2),
-                        "stress_ratio": round(t_j / tj_max_f, 4) if tj_max_f > 0 else 1.0,
+                        "stress_ratio": round(t_j / tj_max_f, 4)
+                        if tj_max_f > 0
+                        else 1.0,
                         "max_allowed_ratio": round(t_j_allowed / tj_max_f, 4)
                         if tj_max_f > 0
                         else 1.0,
@@ -480,7 +509,10 @@ def validate_eu_electronics_compliance(
 
         # B. REACH SVHC Evaluation
         if require_reach:
-            if line.get("reach_compliant") is False or line.get("reach_svhc_exceeded") is True:
+            if (
+                line.get("reach_compliant") is False
+                or line.get("reach_svhc_exceeded") is True
+            ):
                 msg = "Component exceeds EU REACH (EC 1907/2006) SVHC threshold (>0.1% w/w)"
                 line_violations.append(msg)
                 violations.append(

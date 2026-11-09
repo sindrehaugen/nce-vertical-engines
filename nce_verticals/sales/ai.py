@@ -141,7 +141,9 @@ async def do_score_lead(
         else:
             hist_score = 0.5  # Neutral default
             confidence = 0.5
-            reasons = ["No similar historical deals found in memory. Defaulted to neutral score."]
+            reasons = [
+                "No similar historical deals found in memory. Defaulted to neutral score."
+            ]
 
         # Support optional stage_probability / engagement_score blending when passed in params
         stage_prob = params.get("stage_probability")
@@ -220,7 +222,9 @@ async def do_draft_quote(
 
             lines = meta.get("lines") or []
             for line in lines:
-                if line.get("product_ref") not in [x.get("product_ref") for x in proposed_lines]:
+                if line.get("product_ref") not in [
+                    x.get("product_ref") for x in proposed_lines
+                ]:
                     proposed_lines.append(
                         {
                             "product_ref": line.get("product_ref"),

@@ -13,8 +13,11 @@ from typing import Any
 try:
     from starlette.routing import Route
 except ImportError:
+
     class Route:  # type: ignore[no-redef]
-        def __init__(self, path: str, endpoint: Any, methods: list[str] | None = None) -> None:
+        def __init__(
+            self, path: str, endpoint: Any, methods: list[str] | None = None
+        ) -> None:
             self.path = path
             self.endpoint = endpoint
             self.methods = methods or ["GET"]
@@ -23,19 +26,20 @@ except ImportError:
 def _h(module: Any, handler_name: str) -> Any:
     return getattr(module, handler_name)
 
-try:
-    from nce.tool_registry import ToolSpec
-except ImportError:
-    from dataclasses import dataclass
-    @dataclass(frozen=True)
-    class ToolSpec:  # type: ignore[no-redef]
-        handler: Any
-        admin_only: bool = False
-        mutation: bool = False
-        cacheable: bool = False
-        migration: bool = False
-        engine: str | None = None
-        engine_dependencies: tuple[str, ...] | None = None
+
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class _FallbackToolSpec:
+    handler: Any
+    admin_only: bool = False
+    mutation: bool = False
+    cacheable: bool = False
+    migration: bool = False
+    engine: str | None = None
+    engine_dependencies: tuple[str, ...] | None = None
+
 
 log = logging.getLogger("nce_verticals.plugin")
 
@@ -60,6 +64,7 @@ class AgreementsPlugin:
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.agreements import mcp_handlers as agreements_mcp_handlers
+
         tools = {
             "agreements_lookup_terms": ToolSpec(
                 _h(agreements_mcp_handlers, "handle_agreements_lookup_terms"),
@@ -131,7 +136,10 @@ class AgreementsPlugin:
                 engine="agreements",
             ),
             "agreements_calculate_index_adjustment": ToolSpec(
-                _h(agreements_mcp_handlers, "handle_agreements_calculate_index_adjustment"),
+                _h(
+                    agreements_mcp_handlers,
+                    "handle_agreements_calculate_index_adjustment",
+                ),
                 cacheable=True,
                 admin_only=False,
                 mutation=False,
@@ -157,6 +165,7 @@ class AgreementsPlugin:
 
     def register_routes(self, app: Any) -> None:
         from nce_verticals.admin_handlers import agreements as agreements_handlers
+
         routes = [
             Route(
                 "/api/agreements",
@@ -282,6 +291,7 @@ class AssetsPlugin:
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.assets import mcp_handlers as assets_mcp_handlers
+
         tools = {
             "assets_ping": ToolSpec(
                 _h(assets_mcp_handlers, "handle_assets_ping"),
@@ -403,6 +413,7 @@ class AssetsPlugin:
 
     def register_routes(self, app: Any) -> None:
         from nce_verticals.admin_handlers import assets as assets_handlers
+
         routes = [
             Route(
                 "/api/assets/seed-from-bom",
@@ -543,6 +554,7 @@ class AssetsPlugin:
     def register_cognitive_hooks(self, cognitive_engine: Any) -> None:
         try:
             from nce_verticals.assets.warranty import do_evaluate_warranty_compliance
+
             log.debug("Registered assets cognitive hooks")
         except Exception as exc:
             log.warning("Failed registering assets cognitive hooks: %s", exc)
@@ -556,10 +568,16 @@ class BusinessInsightsPlugin:
     plugin_id: str = "business_insights"
 
     def register_tools(self, registry: Any) -> None:
-        from nce_verticals.business_insights import mcp_handlers as business_insights_mcp_handlers
+        from nce_verticals.business_insights import (
+            mcp_handlers as business_insights_mcp_handlers,
+        )
+
         tools = {
             "business_insights_morning_brief": ToolSpec(
-                _h(business_insights_mcp_handlers, "handle_business_insights_morning_brief"),
+                _h(
+                    business_insights_mcp_handlers,
+                    "handle_business_insights_morning_brief",
+                ),
                 cacheable=True,
                 admin_only=True,
                 mutation=False,
@@ -575,7 +593,10 @@ class BusinessInsightsPlugin:
                 ),
             ),
             "business_insights_risk_radar": ToolSpec(
-                _h(business_insights_mcp_handlers, "handle_business_insights_risk_radar"),
+                _h(
+                    business_insights_mcp_handlers,
+                    "handle_business_insights_risk_radar",
+                ),
                 cacheable=True,
                 admin_only=True,
                 mutation=False,
@@ -593,21 +614,30 @@ class BusinessInsightsPlugin:
                 ),
             ),
             "business_insights_run_scenario": ToolSpec(
-                _h(business_insights_mcp_handlers, "handle_business_insights_run_scenario"),
+                _h(
+                    business_insights_mcp_handlers,
+                    "handle_business_insights_run_scenario",
+                ),
                 cacheable=False,
                 admin_only=True,
                 mutation=False,
                 engine="business_insights",
             ),
             "business_insights_generate_board_pack": ToolSpec(
-                _h(business_insights_mcp_handlers, "handle_business_insights_generate_board_pack"),
+                _h(
+                    business_insights_mcp_handlers,
+                    "handle_business_insights_generate_board_pack",
+                ),
                 cacheable=False,
                 admin_only=True,
                 mutation=False,
                 engine="business_insights",
             ),
             "business_insights_kpi_dashboard": ToolSpec(
-                _h(business_insights_mcp_handlers, "handle_business_insights_kpi_dashboard"),
+                _h(
+                    business_insights_mcp_handlers,
+                    "handle_business_insights_kpi_dashboard",
+                ),
                 cacheable=False,
                 admin_only=True,
                 mutation=True,
@@ -624,7 +654,10 @@ class BusinessInsightsPlugin:
                 ),
             ),
             "business_insights_ask_business": ToolSpec(
-                _h(business_insights_mcp_handlers, "handle_business_insights_ask_business"),
+                _h(
+                    business_insights_mcp_handlers,
+                    "handle_business_insights_ask_business",
+                ),
                 cacheable=False,
                 admin_only=True,
                 mutation=False,
@@ -635,7 +668,10 @@ class BusinessInsightsPlugin:
             registry[k] = v
 
     def register_routes(self, app: Any) -> None:
-        from nce_verticals.admin_handlers import business_insights as business_insights_handlers
+        from nce_verticals.admin_handlers import (
+            business_insights as business_insights_handlers,
+        )
+
         routes = [
             Route(
                 "/api/business-insights/morning-brief",
@@ -685,31 +721,52 @@ class CustomerPortalPlugin:
     plugin_id: str = "customer_portal"
 
     def register_tools(self, registry: Any) -> None:
-        from nce_verticals.customer_portal import mcp_handlers as customer_portal_mcp_handlers
+        from nce_verticals.customer_portal import (
+            mcp_handlers as customer_portal_mcp_handlers,
+        )
+
         tools = {
             "customer_portal_room_tracker": ToolSpec(
                 _h(customer_portal_mcp_handlers, "handle_customer_portal_room_tracker"),
                 cacheable=True,
                 engine="customer_portal",
-                engine_dependencies=("customer_portal", "system_design", "inventory", "assets"),
+                engine_dependencies=(
+                    "customer_portal",
+                    "system_design",
+                    "inventory",
+                    "assets",
+                ),
                 admin_only=True,
             ),
             "customer_portal_room_overview": ToolSpec(
-                _h(customer_portal_mcp_handlers, "handle_customer_portal_room_overview"),
+                _h(
+                    customer_portal_mcp_handlers, "handle_customer_portal_room_overview"
+                ),
                 cacheable=True,
                 engine="customer_portal",
-                engine_dependencies=("customer_portal", "system_design", "inventory", "assets"),
+                engine_dependencies=(
+                    "customer_portal",
+                    "system_design",
+                    "inventory",
+                    "assets",
+                ),
                 admin_only=True,
             ),
             "customer_portal_asset_register": ToolSpec(
-                _h(customer_portal_mcp_handlers, "handle_customer_portal_asset_register"),
+                _h(
+                    customer_portal_mcp_handlers,
+                    "handle_customer_portal_asset_register",
+                ),
                 cacheable=True,
                 engine="customer_portal",
                 engine_dependencies=("customer_portal", "assets"),
                 admin_only=True,
             ),
             "customer_portal_list_documents": ToolSpec(
-                _h(customer_portal_mcp_handlers, "handle_customer_portal_list_documents"),
+                _h(
+                    customer_portal_mcp_handlers,
+                    "handle_customer_portal_list_documents",
+                ),
                 cacheable=True,
                 engine="customer_portal",
                 admin_only=True,
@@ -722,27 +779,38 @@ class CustomerPortalPlugin:
                 admin_only=True,
             ),
             "customer_portal_list_invoices": ToolSpec(
-                _h(customer_portal_mcp_handlers, "handle_customer_portal_list_invoices"),
+                _h(
+                    customer_portal_mcp_handlers, "handle_customer_portal_list_invoices"
+                ),
                 cacheable=True,
                 engine="customer_portal",
                 engine_dependencies=("customer_portal", "economy"),
                 admin_only=True,
             ),
             "customer_portal_advisor_answer": ToolSpec(
-                _h(customer_portal_mcp_handlers, "handle_customer_portal_advisor_answer"),
+                _h(
+                    customer_portal_mcp_handlers,
+                    "handle_customer_portal_advisor_answer",
+                ),
                 cacheable=False,
                 engine="customer_portal",
                 admin_only=True,
             ),
             "customer_portal_raise_service_request": ToolSpec(
-                _h(customer_portal_mcp_handlers, "handle_customer_portal_raise_service_request"),
+                _h(
+                    customer_portal_mcp_handlers,
+                    "handle_customer_portal_raise_service_request",
+                ),
                 cacheable=False,
                 mutation=True,
                 engine="customer_portal",
                 admin_only=True,
             ),
             "customer_portal_register_expansion_interest": ToolSpec(
-                _h(customer_portal_mcp_handlers, "handle_customer_portal_register_expansion_interest"),
+                _h(
+                    customer_portal_mcp_handlers,
+                    "handle_customer_portal_register_expansion_interest",
+                ),
                 cacheable=False,
                 mutation=True,
                 engine="customer_portal",
@@ -771,6 +839,7 @@ class DiagnosticsPlugin:
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.diagnostics import mcp_handlers as diag_mcp_handlers
+
         tools = {
             "diag_ingest_bundle": ToolSpec(
                 _h(diag_mcp_handlers, "handle_diag_ingest_bundle"),
@@ -815,6 +884,7 @@ class Dynamics365Plugin:
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.dynamics365 import mcp_handlers as d365_mcp_handlers
+
         tools = {
             "d365_query_case": ToolSpec(
                 _h(d365_mcp_handlers, "handle_d365_query_case"),
@@ -863,6 +933,7 @@ class EconomyPlugin:
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.economy import mcp_handlers as economy_mcp_handlers
+
         tools = {
             "economy_match_invoice": ToolSpec(
                 _h(economy_mcp_handlers, "handle_economy_match_invoice"),
@@ -978,6 +1049,7 @@ class EconomyPlugin:
 
     def register_routes(self, app: Any) -> None:
         from nce_verticals.admin_handlers import economy as economy_handlers
+
         routes = [
             Route(
                 "/api/economy/match-invoice",
@@ -1063,6 +1135,7 @@ class FieldTechPlugin:
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.field_tech import mcp_handlers as field_tech_mcp_handlers
+
         tools = {
             "field_tech_dispatch": ToolSpec(
                 _h(field_tech_mcp_handlers, "handle_field_tech_dispatch"),
@@ -1130,6 +1203,7 @@ class FieldTechPlugin:
 
     def register_routes(self, app: Any) -> None:
         from nce_verticals.admin_handlers import field_tech as field_tech_handlers
+
         routes = [
             Route(
                 "/api/field-tech/dispatch",
@@ -1201,7 +1275,10 @@ class FieldTechPlugin:
 
     def register_workers(self, worker_registry: Any) -> None:
         try:
-            from nce_verticals.field_tech.work_orders import register_field_tech_subscribers
+            from nce_verticals.field_tech.work_orders import (
+                register_field_tech_subscribers,
+            )
+
             register_field_tech_subscribers()
         except Exception as exc:
             log.warning("Failed registering field_tech workers: %s", exc)
@@ -1210,6 +1287,7 @@ class FieldTechPlugin:
         try:
             from nce_verticals.field_tech.checklist import do_complete_checklist
             from nce_verticals.field_tech.samsvar import do_generate_samsvar
+
             log.debug("Registered field_tech cognitive hooks")
         except Exception as exc:
             log.warning("Failed registering field_tech cognitive hooks: %s", exc)
@@ -1224,6 +1302,7 @@ class GeodataPlugin:
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.geodata import mcp_handlers as geodata_mcp_handlers
+
         tools = {
             "geodata_import_osm_elements": ToolSpec(
                 _h(geodata_mcp_handlers, "handle_geodata_import_osm_elements"),
@@ -1290,6 +1369,7 @@ class HRPlugin:
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.hr import mcp_handlers as hr_mcp_handlers
+
         tools = {
             "hr_get_employee": ToolSpec(
                 _h(hr_mcp_handlers, "handle_hr_get_employee"),
@@ -1375,6 +1455,7 @@ class HRPlugin:
 
     def register_routes(self, app: Any) -> None:
         from nce_verticals.admin_handlers import hr as hr_handlers
+
         routes = [
             Route(
                 "/api/hr/employees",
@@ -1467,6 +1548,7 @@ class HRPlugin:
     def register_workers(self, worker_registry: Any) -> None:
         try:
             from nce_verticals.hr.compliance import register_hr_compliance_subscribers
+
             register_hr_compliance_subscribers()
         except Exception as exc:
             log.warning("Failed registering hr workers: %s", exc)
@@ -1484,6 +1566,7 @@ class InventoryPlugin:
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.inventory import mcp_handlers as inventory_mcp_handlers
+
         tools = {
             "inventory_stock_levels": ToolSpec(
                 _h(inventory_mcp_handlers, "handle_inventory_stock_levels"),
@@ -1558,7 +1641,10 @@ class InventoryPlugin:
                 mutation=False,
             ),
             "inventory_record_goods_receipt_and_match": ToolSpec(
-                _h(inventory_mcp_handlers, "handle_inventory_record_goods_receipt_and_match"),
+                _h(
+                    inventory_mcp_handlers,
+                    "handle_inventory_record_goods_receipt_and_match",
+                ),
                 cacheable=False,
                 admin_only=True,
                 mutation=True,
@@ -1593,6 +1679,7 @@ class InventoryPlugin:
 
     def register_routes(self, app: Any) -> None:
         from nce_verticals.admin_handlers import inventory as inventory_handlers
+
         routes = [
             Route(
                 "/api/inventory/stock-levels",
@@ -1697,10 +1784,16 @@ class LegalEntitiesPlugin:
     plugin_id: str = "legal_entities"
 
     def register_tools(self, registry: Any) -> None:
-        from nce_verticals.legal_entities import mcp_handlers as legal_entities_mcp_handlers
+        from nce_verticals.legal_entities import (
+            mcp_handlers as legal_entities_mcp_handlers,
+        )
+
         tools = {
             "legal_entities_enrich_from_registry": ToolSpec(
-                _h(legal_entities_mcp_handlers, "handle_legal_entities_enrich_from_registry"),
+                _h(
+                    legal_entities_mcp_handlers,
+                    "handle_legal_entities_enrich_from_registry",
+                ),
                 cacheable=False,
                 admin_only=True,
                 mutation=True,
@@ -1728,9 +1821,13 @@ class MarketingPlugin:
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.marketing import mcp_handlers as marketing_mcp_handlers
+
         tools = {
             "marketing_find_case_study_candidates": ToolSpec(
-                _h(marketing_mcp_handlers, "handle_marketing_find_case_study_candidates"),
+                _h(
+                    marketing_mcp_handlers,
+                    "handle_marketing_find_case_study_candidates",
+                ),
                 cacheable=True,
                 admin_only=False,
                 mutation=False,
@@ -1789,6 +1886,7 @@ class MarketingPlugin:
 
     def register_routes(self, app: Any) -> None:
         from nce_verticals.admin_handlers import marketing as marketing_handlers
+
         routes = [
             Route(
                 "/api/marketing/candidates",
@@ -1859,6 +1957,7 @@ class NetboxPlugin:
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.netbox import circuits as netbox_circuits
+
         tools = {
             "evaluate_circuit_impact": ToolSpec(
                 _h(netbox_circuits, "handle_evaluate_circuit_impact"),
@@ -1893,7 +1992,10 @@ class NotificationsPlugin:
 
     def register_workers(self, worker_registry: Any) -> None:
         try:
-            from nce_verticals.notifications.subscribers import register_notifications_subscribers
+            from nce_verticals.notifications.subscribers import (
+                register_notifications_subscribers,
+            )
+
             register_notifications_subscribers()
         except Exception as exc:
             log.warning("Failed registering notifications workers: %s", exc)
@@ -1911,6 +2013,7 @@ class ProcurementPlugin:
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.procurement import mcp_handlers as procurement_mcp_handlers
+
         tools = {
             "procurement_aggregate_savings": ToolSpec(
                 _h(procurement_mcp_handlers, "handle_procurement_aggregate_savings"),
@@ -1978,6 +2081,7 @@ class ProcurementPlugin:
 
     def register_routes(self, app: Any) -> None:
         from nce_verticals.admin_handlers import procurement as procurement_handlers
+
         routes = [
             Route(
                 "/api/procurement/savings",
@@ -2038,6 +2142,7 @@ class ProcurementPlugin:
     def register_cognitive_hooks(self, cognitive_engine: Any) -> None:
         try:
             from nce_verticals.procurement.ranking import do_rank_suppliers
+
             log.debug("Registered procurement cognitive hooks")
         except Exception as exc:
             log.warning("Failed registering procurement cognitive hooks: %s", exc)
@@ -2052,6 +2157,7 @@ class ProductPlugin:
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.product import mcp_handlers as product_mcp_handlers
+
         tools = {
             "product_search": ToolSpec(
                 _h(product_mcp_handlers, "handle_product_search"),
@@ -2099,6 +2205,7 @@ class ProductPlugin:
 
     def register_routes(self, app: Any) -> None:
         from nce_verticals.admin_handlers import product as product_handlers
+
         routes = [
             Route(
                 "/api/product/search",
@@ -2139,6 +2246,7 @@ class ProjectPlugin:
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.project import mcp_handlers as project_mcp_handlers
+
         tools = {
             "project_can_enter_phase": ToolSpec(
                 _h(project_mcp_handlers, "handle_project_can_enter_phase"),
@@ -2212,6 +2320,7 @@ class ProjectPlugin:
 
     def register_routes(self, app: Any) -> None:
         from nce_verticals.admin_handlers import project as project_handlers
+
         routes = [
             Route(
                 "/api/project/convert-signed-quote",
@@ -2273,7 +2382,11 @@ class ProjectPlugin:
 
     def register_workers(self, worker_registry: Any) -> None:
         try:
-            from nce_verticals.project import automation as project_automation, tasks as project_tasks
+            from nce_verticals.project import (
+                automation as project_automation,
+                tasks as project_tasks,
+            )
+
             if worker_registry is not None:
                 try:
                     project_tasks.register_engine(worker_registry)
@@ -2298,6 +2411,7 @@ class ResourcesPlugin:
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.resources import mcp_handlers as resources_mcp_handlers
+
         tools = {
             "resources_resolve_capacity": ToolSpec(
                 _h(resources_mcp_handlers, "handle_resources_resolve_capacity"),
@@ -2341,7 +2455,9 @@ class ResourcesPlugin:
                 mutation=True,
             ),
             "resources_record_allocation_outcome": ToolSpec(
-                _h(resources_mcp_handlers, "handle_resources_record_allocation_outcome"),
+                _h(
+                    resources_mcp_handlers, "handle_resources_record_allocation_outcome"
+                ),
                 cacheable=False,
                 admin_only=True,
                 mutation=True,
@@ -2372,6 +2488,7 @@ class ResourcesPlugin:
 
     def register_routes(self, app: Any) -> None:
         from nce_verticals.admin_handlers import resources as resources_handlers
+
         routes = [
             Route(
                 "/api/resources/capacity",
@@ -2449,6 +2566,7 @@ class ResourcesPlugin:
     def register_workers(self, worker_registry: Any) -> None:
         try:
             from nce_verticals.resources import watcher as resources_watcher
+
             if worker_registry is not None:
                 try:
                     resources_watcher.register_engine(worker_registry)
@@ -2471,6 +2589,7 @@ class SalesPlugin:
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.sales import mcp_handlers as sales_mcp_handlers
+
         tools = {
             "sales_ping": ToolSpec(
                 _h(sales_mcp_handlers, "handle_sales_ping"),
@@ -2582,6 +2701,7 @@ class SalesPlugin:
         from nce_verticals.admin_handlers import sales as sales_handlers
         from nce_verticals.admin_handlers import sales_public as sales_public_handlers
         from nce_verticals.admin_handlers import source_mode as source_mode_handlers
+
         routes = [
             Route(
                 "/public-api/sales/quotes/{id}",
@@ -2737,6 +2857,7 @@ class SitesPlugin:
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.sites import mcp_handlers as sites_mcp_handlers
+
         tools = {
             "sites_enrich_address_from_registry": ToolSpec(
                 _h(sites_mcp_handlers, "handle_sites_enrich_address_from_registry"),
@@ -2767,6 +2888,7 @@ class SupportPlugin:
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.support import mcp_handlers as support_mcp_handlers
+
         tools = {
             "support_query_ticket": ToolSpec(
                 _h(support_mcp_handlers, "handle_support_query_ticket"),
@@ -2888,6 +3010,7 @@ class SupportPlugin:
 
     def register_routes(self, app: Any) -> None:
         from nce_verticals.admin_handlers import support as support_handlers
+
         routes = [
             Route(
                 "/api/support/tickets",
@@ -3012,7 +3135,10 @@ class SystemDesignPlugin:
     plugin_id: str = "system_design"
 
     def register_tools(self, registry: Any) -> None:
-        from nce_verticals.system_design import mcp_handlers as system_design_mcp_handlers
+        from nce_verticals.system_design import (
+            mcp_handlers as system_design_mcp_handlers,
+        )
+
         tools = {
             "system_design_ping": ToolSpec(
                 _h(system_design_mcp_handlers, "handle_system_design_ping"),
@@ -3021,7 +3147,10 @@ class SystemDesignPlugin:
                 mutation=False,
             ),
             "system_design_publish_design_docs": ToolSpec(
-                _h(system_design_mcp_handlers, "handle_system_design_publish_design_docs"),
+                _h(
+                    system_design_mcp_handlers,
+                    "handle_system_design_publish_design_docs",
+                ),
                 mutation=True,
                 cacheable=False,
                 admin_only=False,
@@ -3033,7 +3162,10 @@ class SystemDesignPlugin:
                 mutation=False,
             ),
             "system_design_inspect_signal_flow": ToolSpec(
-                _h(system_design_mcp_handlers, "handle_system_design_inspect_signal_flow"),
+                _h(
+                    system_design_mcp_handlers,
+                    "handle_system_design_inspect_signal_flow",
+                ),
                 cacheable=False,
                 admin_only=False,
                 mutation=False,
@@ -3051,13 +3183,19 @@ class SystemDesignPlugin:
                 mutation=True,
             ),
             "system_design_author_functional_location": ToolSpec(
-                _h(system_design_mcp_handlers, "handle_system_design_author_functional_location"),
+                _h(
+                    system_design_mcp_handlers,
+                    "handle_system_design_author_functional_location",
+                ),
                 cacheable=False,
                 admin_only=False,
                 mutation=True,
             ),
             "system_design_validate_design_graph": ToolSpec(
-                _h(system_design_mcp_handlers, "handle_system_design_validate_design_graph"),
+                _h(
+                    system_design_mcp_handlers,
+                    "handle_system_design_validate_design_graph",
+                ),
                 cacheable=False,
                 admin_only=False,
                 mutation=False,
@@ -3081,7 +3219,10 @@ class SystemDesignPlugin:
                 mutation=False,
             ),
             "system_design_enrich_design_lines": ToolSpec(
-                _h(system_design_mcp_handlers, "handle_system_design_enrich_design_lines"),
+                _h(
+                    system_design_mcp_handlers,
+                    "handle_system_design_enrich_design_lines",
+                ),
                 cacheable=False,
                 admin_only=False,
                 mutation=True,
@@ -3111,19 +3252,28 @@ class SystemDesignPlugin:
                 mutation=False,
             ),
             "system_design_sync_device_capabilities": ToolSpec(
-                _h(system_design_mcp_handlers, "handle_system_design_sync_device_capabilities"),
+                _h(
+                    system_design_mcp_handlers,
+                    "handle_system_design_sync_device_capabilities",
+                ),
                 cacheable=False,
                 admin_only=False,
                 mutation=True,
             ),
             "system_design_list_functional_locations": ToolSpec(
-                _h(system_design_mcp_handlers, "handle_system_design_list_functional_locations"),
+                _h(
+                    system_design_mcp_handlers,
+                    "handle_system_design_list_functional_locations",
+                ),
                 cacheable=True,
                 admin_only=False,
                 mutation=False,
             ),
             "system_design_get_functional_location": ToolSpec(
-                _h(system_design_mcp_handlers, "handle_system_design_get_functional_location"),
+                _h(
+                    system_design_mcp_handlers,
+                    "handle_system_design_get_functional_location",
+                ),
                 cacheable=True,
                 admin_only=False,
                 mutation=False,
@@ -3147,67 +3297,99 @@ class SystemDesignPlugin:
                 mutation=False,
             ),
             "system_design_move_functional_location": ToolSpec(
-                _h(system_design_mcp_handlers, "handle_system_design_move_functional_location"),
+                _h(
+                    system_design_mcp_handlers,
+                    "handle_system_design_move_functional_location",
+                ),
                 cacheable=False,
                 admin_only=False,
                 mutation=True,
             ),
             "system_design_merge_functional_locations": ToolSpec(
-                _h(system_design_mcp_handlers, "handle_system_design_merge_functional_locations"),
+                _h(
+                    system_design_mcp_handlers,
+                    "handle_system_design_merge_functional_locations",
+                ),
                 cacheable=False,
                 admin_only=False,
                 mutation=True,
             ),
             "system_design_promote_functional_location": ToolSpec(
-                _h(system_design_mcp_handlers, "handle_system_design_promote_functional_location"),
+                _h(
+                    system_design_mcp_handlers,
+                    "handle_system_design_promote_functional_location",
+                ),
                 cacheable=False,
                 admin_only=False,
                 mutation=True,
             ),
             "system_design_list_room_categories": ToolSpec(
-                _h(system_design_mcp_handlers, "handle_system_design_list_room_categories"),
+                _h(
+                    system_design_mcp_handlers,
+                    "handle_system_design_list_room_categories",
+                ),
                 cacheable=True,
                 admin_only=False,
                 mutation=False,
             ),
             "system_design_get_room_category": ToolSpec(
-                _h(system_design_mcp_handlers, "handle_system_design_get_room_category"),
+                _h(
+                    system_design_mcp_handlers, "handle_system_design_get_room_category"
+                ),
                 cacheable=True,
                 admin_only=False,
                 mutation=False,
             ),
             "system_design_set_fl_room_category": ToolSpec(
-                _h(system_design_mcp_handlers, "handle_system_design_set_fl_room_category"),
+                _h(
+                    system_design_mcp_handlers,
+                    "handle_system_design_set_fl_room_category",
+                ),
                 cacheable=False,
                 admin_only=False,
                 mutation=True,
             ),
             "system_design_get_fl_room_category": ToolSpec(
-                _h(system_design_mcp_handlers, "handle_system_design_get_fl_room_category"),
+                _h(
+                    system_design_mcp_handlers,
+                    "handle_system_design_get_fl_room_category",
+                ),
                 cacheable=True,
                 admin_only=False,
                 mutation=False,
             ),
             "system_design_assign_fl_responsible": ToolSpec(
-                _h(system_design_mcp_handlers, "handle_system_design_assign_fl_responsible"),
+                _h(
+                    system_design_mcp_handlers,
+                    "handle_system_design_assign_fl_responsible",
+                ),
                 cacheable=False,
                 admin_only=False,
                 mutation=True,
             ),
             "system_design_unassign_fl_responsible": ToolSpec(
-                _h(system_design_mcp_handlers, "handle_system_design_unassign_fl_responsible"),
+                _h(
+                    system_design_mcp_handlers,
+                    "handle_system_design_unassign_fl_responsible",
+                ),
                 cacheable=False,
                 admin_only=False,
                 mutation=True,
             ),
             "system_design_list_fl_responsible": ToolSpec(
-                _h(system_design_mcp_handlers, "handle_system_design_list_fl_responsible"),
+                _h(
+                    system_design_mcp_handlers,
+                    "handle_system_design_list_fl_responsible",
+                ),
                 cacheable=True,
                 admin_only=False,
                 mutation=False,
             ),
             "system_design_list_my_responsible_fls": ToolSpec(
-                _h(system_design_mcp_handlers, "handle_system_design_list_my_responsible_fls"),
+                _h(
+                    system_design_mcp_handlers,
+                    "handle_system_design_list_my_responsible_fls",
+                ),
                 cacheable=True,
                 admin_only=False,
                 mutation=False,
@@ -3237,13 +3419,17 @@ class SystemDesignPlugin:
                 mutation=True,
             ),
             "system_design_set_active_design": ToolSpec(
-                _h(system_design_mcp_handlers, "handle_system_design_set_active_design"),
+                _h(
+                    system_design_mcp_handlers, "handle_system_design_set_active_design"
+                ),
                 cacheable=False,
                 admin_only=False,
                 mutation=True,
             ),
             "system_design_get_active_design": ToolSpec(
-                _h(system_design_mcp_handlers, "handle_system_design_get_active_design"),
+                _h(
+                    system_design_mcp_handlers, "handle_system_design_get_active_design"
+                ),
                 cacheable=True,
                 admin_only=False,
                 mutation=False,
@@ -3261,43 +3447,64 @@ class SystemDesignPlugin:
                 mutation=True,
             ),
             "system_design_create_design_request": ToolSpec(
-                _h(system_design_mcp_handlers, "handle_system_design_create_design_request"),
+                _h(
+                    system_design_mcp_handlers,
+                    "handle_system_design_create_design_request",
+                ),
                 cacheable=False,
                 admin_only=False,
                 mutation=True,
             ),
             "system_design_get_design_request": ToolSpec(
-                _h(system_design_mcp_handlers, "handle_system_design_get_design_request"),
+                _h(
+                    system_design_mcp_handlers,
+                    "handle_system_design_get_design_request",
+                ),
                 cacheable=True,
                 admin_only=False,
                 mutation=False,
             ),
             "system_design_list_design_requests": ToolSpec(
-                _h(system_design_mcp_handlers, "handle_system_design_list_design_requests"),
+                _h(
+                    system_design_mcp_handlers,
+                    "handle_system_design_list_design_requests",
+                ),
                 cacheable=True,
                 admin_only=False,
                 mutation=False,
             ),
             "system_design_update_design_request": ToolSpec(
-                _h(system_design_mcp_handlers, "handle_system_design_update_design_request"),
+                _h(
+                    system_design_mcp_handlers,
+                    "handle_system_design_update_design_request",
+                ),
                 cacheable=False,
                 admin_only=False,
                 mutation=True,
             ),
             "system_design_assign_design_request": ToolSpec(
-                _h(system_design_mcp_handlers, "handle_system_design_assign_design_request"),
+                _h(
+                    system_design_mcp_handlers,
+                    "handle_system_design_assign_design_request",
+                ),
                 cacheable=False,
                 admin_only=False,
                 mutation=True,
             ),
             "system_design_complete_design_request": ToolSpec(
-                _h(system_design_mcp_handlers, "handle_system_design_complete_design_request"),
+                _h(
+                    system_design_mcp_handlers,
+                    "handle_system_design_complete_design_request",
+                ),
                 cacheable=False,
                 admin_only=False,
                 mutation=True,
             ),
             "system_design_fulfill_request_from_quote": ToolSpec(
-                _h(system_design_mcp_handlers, "handle_system_design_fulfill_request_from_quote"),
+                _h(
+                    system_design_mcp_handlers,
+                    "handle_system_design_fulfill_request_from_quote",
+                ),
                 cacheable=False,
                 admin_only=False,
                 mutation=True,
@@ -3308,6 +3515,7 @@ class SystemDesignPlugin:
 
     def register_routes(self, app: Any) -> None:
         from nce_verticals.admin_handlers import system_design as system_design_handlers
+
         routes = [
             Route(
                 "/api/system-design/publish-design-docs",
@@ -3554,7 +3762,10 @@ class SystemDesignPlugin:
 
     def register_workers(self, worker_registry: Any) -> None:
         try:
-            from nce_verticals.system_design.subscribers import register_system_design_subscribers
+            from nce_verticals.system_design.subscribers import (
+                register_system_design_subscribers,
+            )
+
             register_system_design_subscribers()
         except Exception as exc:
             log.warning("Failed registering system_design workers: %s", exc)
@@ -3562,6 +3773,7 @@ class SystemDesignPlugin:
     def register_cognitive_hooks(self, cognitive_engine: Any) -> None:
         try:
             from nce_verticals.system_design.validate import _append_validation_ledger
+
             log.debug("Registered system_design cognitive hooks")
         except Exception as exc:
             log.warning("Failed registering system_design cognitive hooks: %s", exc)
@@ -3576,6 +3788,7 @@ class VendorsPlugin:
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.vendors import mcp_handlers as vendors_mcp_handlers
+
         tools = {
             "vendors_get_vendor": ToolSpec(
                 _h(vendors_mcp_handlers, "handle_vendors_get_vendor"),
@@ -3596,7 +3809,10 @@ class VendorsPlugin:
                 mutation=True,
             ),
             "vendors_detect_reliability_degradation": ToolSpec(
-                _h(vendors_mcp_handlers, "handle_vendors_detect_reliability_degradation"),
+                _h(
+                    vendors_mcp_handlers,
+                    "handle_vendors_detect_reliability_degradation",
+                ),
                 cacheable=True,
                 admin_only=False,
                 mutation=False,
@@ -3674,6 +3890,7 @@ class VendorsPlugin:
 
     def register_routes(self, app: Any) -> None:
         from nce_verticals.admin_handlers import vendors as vendors_handlers
+
         routes = [
             Route(
                 "/api/vendors/scorecard",
@@ -3724,7 +3941,6 @@ class VendorsPlugin:
         return mdir if mdir.is_dir() else None
 
 
-
 class EntraIDPlugin:
     """Microsoft Entra ID Identification Point & Company Allowlist Gate Plugin."""
 
@@ -3732,6 +3948,7 @@ class EntraIDPlugin:
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.entra_id import mcp_handlers as entra_mcp_handlers
+
         tools = {
             "entra_whoami": ToolSpec(
                 _h(entra_mcp_handlers, "handle_entra_whoami"),
@@ -3774,13 +3991,38 @@ class EntraIDPlugin:
 
     def register_routes(self, app: Any) -> None:
         from nce_verticals.admin_handlers import entra_id as entra_handlers
+
         routes = [
-            Route("/api/admin/entra/config", endpoint=entra_handlers.api_admin_entra_config, methods=["GET"]),
-            Route("/api/admin/entra/config", endpoint=entra_handlers.api_admin_entra_config_save, methods=["POST"]),
-            Route("/api/admin/entra/sessions", endpoint=entra_handlers.api_admin_entra_sessions, methods=["GET"]),
-            Route("/api/admin/entra/sessions/revoke", endpoint=entra_handlers.api_admin_entra_revoke_session, methods=["POST"]),
-            Route("/api/admin/entra/verify-user", endpoint=entra_handlers.api_admin_entra_verify_user, methods=["POST"]),
-            Route("/api/admin/entra/audit", endpoint=entra_handlers.api_admin_entra_audit, methods=["GET"]),
+            Route(
+                "/api/admin/entra/config",
+                endpoint=entra_handlers.api_admin_entra_config,
+                methods=["GET"],
+            ),
+            Route(
+                "/api/admin/entra/config",
+                endpoint=entra_handlers.api_admin_entra_config_save,
+                methods=["POST"],
+            ),
+            Route(
+                "/api/admin/entra/sessions",
+                endpoint=entra_handlers.api_admin_entra_sessions,
+                methods=["GET"],
+            ),
+            Route(
+                "/api/admin/entra/sessions/revoke",
+                endpoint=entra_handlers.api_admin_entra_revoke_session,
+                methods=["POST"],
+            ),
+            Route(
+                "/api/admin/entra/verify-user",
+                endpoint=entra_handlers.api_admin_entra_verify_user,
+                methods=["POST"],
+            ),
+            Route(
+                "/api/admin/entra/audit",
+                endpoint=entra_handlers.api_admin_entra_audit,
+                methods=["GET"],
+            ),
         ]
         _mount_routes(app, routes)
 
@@ -3802,6 +4044,7 @@ class SalesforcePlugin:
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.salesforce import mcp_handlers as sf_mcp_handlers
+
         tools = {
             "sf_query_soql": ToolSpec(
                 _h(sf_mcp_handlers, "handle_sf_query_soql"),
@@ -3900,14 +4143,43 @@ class SalesforcePlugin:
 
     def register_routes(self, app: Any) -> None:
         from nce_verticals.admin_handlers import salesforce as sf_handlers
+
         routes = [
-            Route("/api/admin/salesforce/config", endpoint=sf_handlers.api_admin_salesforce_config, methods=["GET"]),
-            Route("/api/admin/salesforce/config", endpoint=sf_handlers.api_admin_salesforce_config_save, methods=["POST"]),
-            Route("/api/admin/salesforce/records", endpoint=sf_handlers.api_admin_salesforce_records, methods=["GET"]),
-            Route("/api/admin/salesforce/records", endpoint=sf_handlers.api_admin_salesforce_mutate, methods=["POST"]),
-            Route("/api/admin/salesforce/sync", endpoint=sf_handlers.api_admin_salesforce_sync_now, methods=["POST"]),
-            Route("/api/admin/salesforce/webhooks", endpoint=sf_handlers.api_admin_salesforce_webhooks, methods=["GET"]),
-            Route("/api/webhooks/salesforce", endpoint=sf_handlers.api_salesforce_webhook_ingest, methods=["POST"]),
+            Route(
+                "/api/admin/salesforce/config",
+                endpoint=sf_handlers.api_admin_salesforce_config,
+                methods=["GET"],
+            ),
+            Route(
+                "/api/admin/salesforce/config",
+                endpoint=sf_handlers.api_admin_salesforce_config_save,
+                methods=["POST"],
+            ),
+            Route(
+                "/api/admin/salesforce/records",
+                endpoint=sf_handlers.api_admin_salesforce_records,
+                methods=["GET"],
+            ),
+            Route(
+                "/api/admin/salesforce/records",
+                endpoint=sf_handlers.api_admin_salesforce_mutate,
+                methods=["POST"],
+            ),
+            Route(
+                "/api/admin/salesforce/sync",
+                endpoint=sf_handlers.api_admin_salesforce_sync_now,
+                methods=["POST"],
+            ),
+            Route(
+                "/api/admin/salesforce/webhooks",
+                endpoint=sf_handlers.api_admin_salesforce_webhooks,
+                methods=["GET"],
+            ),
+            Route(
+                "/api/webhooks/salesforce",
+                endpoint=sf_handlers.api_salesforce_webhook_ingest,
+                methods=["POST"],
+            ),
         ]
         _mount_routes(app, routes)
 
@@ -3929,6 +4201,7 @@ class LightingDaliPlugin:
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.lighting_dali import mcp_handlers as ld_mcp_handlers
+
         tools = {
             "lighting_parse_photometric": ToolSpec(
                 _h(ld_mcp_handlers, "handle_lighting_parse_photometric"),
@@ -3978,12 +4251,33 @@ class LightingDaliPlugin:
 
     def register_routes(self, app: Any) -> None:
         from nce_verticals.admin_handlers import lighting_dali as ld_handlers
+
         routes = [
-            Route("/api/admin/lighting-dali/catalog", endpoint=ld_handlers.api_admin_lighting_catalog, methods=["GET"]),
-            Route("/api/admin/lighting-dali/analyze-project", endpoint=ld_handlers.api_admin_lighting_analyze_project, methods=["POST"]),
-            Route("/api/admin/lighting-dali/analyze-bus", endpoint=ld_handlers.api_admin_lighting_analyze_dali_bus, methods=["POST"]),
-            Route("/api/admin/lighting-dali/parse-photometric", endpoint=ld_handlers.api_admin_lighting_parse_photometric, methods=["POST"]),
-            Route("/api/admin/lighting-dali/decode-glamox", endpoint=ld_handlers.api_admin_lighting_decode_glamox, methods=["POST"]),
+            Route(
+                "/api/admin/lighting-dali/catalog",
+                endpoint=ld_handlers.api_admin_lighting_catalog,
+                methods=["GET"],
+            ),
+            Route(
+                "/api/admin/lighting-dali/analyze-project",
+                endpoint=ld_handlers.api_admin_lighting_analyze_project,
+                methods=["POST"],
+            ),
+            Route(
+                "/api/admin/lighting-dali/analyze-bus",
+                endpoint=ld_handlers.api_admin_lighting_analyze_dali_bus,
+                methods=["POST"],
+            ),
+            Route(
+                "/api/admin/lighting-dali/parse-photometric",
+                endpoint=ld_handlers.api_admin_lighting_parse_photometric,
+                methods=["POST"],
+            ),
+            Route(
+                "/api/admin/lighting-dali/decode-glamox",
+                endpoint=ld_handlers.api_admin_lighting_decode_glamox,
+                methods=["POST"],
+            ),
         ]
         _mount_routes(app, routes)
 

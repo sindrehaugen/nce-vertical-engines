@@ -107,7 +107,10 @@ def _derive_pass_fail(decisions: list[dict[str, Any]]) -> tuple[bool, list[str]]
     reasons: list[str] = []
     for d in decisions:
         if d.get("verdict") == "override":
-            reason = d.get("reason") or f"line {d.get('line_id', '?')} overridden by reviewer"
+            reason = (
+                d.get("reason")
+                or f"line {d.get('line_id', '?')} overridden by reviewer"
+            )
             reasons.append(reason)
 
     passed = len(reasons) == 0
@@ -160,7 +163,11 @@ async def _append_validation_ledger(
                 "line_id": d.get("line_id", ""),
                 "verdict": d.get("verdict", ""),
                 "reason": d.get("reason", ""),
-                **({"regulatory_scope": d["regulatory_scope"]} if "regulatory_scope" in d else {}),
+                **(
+                    {"regulatory_scope": d["regulatory_scope"]}
+                    if "regulatory_scope" in d
+                    else {}
+                ),
                 **(
                     {"applied_standards": d["applied_standards"]}
                     if "applied_standards" in d
@@ -310,7 +317,8 @@ async def do_validate_design(
     errors = _validate_decisions(decisions)
     if errors:
         raise ValueError(
-            "do_validate_design: malformed decisions (propose-only, §9.3): " + "; ".join(errors)
+            "do_validate_design: malformed decisions (propose-only, §9.3): "
+            + "; ".join(errors)
         )
 
     # 2. Derive pass/fail from the validated decisions.

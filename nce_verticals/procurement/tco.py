@@ -42,7 +42,7 @@ from typing import Any
 # Config loader — reads from nce/config_data/ (no config class)
 # ---------------------------------------------------------------------------
 
-_CONFIG_DATA_DIR = Path(__file__).parents[3] / "nce" / "config_data"
+_CONFIG_DATA_DIR = Path(__file__).resolve().parents[1] / "config_data"
 
 
 def load_procurement_config() -> tuple[dict[str, Any], dict[str, Any]]:

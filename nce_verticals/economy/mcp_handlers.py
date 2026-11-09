@@ -48,7 +48,10 @@ from nce_verticals.economy.customer_invoices import (
     do_propose_customer_invoice,
 )
 from nce_verticals.economy.dunning import do_compute_dunning
-from nce_verticals.economy.events import UnbalancedPostingsError, do_emit_financial_event
+from nce_verticals.economy.events import (
+    UnbalancedPostingsError,
+    do_emit_financial_event,
+)
 from nce_verticals.economy.finago import do_gl_sync_status
 from nce_verticals.economy.forecast import do_forecast_cashflow
 from nce_verticals.economy.gl import do_get_gl_records
@@ -121,7 +124,9 @@ _RESERVED_EVENT_KEYS: frozenset[str] = frozenset({"status", "error"})
 
 
 @mcp_handler
-async def handle_economy_match_invoice(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_economy_match_invoice(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: economy_match_invoice — invoice-match triage (READ-ONLY Advisor).
 
     Required arguments:
@@ -167,7 +172,10 @@ async def handle_economy_match_invoice(engine: NCEEngine, arguments: dict[str, A
     try:
         return json.dumps(result, default=str, allow_nan=False)
     except ValueError as exc:
-        log.error("[economy] handle_economy_match_invoice result not JSON-serializable: %s", exc)
+        log.error(
+            "[economy] handle_economy_match_invoice result not JSON-serializable: %s",
+            exc,
+        )
         return json.dumps(
             {
                 "error": (
@@ -180,7 +188,9 @@ async def handle_economy_match_invoice(engine: NCEEngine, arguments: dict[str, A
 
 
 @mcp_handler
-async def handle_economy_compute_periodisering(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_economy_compute_periodisering(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: economy_compute_periodisering — NGAAP bucket periodisering (READ-ONLY Advisor).
 
     Required arguments:
@@ -237,7 +247,9 @@ async def handle_economy_compute_periodisering(engine: NCEEngine, arguments: dic
 
 
 @mcp_handler
-async def handle_economy_emit_event(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_economy_emit_event(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: economy_emit_event — balance-guarantee dry-run validator (READ-ONLY Advisor).
 
     Required arguments:
@@ -302,7 +314,9 @@ async def handle_economy_emit_event(engine: NCEEngine, arguments: dict[str, Any]
     try:
         return json.dumps(result, default=str, allow_nan=False)
     except ValueError as exc:
-        log.error("[economy] handle_economy_emit_event result not JSON-serializable: %s", exc)
+        log.error(
+            "[economy] handle_economy_emit_event result not JSON-serializable: %s", exc
+        )
         return json.dumps(
             {
                 "error": (
@@ -315,7 +329,9 @@ async def handle_economy_emit_event(engine: NCEEngine, arguments: dict[str, Any]
 
 
 @mcp_handler
-async def handle_economy_forecast_cashflow(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_economy_forecast_cashflow(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: economy_forecast_cashflow — Monte Carlo cashflow forecast (READ-ONLY Advisor).
 
     Required arguments:
@@ -333,7 +349,9 @@ async def handle_economy_forecast_cashflow(engine: NCEEngine, arguments: dict[st
         if "params" in arguments and isinstance(arguments["params"], dict):
             params = dict(arguments["params"])
         else:
-            params = {k: v for k, v in arguments.items() if k not in ("namespace_id", "seed")}
+            params = {
+                k: v for k, v in arguments.items() if k not in ("namespace_id", "seed")
+            }
         result = do_forecast_cashflow(seed, params)
     except McpError:
         raise
@@ -388,7 +406,9 @@ async def handle_economy_snapshot_mrr_arr_churn(
     except (ValueError, KeyError, TypeError) as exc:
         return json.dumps({"error": str(exc)}, default=str)
     except Exception as exc:
-        log.exception("[economy] handle_economy_snapshot_mrr_arr_churn unexpected error")
+        log.exception(
+            "[economy] handle_economy_snapshot_mrr_arr_churn unexpected error"
+        )
         return json.dumps({"error": str(exc)}, default=str)
 
     try:
@@ -410,7 +430,9 @@ async def handle_economy_snapshot_mrr_arr_churn(
 
 
 @mcp_handler
-async def handle_economy_compute_dunning(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_economy_compute_dunning(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: economy_compute_dunning — Norwegian dunning / credit policy (READ-ONLY Advisor).
 
     Required arguments:
@@ -482,7 +504,9 @@ async def handle_economy_compute_recognition_schedule(
     except (ValueError, KeyError, TypeError) as exc:
         return json.dumps({"error": str(exc)}, default=str)
     except Exception as exc:
-        log.exception("[economy] handle_economy_compute_recognition_schedule unexpected error")
+        log.exception(
+            "[economy] handle_economy_compute_recognition_schedule unexpected error"
+        )
         return json.dumps({"error": str(exc)}, default=str)
 
     try:
@@ -504,7 +528,9 @@ async def handle_economy_compute_recognition_schedule(
 
 
 @mcp_handler
-async def handle_economy_gl_sync_status(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_economy_gl_sync_status(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: economy_gl_sync_status — GL reconciliation sync status (READ-ONLY Advisor).
 
     Required arguments:
@@ -576,7 +602,9 @@ async def handle_economy_generate_close_narrative(
     except (ValueError, KeyError, TypeError) as exc:
         return json.dumps({"error": str(exc)}, default=str)
     except Exception as exc:
-        log.exception("[economy] handle_economy_generate_close_narrative unexpected error")
+        log.exception(
+            "[economy] handle_economy_generate_close_narrative unexpected error"
+        )
         return json.dumps({"error": str(exc)}, default=str)
 
     try:
@@ -598,7 +626,9 @@ async def handle_economy_generate_close_narrative(
 
 
 @mcp_handler
-async def handle_economy_approve_invoice(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_economy_approve_invoice(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: economy_approve_invoice — execute 7-effect invoice approval cascade (Governed Actor tool).
 
     Required arguments:
@@ -662,7 +692,9 @@ async def handle_economy_approve_invoice(engine: NCEEngine, arguments: dict[str,
         )
         if not is_ocr and isinstance(arguments.get("lines"), list):
             for line in arguments["lines"]:
-                if isinstance(line, dict) and (line.get("is_ocr") or line.get("ocr_derived")):
+                if isinstance(line, dict) and (
+                    line.get("is_ocr") or line.get("ocr_derived")
+                ):
                     is_ocr = True
                     break
 
@@ -739,7 +771,9 @@ async def handle_economy_approve_invoice(engine: NCEEngine, arguments: dict[str,
 
 
 @mcp_handler
-async def handle_economy_generate_kid(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_economy_generate_kid(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: economy_generate_kid — Norwegian KID generator (READ-ONLY Advisor).
 
     Required arguments:
@@ -769,7 +803,10 @@ async def handle_economy_generate_kid(engine: NCEEngine, arguments: dict[str, An
     try:
         return json.dumps(result, default=str, allow_nan=False)
     except ValueError as exc:
-        log.error("[economy] handle_economy_generate_kid result not JSON-serializable: %s", exc)
+        log.error(
+            "[economy] handle_economy_generate_kid result not JSON-serializable: %s",
+            exc,
+        )
         return json.dumps(
             {
                 "error": (
@@ -782,7 +819,9 @@ async def handle_economy_generate_kid(engine: NCEEngine, arguments: dict[str, An
 
 
 @mcp_handler
-async def handle_economy_validate_kid(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_economy_validate_kid(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: economy_validate_kid — Norwegian KID validator (READ-ONLY Advisor).
 
     Required arguments:
@@ -812,7 +851,10 @@ async def handle_economy_validate_kid(engine: NCEEngine, arguments: dict[str, An
     try:
         return json.dumps(result, default=str, allow_nan=False)
     except ValueError as exc:
-        log.error("[economy] handle_economy_validate_kid result not JSON-serializable: %s", exc)
+        log.error(
+            "[economy] handle_economy_validate_kid result not JSON-serializable: %s",
+            exc,
+        )
         return json.dumps(
             {
                 "error": (
@@ -825,7 +867,9 @@ async def handle_economy_validate_kid(engine: NCEEngine, arguments: dict[str, An
 
 
 @mcp_handler
-async def handle_economy_generate_ehf(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_economy_generate_ehf(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: economy_generate_ehf — EHF 3.0 UBL XML generator ([ADMIN] privileged).
 
     Required arguments:
@@ -857,7 +901,10 @@ async def handle_economy_generate_ehf(engine: NCEEngine, arguments: dict[str, An
     try:
         return json.dumps(result, default=str, allow_nan=False)
     except ValueError as exc:
-        log.error("[economy] handle_economy_generate_ehf result not JSON-serializable: %s", exc)
+        log.error(
+            "[economy] handle_economy_generate_ehf result not JSON-serializable: %s",
+            exc,
+        )
         return json.dumps(
             {
                 "error": (
@@ -870,7 +917,9 @@ async def handle_economy_generate_ehf(engine: NCEEngine, arguments: dict[str, An
 
 
 @mcp_handler
-async def handle_economy_validate_contract(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_economy_validate_contract(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: economy_validate_contract — CPI uplift validator (READ-ONLY Advisor).
 
     Required arguments:
@@ -910,7 +959,8 @@ async def handle_economy_validate_contract(engine: NCEEngine, arguments: dict[st
         return json.dumps(result, default=str, allow_nan=False)
     except ValueError as exc:
         log.error(
-            "[economy] handle_economy_validate_contract result not JSON-serializable: %s", exc
+            "[economy] handle_economy_validate_contract result not JSON-serializable: %s",
+            exc,
         )
         return json.dumps(
             {
@@ -924,7 +974,9 @@ async def handle_economy_validate_contract(engine: NCEEngine, arguments: dict[st
 
 
 @mcp_handler
-async def handle_economy_get_gl_records(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_economy_get_gl_records(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: economy_get_gl_records — query GL postings with C8 allow-list projection (READ-ONLY Advisor).
 
     Required arguments:
@@ -954,7 +1006,10 @@ async def handle_economy_get_gl_records(engine: NCEEngine, arguments: dict[str, 
     try:
         return json.dumps(result, default=str, allow_nan=False)
     except ValueError as exc:
-        log.error("[economy] handle_economy_get_gl_records result not JSON-serializable: %s", exc)
+        log.error(
+            "[economy] handle_economy_get_gl_records result not JSON-serializable: %s",
+            exc,
+        )
         return json.dumps(
             {
                 "error": (
@@ -967,7 +1022,9 @@ async def handle_economy_get_gl_records(engine: NCEEngine, arguments: dict[str, 
 
 
 @mcp_handler
-async def handle_economy_reconcile_agreements(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_economy_reconcile_agreements(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: economy_reconcile_agreements — compare posted GL revenue against the
     recognition schedule for one period (charter Wave B-11).
 
@@ -1020,7 +1077,8 @@ async def handle_economy_reconcile_agreements(engine: NCEEngine, arguments: dict
         return json.dumps(result, default=str, allow_nan=False)
     except ValueError as exc:
         log.error(
-            "[economy] handle_economy_reconcile_agreements result not JSON-serializable: %s", exc
+            "[economy] handle_economy_reconcile_agreements result not JSON-serializable: %s",
+            exc,
         )
         return json.dumps(
             {
@@ -1034,7 +1092,9 @@ async def handle_economy_reconcile_agreements(engine: NCEEngine, arguments: dict
 
 
 @mcp_handler
-async def handle_economy_generate_billing_run(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_economy_generate_billing_run(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: economy_generate_billing_run — governed confirm-first billing-run generation (Wave B-12).
 
     Required arguments:
@@ -1098,7 +1158,8 @@ async def handle_economy_generate_billing_run(engine: NCEEngine, arguments: dict
         return json.dumps(result, default=str, allow_nan=False)
     except ValueError as exc:
         log.error(
-            "[economy] handle_economy_generate_billing_run result not JSON-serializable: %s", exc
+            "[economy] handle_economy_generate_billing_run result not JSON-serializable: %s",
+            exc,
         )
         return json.dumps(
             {
@@ -1134,7 +1195,9 @@ async def handle_economy_propose_customer_invoice(
         ns_uuid = require_namespace_id(arguments)
         billing_candidate_id = arguments.get("billing_candidate_id")
         if not billing_candidate_id:
-            raise ValueError("economy_propose_customer_invoice: 'billing_candidate_id' is required")
+            raise ValueError(
+                "economy_propose_customer_invoice: 'billing_candidate_id' is required"
+            )
         vat_rate_pct = arguments.get("vat_rate_pct")
         due_date_days_raw = arguments.get("due_date_days")
         if isinstance(due_date_days_raw, bool):
@@ -1167,7 +1230,9 @@ async def handle_economy_propose_customer_invoice(
     ) as exc:
         return json.dumps({"error": str(exc)}, default=str)
     except Exception as exc:
-        log.exception("[economy] handle_economy_propose_customer_invoice unexpected error")
+        log.exception(
+            "[economy] handle_economy_propose_customer_invoice unexpected error"
+        )
         return json.dumps({"error": str(exc)}, default=str)
 
     try:

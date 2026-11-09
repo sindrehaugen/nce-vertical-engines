@@ -249,7 +249,9 @@ def _as_optional_text(raw: Any) -> str | None:
 # ---------------------------------------------------------------------------
 
 
-async def do_seed_asset_from_bom(engine: NCEEngine, params: dict[str, Any]) -> dict[str, Any]:
+async def do_seed_asset_from_bom(
+    engine: NCEEngine, params: dict[str, Any]
+) -> dict[str, Any]:
     """Seed one ``assets`` row from the BOM line it originated from.
 
     Writes NOTHING but that row: no ``kg_nodes``, no ``kg_edges``, no outbox

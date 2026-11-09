@@ -236,7 +236,9 @@ async def do_recalibrate_supplier(
         1
         for r in rows
         if (
-            json.loads(r["tlx_scores"]) if isinstance(r["tlx_scores"], str) else r["tlx_scores"]
+            json.loads(r["tlx_scores"])
+            if isinstance(r["tlx_scores"], str)
+            else r["tlx_scores"]
         ).get("decision")
         == "accept"
     )

@@ -219,9 +219,13 @@ async def _fetch_spend_rows(
     # it exists, the read-only savings Watcher reports no spend rather than
     # crashing (graceful degradation, same posture as the EOL Watcher). Detected
     # via to_regclass so this module keeps NO DB-driver import (pure-core guard).
-    table_exists = await conn.fetchval("SELECT to_regclass('public.procurement_spend_lines')")
+    table_exists = await conn.fetchval(
+        "SELECT to_regclass('public.procurement_spend_lines')"
+    )
     if table_exists is None:
-        log.info("[procurement-savings] procurement_spend_lines absent — no spend to aggregate yet")
+        log.info(
+            "[procurement-savings] procurement_spend_lines absent — no spend to aggregate yet"
+        )
         return []
 
     rows = await conn.fetch(

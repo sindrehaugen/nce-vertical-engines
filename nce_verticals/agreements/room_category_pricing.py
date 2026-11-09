@@ -65,10 +65,14 @@ CATEGORY_TO_PRICE_TIER: dict[str, str] = {
 # Named separately from "true orphans" so a refusal message and any future
 # audit can distinguish "no price tier exists at all" from "a decision is
 # pending" -- both refuse today, but they are not the same kind of gap.
-_TRUE_ORPHAN_CATEGORIES: frozenset[str] = frozenset({"ALL_HANDS", "WAR_ROOM", "OPERATIONS_CENTER"})
+_TRUE_ORPHAN_CATEGORIES: frozenset[str] = frozenset(
+    {"ALL_HANDS", "WAR_ROOM", "OPERATIONS_CENTER"}
+)
 # Priced, just not by sla_room_pricing -- resolve_price_tier() returns
 # CUSTOM_PROJECT for these, it does not raise.
-_CUSTOM_PROJECT_CATEGORIES: frozenset[str] = frozenset({"CONFERENCE_MEDIUM", "CONFERENCE_LARGE"})
+_CUSTOM_PROJECT_CATEGORIES: frozenset[str] = frozenset(
+    {"CONFERENCE_MEDIUM", "CONFERENCE_LARGE"}
+)
 
 
 class UnpricedRoomCategoryError(ValueError):
@@ -81,7 +85,9 @@ class UnpricedRoomCategoryError(ValueError):
     notice is a customer.
     """
 
-    def __init__(self, category: str, *, fl_label: str | None = None, reason: str) -> None:
+    def __init__(
+        self, category: str, *, fl_label: str | None = None, reason: str
+    ) -> None:
         self.category = category
         self.fl_label = fl_label
         where = f" on FL {fl_label!r}" if fl_label else ""

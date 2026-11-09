@@ -31,7 +31,9 @@ def load_commission_config() -> dict[str, Any]:
         return cast(dict[str, Any], json.load(f))
 
 
-def calculate_deal_commission(deal_data: dict[str, Any], config: dict[str, Any]) -> float:
+def calculate_deal_commission(
+    deal_data: dict[str, Any], config: dict[str, Any]
+) -> float:
     """Calculate the DB-weighted commission for a single deal based on the commission tiers.
 
     The commission rate is determined by the overall gross margin % of the deal.
@@ -145,7 +147,9 @@ async def do_calculate_commission(
                     "quote_id": details.get("quote_id"),
                     "seller_id": event_seller,
                     "commission": comm,
-                    "created_at": row["occurred_at"].isoformat() if row["occurred_at"] else None,
+                    "created_at": row["occurred_at"].isoformat()
+                    if row["occurred_at"]
+                    else None,
                 }
             )
 

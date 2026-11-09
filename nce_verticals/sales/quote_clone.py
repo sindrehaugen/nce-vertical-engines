@@ -124,7 +124,9 @@ async def do_clone_quote(
     from nce.db_utils import scoped_pg_session
 
     source_id = _require_text(quote_id, "quote_id")
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
 
     async with scoped_pg_session(engine.pg_pool, ns_uuid) as conn:
         source = await _fetch_quote(conn, ns_uuid, source_id)
@@ -143,7 +145,9 @@ async def do_clone_quote(
         # (a mock returns a real dict; only a live Postgres returns str).
         raw_metadata = source["metadata"]
         metadata = (
-            raw_metadata if isinstance(raw_metadata, dict) else json.loads(raw_metadata or "{}")
+            raw_metadata
+            if isinstance(raw_metadata, dict)
+            else json.loads(raw_metadata or "{}")
         )
         metadata = dict(metadata)
         metadata["cloned_from"] = source_id
@@ -185,7 +189,9 @@ async def do_clone_quote(
                 }
                 for ln in source_lines
             ]
-            result = await do_import_quote_lines(conn, ns_uuid, quote_id=str(new_id), lines=payload)
+            result = await do_import_quote_lines(
+                conn, ns_uuid, quote_id=str(new_id), lines=payload
+            )
             lines_cloned = result["imported"]
 
     return {

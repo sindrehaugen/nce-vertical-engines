@@ -237,7 +237,9 @@ async def do_list_assets(engine: NCEEngine, params: dict[str, Any]) -> dict[str,
         :data:`_LIST_ROW_CAP` rows.
     """
     namespace_id = require_namespace_id(params)
-    functional_location_id = str(params.get("functional_location_id") or "").strip() or None
+    functional_location_id = (
+        str(params.get("functional_location_id") or "").strip() or None
+    )
     lifecycle_state = str(params.get("lifecycle_state") or "").strip() or None
 
     conditions: list[str] = ["namespace_id = $1::uuid"]
@@ -261,7 +263,9 @@ async def do_list_assets(engine: NCEEngine, params: dict[str, Any]) -> dict[str,
     return {"ok": True, "items": [_row_to_asset_dict(r) for r in rows]}
 
 
-async def do_advance_lifecycle(engine: NCEEngine, params: dict[str, Any]) -> dict[str, Any]:
+async def do_advance_lifecycle(
+    engine: NCEEngine, params: dict[str, Any]
+) -> dict[str, Any]:
     """Advance one asset's ``lifecycle_state`` via the pure 14-state machine.
 
     Reads the asset's current ``lifecycle_state``, calls
@@ -374,7 +378,9 @@ async def handle_assets_list(engine: NCEEngine, arguments: dict[str, Any]) -> st
 
 
 @mcp_handler
-async def handle_assets_advance_lifecycle(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_assets_advance_lifecycle(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: assets_advance_lifecycle — advance the 14-state lifecycle (Actor).
 
     Requires ``namespace_id``, ``asset_id``, and ``target_state``. Thin
@@ -385,7 +391,9 @@ async def handle_assets_advance_lifecycle(engine: NCEEngine, arguments: dict[str
 
 
 @mcp_handler
-async def handle_assets_seed_from_bom(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_assets_seed_from_bom(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: assets_seed_from_bom — seed one asset row from a BOM line (Actor).
 
     Requires ``namespace_id`` and ``bom_line_id``. Thin adapter — all logic
@@ -397,7 +405,9 @@ async def handle_assets_seed_from_bom(engine: NCEEngine, arguments: dict[str, An
 
 
 @mcp_handler
-async def handle_assets_pull_telemetry(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_assets_pull_telemetry(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: assets_pull_telemetry — pull telemetry samples for an asset (Operator/cron).
 
     Requires ``namespace_id`` and ``asset_id``. Thin adapter — all logic
@@ -421,7 +431,9 @@ async def handle_assets_attach_sla(engine: NCEEngine, arguments: dict[str, Any])
 
 
 @mcp_handler
-async def handle_assets_compute_health(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_assets_compute_health(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: assets_compute_health — compute asset health score (Watcher).
 
     Requires ``namespace_id`` and ``asset_id``. Thin adapter — all logic
@@ -433,7 +445,9 @@ async def handle_assets_compute_health(engine: NCEEngine, arguments: dict[str, A
 
 
 @mcp_handler
-async def handle_assets_check_warranty_eol(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_assets_check_warranty_eol(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: assets_check_warranty_eol — check assets for expiring warranty and EOL (Watcher, read-only).
 
     Requires ``namespace_id``. Thin adapter — all logic lives in
@@ -445,7 +459,9 @@ async def handle_assets_check_warranty_eol(engine: NCEEngine, arguments: dict[st
 
 
 @mcp_handler
-async def handle_assets_sync_netbox(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_assets_sync_netbox(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: assets_sync_netbox — reconcile assets with NetBox DCIM devices (Operator/bridge, mutation).
 
     Requires ``namespace_id``. Thin adapter — all logic lives in
@@ -457,7 +473,9 @@ async def handle_assets_sync_netbox(engine: NCEEngine, arguments: dict[str, Any]
 
 
 @mcp_handler
-async def handle_assets_generate_qr(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_assets_generate_qr(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: assets_generate_qr — generate QR code metadata and vector SVG (Watcher, read-only).
 
     Requires ``namespace_id`` and ``asset_id``; optionally accepts ``base_url``.
@@ -469,7 +487,9 @@ async def handle_assets_generate_qr(engine: NCEEngine, arguments: dict[str, Any]
 
 
 @mcp_handler
-async def handle_assets_record_failure_pattern(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_assets_record_failure_pattern(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: assets_record_failure_pattern — record failure pattern edge from ASSET to PRODUCT_SKU (Actor, mutation).
 
     Requires ``namespace_id``, ``asset_id``, and ``product_sku``.
@@ -547,7 +567,9 @@ async def do_move_asset(engine: NCEEngine, params: dict[str, Any]) -> dict[str, 
     }
 
 
-async def do_get_asset_merge_queue(engine: NCEEngine, params: dict[str, Any]) -> dict[str, Any]:
+async def do_get_asset_merge_queue(
+    engine: NCEEngine, params: dict[str, Any]
+) -> dict[str, Any]:
     """Retrieve pending merge queue rows from entity_merge_queue for ASSET nodes."""
     namespace_id = require_namespace_id(params)
 
@@ -577,7 +599,9 @@ async def do_get_asset_merge_queue(engine: NCEEngine, params: dict[str, Any]) ->
                 "id": str(r["id"]),
                 "node_type": r["node_type"],
                 "candidate_payload": payload,
-                "target_node_id": str(r["target_node_id"]) if r["target_node_id"] else None,
+                "target_node_id": str(r["target_node_id"])
+                if r["target_node_id"]
+                else None,
                 "score": float(r["score"]) if r["score"] is not None else 1.0,
                 "status": r["status"],
                 "created_at": r["created_at"].isoformat() if r["created_at"] else None,
@@ -614,7 +638,10 @@ async def do_merge_asset(engine: NCEEngine, params: dict[str, Any]) -> dict[str,
             except Exception as exc:
                 raise ValueError(f"invalid queue_id: {exc}") from exc
             await c1_confirm(
-                conn, namespace_id=UUID(namespace_id), queue_id=q_uuid, decided_by=decided_by
+                conn,
+                namespace_id=UUID(namespace_id),
+                queue_id=q_uuid,
+                decided_by=decided_by,
             )
             return {
                 "ok": True,
@@ -651,7 +678,9 @@ async def do_merge_asset(engine: NCEEngine, params: dict[str, Any]) -> dict[str,
     }
 
 
-async def do_link_asset_product(engine: NCEEngine, params: dict[str, Any]) -> dict[str, Any]:
+async def do_link_asset_product(
+    engine: NCEEngine, params: dict[str, Any]
+) -> dict[str, Any]:
     """Link an asset to a product catalog item (C1 confirm).
 
     Parameters
@@ -669,7 +698,9 @@ async def do_link_asset_product(engine: NCEEngine, params: dict[str, Any]) -> di
     product_sku = str(params.get("product_sku") or "").strip() or None
 
     if not product_id and not product_sku:
-        raise ValueError("At least one of 'product_id' or 'product_sku' must be provided")
+        raise ValueError(
+            "At least one of 'product_id' or 'product_sku' must be provided"
+        )
 
     async with scoped_pg_session(engine.pg_pool, namespace_id) as conn:
         row = await conn.fetchrow(
@@ -734,7 +765,9 @@ async def handle_assets_merge(engine: NCEEngine, arguments: dict[str, Any]) -> s
 
 
 @mcp_handler
-async def handle_assets_link_product(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_assets_link_product(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: assets_link_product — link an asset to a product catalog item."""
     require_namespace_id(arguments)
     result = await do_link_asset_product(engine, dict(arguments))
@@ -742,7 +775,9 @@ async def handle_assets_link_product(engine: NCEEngine, arguments: dict[str, Any
 
 
 @mcp_handler
-async def handle_assets_service_history(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_assets_service_history(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: assets_service_history — fetch composite service history for an asset."""
     require_namespace_id(arguments)
     result = await do_get_asset_service_history(engine, dict(arguments))
@@ -755,7 +790,9 @@ async def handle_assets_service_history(engine: NCEEngine, arguments: dict[str, 
 
 
 @mcp_handler
-async def handle_assets_assign_person(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_assets_assign_person(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: assets_assign_person — assign an asset to an employee (EMPLOYEE -[uses]-> ASSET).
 
     Actor; mutation, admin_only. Requires ``namespace_id``, ``asset_id``, and ``employee_id`` or ``principal_id``.
@@ -766,7 +803,9 @@ async def handle_assets_assign_person(engine: NCEEngine, arguments: dict[str, An
 
 
 @mcp_handler
-async def handle_assets_unassign_person(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_assets_unassign_person(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: assets_unassign_person — unassign an asset from an employee.
 
     Actor; mutation, admin_only. Requires ``namespace_id`` and ``asset_id``. Optional ``employee_id``.
@@ -777,7 +816,9 @@ async def handle_assets_unassign_person(engine: NCEEngine, arguments: dict[str, 
 
 
 @mcp_handler
-async def handle_assets_list_person_assets(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_assets_list_person_assets(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: assets_list_person_assets — list all assets assigned to an employee.
 
     Watcher; read-only, cacheable. Requires ``namespace_id`` and ``employee_id`` or ``principal_id``.
@@ -789,7 +830,9 @@ async def handle_assets_list_person_assets(engine: NCEEngine, arguments: dict[st
 
 
 @mcp_handler
-async def handle_assets_link_subcomponent(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_assets_link_subcomponent(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: assets_link_subcomponent — link an asset as a sub-component (ASSET -[part_of]-> ASSET).
 
     Actor; mutation, admin_only. Requires ``namespace_id``, ``parent_asset_id``, and ``sub_asset_id``.
@@ -801,7 +844,9 @@ async def handle_assets_link_subcomponent(engine: NCEEngine, arguments: dict[str
 
 
 @mcp_handler
-async def handle_assets_unlink_subcomponent(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_assets_unlink_subcomponent(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: assets_unlink_subcomponent — unlink a sub-component from its parent asset.
 
     Actor; mutation, admin_only. Requires ``namespace_id``, ``parent_asset_id``, and ``sub_asset_id``.
@@ -812,7 +857,9 @@ async def handle_assets_unlink_subcomponent(engine: NCEEngine, arguments: dict[s
 
 
 @mcp_handler
-async def handle_assets_list_subcomponents(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_assets_list_subcomponents(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: assets_list_subcomponents — retrieve sub-components and parent for an asset.
 
     Watcher; read-only, cacheable. Requires ``namespace_id`` and ``asset_id``.

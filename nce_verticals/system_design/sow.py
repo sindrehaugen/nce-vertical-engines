@@ -199,7 +199,8 @@ def generate_sow(sow_input: SoWInput, version_number: int = 1) -> SoWDoc:
 
     # ── §2 Deliverables — grouped per room ──────────────────────────────────
     room_map: dict[str, dict[str, str]] = {
-        r["id"]: {"name": r["name"], "type": r["type"]} for r in sow_input.get("rooms", [])
+        r["id"]: {"name": r["name"], "type": r["type"]}
+        for r in sow_input.get("rooms", [])
     }
 
     lines_by_room: dict[str, list[dict[str, Any]]] = {}
@@ -211,10 +212,14 @@ def generate_sow(sow_input: SoWInput, version_number: int = 1) -> SoWDoc:
     for room_id, lines in lines_by_room.items():
         meta = room_map.get(room_id)
         room_name = (
-            meta["name"] if meta else (lines[0].get("roomName") or "Felles / ikke tilordnet")
+            meta["name"]
+            if meta
+            else (lines[0].get("roomName") or "Felles / ikke tilordnet")
         )
         room_type = meta["type"] if meta else "unknown"
-        total_sell: float = sum(float(ln["qty"]) * float(ln["sellPrice"]) for ln in lines)
+        total_sell: float = sum(
+            float(ln["qty"]) * float(ln["sellPrice"]) for ln in lines
+        )
         deliverables.append(
             {
                 "roomName": room_name,
@@ -222,7 +227,11 @@ def generate_sow(sow_input: SoWInput, version_number: int = 1) -> SoWDoc:
                 "lineCount": len(lines),
                 "totalSell": total_sell,
                 "items": [
-                    {"description": ln["description"], "qty": ln["qty"], "unit": ln["category"]}
+                    {
+                        "description": ln["description"],
+                        "qty": ln["qty"],
+                        "unit": ln["category"],
+                    }
                     for ln in lines[:25]
                 ],
             }
@@ -255,7 +264,9 @@ def generate_sow(sow_input: SoWInput, version_number: int = 1) -> SoWDoc:
     managed_services: list[dict[str, Any]] = [
         {
             "name": c["name"],
-            "tier": _SERVICE_TIER_LABEL.get(c.get("tier") or "", c.get("tier") or "Standard")
+            "tier": _SERVICE_TIER_LABEL.get(
+                c.get("tier") or "", c.get("tier") or "Standard"
+            )
             if c.get("tier")
             else "Standard",
             "coverage": c.get("coverageLevel") or "STANDARD",
@@ -654,7 +665,9 @@ def _assemble_sow_input(
     for fl in fl_nodes:
         lbl: str = fl["label"]
         if lbl.count(":") == 5:  # FL:NS:SITE:BUILDING:FLOOR:ROOM
-            rooms.append({"id": lbl, "name": _parse_fl_label(lbl)["name"], "type": "room"})
+            rooms.append(
+                {"id": lbl, "name": _parse_fl_label(lbl)["name"], "type": "room"}
+            )
 
     # Build a reverse index: DESIGN_LINE label → room FL label.
     dl_to_room: dict[str, str] = {}
@@ -773,7 +786,9 @@ async def do_generate_sow(
     # Derive version tied to design state (freeze-on-issue).
     version_number: int
     if frozen:
-        assert caller_version is not None  # guaranteed by `frozen = caller_version is not None`
+        assert (
+            caller_version is not None
+        )  # guaranteed by `frozen = caller_version is not None`
         version_number = caller_version
     else:
         version_number = _derive_version_number(design_label, design_meta)

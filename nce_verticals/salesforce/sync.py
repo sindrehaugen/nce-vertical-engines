@@ -47,7 +47,11 @@ class SalesforceSyncEngine:
         entra_token: str | None = None,
         limit_per_object: int = 200,
     ) -> dict[str, Any]:
-        targets = sobject_types or self.ops.config.sync_objects or list(DEFAULT_SOBJECT_FIELDS.keys())
+        targets = (
+            sobject_types
+            or self.ops.config.sync_objects
+            or list(DEFAULT_SOBJECT_FIELDS.keys())
+        )
         started = time.time()
         counts: dict[str, int] = {}
         kg_edges_upserted = 0
@@ -60,7 +64,9 @@ class SalesforceSyncEngine:
                 f"SELECT {', '.join(fields)} FROM {sobj}{where_clause} "
                 f"ORDER BY SystemModstamp DESC LIMIT {max(1, min(1000, int(limit_per_object)))}"
             )
-            res = await self.ops.query_soql(soql, entra_token=entra_token, max_records=limit_per_object)
+            res = await self.ops.query_soql(
+                soql, entra_token=entra_token, max_records=limit_per_object
+            )
             records = res.get("records", [])
             counts[sobj] = len(records)
 
@@ -75,8 +81,12 @@ class SalesforceSyncEngine:
                         or rec.get("CaseNumber")
                         or sf_id
                     )
-                    parent_id = str(rec.get("AccountId") or rec.get("WhatId") or "") or None
-                    status_stage = str(rec.get("Status") or rec.get("StageName") or "") or None
+                    parent_id = (
+                        str(rec.get("AccountId") or rec.get("WhatId") or "") or None
+                    )
+                    status_stage = (
+                        str(rec.get("Status") or rec.get("StageName") or "") or None
+                    )
                     await self.conn.execute(
                         """
                         INSERT INTO salesforce_read_model (

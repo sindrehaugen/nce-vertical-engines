@@ -95,7 +95,9 @@ async def upsert_product_node(
     the PRODUCT_SKU node is an identity/edge anchor only.  Product attributes
     live in ``product_catalog`` (W2), not on the graph node.
     """
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
 
     await assert_owner(conn, ns_uuid, _NODE_TYPE, _PRODUCT_ENGINE)
 
@@ -160,7 +162,9 @@ async def upsert_bom_references_edge(
     confidence:
         Edge confidence score in [0, 1].
     """
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
 
     # Ownership: the product engine owns PRODUCT_SKU nodes; writing an edge
     # whose *object* is a PRODUCT_SKU node is also permitted to the product
@@ -256,7 +260,9 @@ async def upsert_product_relation_edge(
             f"allowed: {sorted(_RELATION_PREDICATES)}"
         )
 
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
 
     await assert_owner(conn, ns_uuid, _NODE_TYPE, _PRODUCT_ENGINE)
 

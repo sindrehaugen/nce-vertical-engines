@@ -123,7 +123,11 @@ async def do_upsert_contractor(
             node_id=label,
         )
 
-    return {"ok": True, "contractor_id": label, "partner_scope_id": str(partner_scope_uuid)}
+    return {
+        "ok": True,
+        "contractor_id": label,
+        "partner_scope_id": str(partner_scope_uuid),
+    }
 
 
 async def do_get_contractor(

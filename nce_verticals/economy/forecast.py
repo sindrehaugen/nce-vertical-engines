@@ -137,7 +137,9 @@ _ZERO = Decimal("0.00")
 _PERCENTILES: tuple[int, ...] = (10, 50, 90)
 
 _VALID_PARAMS_KEYS = frozenset({"periods", "iterations", "opening_balance", "_comment"})
-_VALID_PERIOD_KEYS = frozenset({"period", "expected_net", "uncertainty_pct", "_comment"})
+_VALID_PERIOD_KEYS = frozenset(
+    {"period", "expected_net", "uncertainty_pct", "_comment"}
+)
 
 
 @dataclass(frozen=True)
@@ -171,7 +173,9 @@ def _as_seed(value: Any) -> int:
             "from OS entropy, which is non-deterministic"
         )
     if isinstance(value, bool) or not isinstance(value, int):
-        raise ValueError(f"forecast: seed must be a real int, got {type(value).__name__} {value!r}")
+        raise ValueError(
+            f"forecast: seed must be a real int, got {type(value).__name__} {value!r}"
+        )
     return value
 
 
@@ -193,7 +197,9 @@ def _as_money(value: Any, where: str) -> Decimal:
         try:
             candidate = Decimal(str(value))
         except DecimalException as exc:  # pragma: no cover - str(float) always parses
-            raise ValueError(f"forecast: {where} is not a usable number: {value!r}") from exc
+            raise ValueError(
+                f"forecast: {where} is not a usable number: {value!r}"
+            ) from exc
     else:
         raise ValueError(
             f"forecast: {where} must be int/float/Decimal, got {type(value).__name__} {value!r}"
@@ -218,7 +224,9 @@ def _as_uncertainty(value: Any, where: str) -> Decimal:
         try:
             ratio = Decimal(str(value))
         except DecimalException as exc:  # pragma: no cover - str(float) always parses
-            raise ValueError(f"forecast: {where} is not a usable number: {value!r}") from exc
+            raise ValueError(
+                f"forecast: {where} is not a usable number: {value!r}"
+            ) from exc
     else:
         raise ValueError(
             f"forecast: {where} must be int/float/Decimal, got {type(value).__name__} {value!r}"
@@ -256,7 +264,9 @@ def _quantise(value: Decimal, where: str) -> Decimal:
     try:
         return value.quantize(_ORE, rounding=ROUND_HALF_UP)
     except DecimalException as exc:
-        raise ValueError(f"forecast: {where} is too large to express in øre: {value!r}") from exc
+        raise ValueError(
+            f"forecast: {where} is too large to express in øre: {value!r}"
+        ) from exc
 
 
 # ---------------------------------------------------------------------------
@@ -268,7 +278,9 @@ def _normalised_params(params: Any) -> dict[str, Any]:
     """Reject an unknown top-level key rather than silently ignoring it (a typo'd
     ``"periods"`` would otherwise run a zero-period forecast that looks successful)."""
     if not isinstance(params, dict):
-        raise ValueError(f"forecast: params must be an object, got {type(params).__name__}")
+        raise ValueError(
+            f"forecast: params must be an object, got {type(params).__name__}"
+        )
     unknown = set(params) - _VALID_PARAMS_KEYS
     if unknown:
         raise ValueError(
@@ -308,7 +320,9 @@ def _coerce_periods(raw_periods: Any) -> list[_PeriodInput]:
         periods.append(
             _PeriodInput(
                 label=raw.get("period"),
-                expected_net=_as_money(raw["expected_net"], f"periods[{index}].expected_net"),
+                expected_net=_as_money(
+                    raw["expected_net"], f"periods[{index}].expected_net"
+                ),
                 uncertainty_pct=_as_uncertainty(
                     raw.get("uncertainty_pct"), f"periods[{index}].uncertainty_pct"
                 ),
@@ -363,7 +377,9 @@ def _run_iteration(
         # THE float -> Decimal boundary: Decimal(str(z)), never Decimal(z) (see module
         # docstring). Everything from here on is exact.
         noise = Decimal(str(z)) * period.uncertainty_pct
-        simulated_net = _quantise(period.expected_net * (Decimal(1) + noise), "simulated_net")
+        simulated_net = _quantise(
+            period.expected_net * (Decimal(1) + noise), "simulated_net"
+        )
         balance = balance + simulated_net
         nets.append(simulated_net)
         balances.append(balance)
@@ -444,7 +460,9 @@ def do_forecast_cashflow(seed: int, params: dict[str, Any]) -> dict[str, Any]:
     iterations = _as_iterations(resolved_params.get("iterations"))
 
     raw_opening = resolved_params.get("opening_balance")
-    opening_balance = _ZERO if raw_opening is None else _as_money(raw_opening, "opening_balance")
+    opening_balance = (
+        _ZERO if raw_opening is None else _as_money(raw_opening, "opening_balance")
+    )
 
     rng = random.Random(seed_int)
 

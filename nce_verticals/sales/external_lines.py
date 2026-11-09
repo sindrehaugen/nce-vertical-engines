@@ -145,7 +145,9 @@ async def do_import_quote_lines(
             raise ValueError(f"lines[{idx}] must be an object")
 
         ref = _require_text(entry.get("line_ref"), f"lines[{idx}].line_ref")
-        quantity = _require_decimal(entry.get("qty"), f"lines[{idx}].qty", allow_zero=False)
+        quantity = _require_decimal(
+            entry.get("qty"), f"lines[{idx}].qty", allow_zero=False
+        )
         price = _require_decimal(entry.get("unit_price"), f"lines[{idx}].unit_price")
         raw_total = entry.get("line_total")
         total = (

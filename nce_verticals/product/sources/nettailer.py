@@ -73,7 +73,9 @@ log = logging.getLogger("nce_verticals.product.sources.nettailer")
 # Columns marked ``_INTERNAL`` carry cost/margin data.  They are parsed into the
 # internal dict but **excluded** from the public canonical_row by
 # ``_public_row``.
-_INTERNAL_FIELDS: frozenset[str] = frozenset({"unit_cost", "bid_price", "supplier_price"})
+_INTERNAL_FIELDS: frozenset[str] = frozenset(
+    {"unit_cost", "bid_price", "supplier_price"}
+)
 
 FIELD_ALIAS_MAP: dict[str, str] = {
     # --- Identity ---

@@ -153,7 +153,9 @@ def _check_low_stock(row: Any, as_of: datetime) -> dict[str, Any] | None:
         "rationale": {
             "as_of": as_of.isoformat(),
             "threshold": str(reorder_point),
-            "basis": ("available = qty_on_hand - qty_reserved - qty_blocked < reorder_point"),
+            "basis": (
+                "available = qty_on_hand - qty_reserved - qty_blocked < reorder_point"
+            ),
         },
     }
 
@@ -278,7 +280,9 @@ async def do_flag_stock_alerts(engine: Any, params: dict[str, Any]) -> dict[str,
             low = _check_low_stock(row, as_of)
             if low is not None:
                 flags.append(low)
-            dead = await _check_dead_stock(conn, namespace_id, row, as_of, dead_stock_days)
+            dead = await _check_dead_stock(
+                conn, namespace_id, row, as_of, dead_stock_days
+            )
             if dead is not None:
                 flags.append(dead)
 

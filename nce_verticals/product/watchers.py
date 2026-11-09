@@ -234,7 +234,9 @@ async def do_check_eol(
 
     for entry in eol_entries:
         try:
-            result = await _process_eol_entry(pool, namespace_id, entry, all_failure_patterns)
+            result = await _process_eol_entry(
+                pool, namespace_id, entry, all_failure_patterns
+            )
             edges_written += result["edges_written"]
             skipped += result["skipped"]
         except Exception:
@@ -268,7 +270,9 @@ async def _scan_catalog_for_eol(
     Returns entries in the same shape as the config-seeded list.
     Only includes rows that have a non-empty ``successor_sku`` column.
     """
-    _EOL_STATUSES = frozenset({"eol", "eos", "end_of_life", "end_of_sale", "discontinued"})
+    _EOL_STATUSES = frozenset(
+        {"eol", "eos", "end_of_life", "end_of_sale", "discontinued"}
+    )
 
     entries: list[dict[str, Any]] = []
     try:
@@ -316,7 +320,9 @@ async def _scan_catalog_for_eol(
                     }
                 )
     except Exception:
-        log.exception("do_check_eol: catalog scan failed for namespace %s — no-op", namespace_id)
+        log.exception(
+            "do_check_eol: catalog scan failed for namespace %s — no-op", namespace_id
+        )
     return entries
 
 
@@ -339,11 +345,15 @@ async def _process_eol_entry(
     confidence = float(entry.get("confidence", _DEFAULT_CONFIDENCE))
 
     if not manufacturer or not mfr_part_no or not succ_part_no:
-        log.debug("do_check_eol: skipping entry with missing required fields: %r", entry)
+        log.debug(
+            "do_check_eol: skipping entry with missing required fields: %r", entry
+        )
         return {"edges_written": 0, "skipped": 1}
 
     async with scoped_pg_session(pool, namespace_id) as conn:
-        subject_label = await _product_label_for(conn, namespace_id, manufacturer, mfr_part_no)
+        subject_label = await _product_label_for(
+            conn, namespace_id, manufacturer, mfr_part_no
+        )
         if subject_label is None:
             log.debug(
                 "do_check_eol: subject node not found for %s:%s — skipping",
@@ -352,7 +362,9 @@ async def _process_eol_entry(
             )
             return {"edges_written": 0, "skipped": 1}
 
-        object_label = await _product_label_for(conn, namespace_id, succ_manufacturer, succ_part_no)
+        object_label = await _product_label_for(
+            conn, namespace_id, succ_manufacturer, succ_part_no
+        )
         if object_label is None:
             log.debug(
                 "do_check_eol: successor node not found for %s:%s — skipping",

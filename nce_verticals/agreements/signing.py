@@ -399,7 +399,9 @@ async def do_request_signature(engine: Any, params: dict[str, Any]) -> dict[str,
         # document is free-form; `extracted` is what compliance/kickback
         # actually authorise money from, so record its canonical fingerprint
         # and re-check it at record time.
-        terms_fingerprint = await _compute_terms_fingerprint(conn, ns_uuid, str(agreement_uuid))
+        terms_fingerprint = await _compute_terms_fingerprint(
+            conn, ns_uuid, str(agreement_uuid)
+        )
         await _upsert_signature_node(
             conn,
             ns_uuid,
@@ -481,7 +483,8 @@ async def do_record_signature(engine: Any, params: dict[str, Any]) -> dict[str, 
     session_id = _require_str(params, "session_id")
     signer = _require_str(params, "signer")
     if params.get("signed_document") is None or (
-        isinstance(params["signed_document"], str) and not params["signed_document"].strip()
+        isinstance(params["signed_document"], str)
+        and not params["signed_document"].strip()
     ):
         raise ValueError("signed_document is required")
     signed_doc = _doc_bytes(params["signed_document"])
@@ -492,14 +495,17 @@ async def do_record_signature(engine: Any, params: dict[str, Any]) -> dict[str, 
     #    before ANY transport call or ledger write.
     actual_fingerprint = sha256_fingerprint(signed_doc)
     async with scoped_pg_session(engine.pg_pool, ns_uuid) as conn:
-        request_payload = await _read_request_payload(conn, ns_uuid, agreement_id_str, session_id)
+        request_payload = await _read_request_payload(
+            conn, ns_uuid, agreement_id_str, session_id
+        )
         current_terms_fingerprint = await _compute_terms_fingerprint(
             conn, ns_uuid, agreement_id_str
         )
 
     expected_fingerprint = (
         str(request_payload.get("fingerprint"))
-        if request_payload is not None and request_payload.get("fingerprint") is not None
+        if request_payload is not None
+        and request_payload.get("fingerprint") is not None
         else None
     )
 
@@ -655,7 +661,9 @@ async def do_record_signature(engine: Any, params: dict[str, Any]) -> dict[str, 
                 "do_record_signature: verify_memory(%s) agreement=%s -> %s",
                 memory_id,
                 agreement_uuid,
-                verify_result.get("valid") if isinstance(verify_result, dict) else verify_result,
+                verify_result.get("valid")
+                if isinstance(verify_result, dict)
+                else verify_result,
             )
         except Exception:
             log.warning(

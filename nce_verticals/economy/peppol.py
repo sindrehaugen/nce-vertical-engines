@@ -112,7 +112,9 @@ _KID_MIN_BASE_LEN = 1
 # digit); 24 leaves room for exactly one check digit within that ceiling.
 _KID_MAX_BASE_LEN = 24
 _KID_VARIANT = "MOD10"
-_KID_VARIANT_MOD11 = "MOD11"  # specified, not yet implemented -- see _resolve_kid_variant
+_KID_VARIANT_MOD11 = (
+    "MOD11"  # specified, not yet implemented -- see _resolve_kid_variant
+)
 
 
 def _digits_only(value: Any, where: str) -> str:
@@ -125,10 +127,14 @@ def _digits_only(value: Any, where: str) -> str:
     in Python, but a KID is never a boolean).
     """
     if isinstance(value, bool) or not isinstance(value, str):
-        raise ValueError(f"{where}: must be a str of digits, got {type(value).__name__} {value!r}")
+        raise ValueError(
+            f"{where}: must be a str of digits, got {type(value).__name__} {value!r}"
+        )
     stripped = value.strip()
     if not stripped or not stripped.isascii() or not stripped.isdigit():
-        raise ValueError(f"{where}: must be a non-empty string of ASCII digits, got {value!r}")
+        raise ValueError(
+            f"{where}: must be a non-empty string of ASCII digits, got {value!r}"
+        )
     return stripped
 
 
@@ -336,19 +342,25 @@ def _money_str(value: Any, where: str) -> str:
         except DecimalException as exc:
             raise ValueError(f"{where}: not a usable number: {value!r}") from exc
     else:
-        raise ValueError(f"{where}: must be int/float/str/Decimal, got {type(value).__name__}")
+        raise ValueError(
+            f"{where}: must be int/float/str/Decimal, got {type(value).__name__}"
+        )
     if not candidate.is_finite():
         raise ValueError(f"{where}: must be finite, got {value!r}")
     try:
         return str(candidate.quantize(_MONEY_QUANT, rounding=ROUND_HALF_UP))
     except DecimalException as exc:
-        raise ValueError(f"{where}: too large to express to 2 dp: {candidate!r}") from exc
+        raise ValueError(
+            f"{where}: too large to express to 2 dp: {candidate!r}"
+        ) from exc
 
 
 def _require_str(invoice: dict[str, Any], key: str) -> str:
     value = invoice.get(key)
     if not isinstance(value, str) or not value.strip():
-        raise ValueError(f"do_generate_ehf: invoice[{key!r}] must be a non-empty string")
+        raise ValueError(
+            f"do_generate_ehf: invoice[{key!r}] must be a non-empty string"
+        )
     return value.strip()
 
 
@@ -377,7 +389,9 @@ def _build_ehf_xml(invoice: dict[str, Any]) -> bytes:
     currency_code = _require_str(invoice, "currency_code")
     supplier_id = _require_str(invoice, "supplier_peppol_id")
     buyer_id = _require_str(invoice, "buyer_peppol_id")
-    payable_amount = _money_str(invoice.get("payable_amount"), "do_generate_ehf: payable_amount")
+    payable_amount = _money_str(
+        invoice.get("payable_amount"), "do_generate_ehf: payable_amount"
+    )
 
     root = Element(
         "Invoice",
@@ -530,7 +544,9 @@ async def do_generate_ehf(
             "reason": "NCE_ECONOMY_PEPPOL_API_KEY is not configured",
         }
 
-    _transport: PeppolTransport = transport if transport is not None else StubPeppolTransport()
+    _transport: PeppolTransport = (
+        transport if transport is not None else StubPeppolTransport()
+    )
     send_result = await _transport.send_document(
         xml_bytes=xml_bytes,
         sender_peppol_id=invoice.get("supplier_peppol_id", ""),

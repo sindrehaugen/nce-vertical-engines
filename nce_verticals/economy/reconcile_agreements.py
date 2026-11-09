@@ -193,7 +193,9 @@ def _materiality(expected_value: Decimal, actual_value: Decimal) -> float:
     return float(delta / denom)
 
 
-async def do_reconcile_agreements(engine: NCEEngine, params: dict[str, Any]) -> dict[str, Any]:
+async def do_reconcile_agreements(
+    engine: NCEEngine, params: dict[str, Any]
+) -> dict[str, Any]:
     """Compare posted GL revenue against the recognition schedule for one period.
 
     AGGREGATE ONLY -- CANNOT ATTRIBUTE A DISCREPANCY TO A SPECIFIC CONTRACT.
@@ -265,7 +267,9 @@ async def do_reconcile_agreements(engine: NCEEngine, params: dict[str, Any]) -> 
     gl_account_raw = params.get("gl_account")
     gl_account_prefix_raw = params.get("gl_account_prefix")
     gl_account = str(gl_account_raw).strip() if gl_account_raw else None
-    gl_account_prefix = str(gl_account_prefix_raw).strip() if gl_account_prefix_raw else None
+    gl_account_prefix = (
+        str(gl_account_prefix_raw).strip() if gl_account_prefix_raw else None
+    )
     if not gl_account and not gl_account_prefix:
         raise ValueError(
             "do_reconcile_agreements: either 'gl_account' or 'gl_account_prefix' is required"
@@ -300,7 +304,9 @@ async def do_reconcile_agreements(engine: NCEEngine, params: dict[str, Any]) -> 
             "period_id": period,
         },
     )
-    actual_total = sum((Decimal(str(r["amount_nok"])) for r in gl_result["records"]), start=_ZERO)
+    actual_total = sum(
+        (Decimal(str(r["amount_nok"])) for r in gl_result["records"]), start=_ZERO
+    )
 
     delta = expected_total - actual_total
     materiality: float | None = None

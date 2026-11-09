@@ -16,7 +16,7 @@ from nce.db_utils import scoped_pg_session
 
 log = logging.getLogger("nce_verticals.vendors.matching")
 
-_CONFIG_DATA_DIR = Path(__file__).parents[3] / "nce" / "config_data"
+_CONFIG_DATA_DIR = Path(__file__).resolve().parents[1] / "config_data"
 
 
 def load_match_weights() -> dict[str, float]:
@@ -139,7 +139,9 @@ async def do_match_contractor(
                 loc_score = 1.0
             else:
                 c_loc_raw = (
-                    profile.get("location") or availability.get("location") or profile.get("city")
+                    profile.get("location")
+                    or availability.get("location")
+                    or profile.get("city")
                 )
                 c_loc = get_location_str(c_loc_raw)
                 if c_loc and c_loc == job_loc:

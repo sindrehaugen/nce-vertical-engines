@@ -227,23 +227,33 @@ def calculate_design_current(
         Design current in Amperes, rounded to 2 decimal places.
     """
     if voltage_v <= 0:
-        raise ValueError(f"calculate_design_current: voltage_v must be positive, got {voltage_v}")
+        raise ValueError(
+            f"calculate_design_current: voltage_v must be positive, got {voltage_v}"
+        )
     if power_w < 0:
-        raise ValueError(f"calculate_design_current: power_w must be non-negative, got {power_w}")
+        raise ValueError(
+            f"calculate_design_current: power_w must be non-negative, got {power_w}"
+        )
 
     if phases == 0 or voltage_v <= 48.0:
         # DC circuit
         ib = power_w / voltage_v
     elif phases == 3:
         if cos_phi <= 0:
-            raise ValueError(f"calculate_design_current: cos_phi must be positive, got {cos_phi}")
+            raise ValueError(
+                f"calculate_design_current: cos_phi must be positive, got {cos_phi}"
+            )
         ib = power_w / (math.sqrt(3.0) * voltage_v * cos_phi)
     elif phases == 1:
         if cos_phi <= 0:
-            raise ValueError(f"calculate_design_current: cos_phi must be positive, got {cos_phi}")
+            raise ValueError(
+                f"calculate_design_current: cos_phi must be positive, got {cos_phi}"
+            )
         ib = power_w / (voltage_v * cos_phi)
     else:
-        raise ValueError(f"calculate_design_current: phases must be 0 (DC), 1, or 3; got {phases}")
+        raise ValueError(
+            f"calculate_design_current: phases must be 0 (DC), 1, or 3; got {phases}"
+        )
 
     return round(ib, 2)
 
@@ -314,7 +324,9 @@ def calculate_derated_ampacity(
     elif mat == "Al":
         table = _AMPACITY_AL_XLPE_METHOD_C
     else:
-        raise ValueError(f"calculate_derated_ampacity: unsupported material '{material}'")
+        raise ValueError(
+            f"calculate_derated_ampacity: unsupported material '{material}'"
+        )
 
     if cross_section_mm2 not in table:
         raise ValueError(
@@ -473,13 +485,17 @@ def calculate_voltage_drop(
         }
     """
     if length_m <= 0:
-        raise ValueError(f"calculate_voltage_drop: length_m must be positive, got {length_m}")
+        raise ValueError(
+            f"calculate_voltage_drop: length_m must be positive, got {length_m}"
+        )
     if cross_section_mm2 <= 0:
         raise ValueError(
             f"calculate_voltage_drop: cross_section_mm2 must be positive, got {cross_section_mm2}"
         )
     if voltage_v <= 0:
-        raise ValueError(f"calculate_voltage_drop: voltage_v must be positive, got {voltage_v}")
+        raise ValueError(
+            f"calculate_voltage_drop: voltage_v must be positive, got {voltage_v}"
+        )
 
     mat = material.strip().capitalize()
     rho = RHO_AL if mat == "Al" else RHO_CU
@@ -738,7 +754,9 @@ def validate_nek700_emc_segregation(
 
     # Power multiplier for noisy circuits (VFD, dimmers, thyristor power)
     pwr_multiplier = (
-        1.5 if ("vfd" in pwr or "dimmer" in pwr or "class_4" in pwr or "high" in pwr) else 1.0
+        1.5
+        if ("vfd" in pwr or "dimmer" in pwr or "class_4" in pwr or "high" in pwr)
+        else 1.0
     )
 
     # Divider reduction factor
@@ -1168,7 +1186,9 @@ def generate_kursfortegnelse(
     )
     all_violations.extend(en61439_summary.get("violations", []))
 
-    overall_passed = all(row["passed"] for row in circuit_rows) and en61439_summary["passed"]
+    overall_passed = (
+        all(row["passed"] for row in circuit_rows) and en61439_summary["passed"]
+    )
 
     return {
         "switchboard_id": switchboard_id,

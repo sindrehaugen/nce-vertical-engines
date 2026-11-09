@@ -176,7 +176,9 @@ def _samples_from_device(row: dict[str, Any], now: datetime) -> list[TelemetrySa
                 continue  # e.g. deskOccupancy.state is a string — skipped, never invented
             samples.append(
                 TelemetrySample(
-                    metric=f"{event_type}.{field_name}" if field_name != event_type else event_type,
+                    metric=f"{event_type}.{field_name}"
+                    if field_name != event_type
+                    else event_type,
                     value=float(value),
                     sampled_at=sampled_at,
                     raw={"source": "disruptive_devices", "event_type": event_type},
@@ -207,7 +209,9 @@ class DisruptiveTelemetryAdapter(TelemetryAdapter):
         self._token_url = (
             token_url or live_env_str("NCE_ASSETS_DISRUPTIVE_TOKEN_URL") or ""
         ).strip()
-        self._project_id = project_id or live_env_str("NCE_ASSETS_DISRUPTIVE_PROJECT_ID")
+        self._project_id = project_id or live_env_str(
+            "NCE_ASSETS_DISRUPTIVE_PROJECT_ID"
+        )
         self._service_account_email = service_account_email or live_env_str(
             "NCE_ASSETS_DISRUPTIVE_SERVICE_ACCOUNT_EMAIL"
         )
@@ -310,7 +314,9 @@ class DisruptiveTelemetryAdapter(TelemetryAdapter):
             payload = resp.json()
             rows = _as_rows(payload, "devices")
             for row in rows:
-                labels = row.get("labels") if isinstance(row.get("labels"), dict) else {}
+                labels = (
+                    row.get("labels") if isinstance(row.get("labels"), dict) else {}
+                )
                 for key, value in labels.items():
                     if (
                         str(key).strip().lower() in ("serial", "sn", "serialnumber")
@@ -324,7 +330,10 @@ class DisruptiveTelemetryAdapter(TelemetryAdapter):
             page_token = str((payload or {}).get("nextPageToken") or "")
             if not page_token:
                 return None
-        log.warning("DisruptiveTelemetryAdapter: /devices exceeded %d pages, gave up", _MAX_PAGES)
+        log.warning(
+            "DisruptiveTelemetryAdapter: /devices exceeded %d pages, gave up",
+            _MAX_PAGES,
+        )
         return None
 
     async def fetch_samples(
@@ -353,11 +362,17 @@ class DisruptiveTelemetryAdapter(TelemetryAdapter):
                 timeout=self._timeout, transport=self._transport
             ) as client:
                 token = await self._access_token(client)
-                auth_headers = {"Accept": "application/json", "Authorization": f"Bearer {token}"}
+                auth_headers = {
+                    "Accept": "application/json",
+                    "Authorization": f"Bearer {token}",
+                }
 
                 device = await self._find_device_by_serial(client, auth_headers, serial)
                 if device is None:
-                    log.info("DisruptiveTelemetryAdapter: no device matching serial %s", serial)
+                    log.info(
+                        "DisruptiveTelemetryAdapter: no device matching serial %s",
+                        serial,
+                    )
                     return []
                 return _samples_from_device(device, now)
         except Exception as exc:

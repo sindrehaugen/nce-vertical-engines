@@ -218,7 +218,9 @@ async def _namespace_slug(
     fallback is for owner-role callers only and is exercised by integration
     tests against a real database, not by this module's pure-unit tests.
     """
-    slug = await conn.fetchval("SELECT slug FROM namespaces WHERE id = $1::uuid", str(namespace_id))
+    slug = await conn.fetchval(
+        "SELECT slug FROM namespaces WHERE id = $1::uuid", str(namespace_id)
+    )
     if slug is None:
         raise ValueError(f"namespace {namespace_id} does not exist")
     return str(slug)
@@ -294,9 +296,9 @@ async def do_attach_sla(engine: Any, params: dict[str, Any]) -> dict[str, Any]:
 
     # 2. WRITE — the ONE coverage-link edge Assets owns (§9.1 4-way SLA).
     async with scoped_pg_session(engine.pg_pool, ns_uuid) as conn:
-        namespace_slug = str(params.get("namespace_slug") or "").strip() or await _namespace_slug(
-            conn, ns_uuid
-        )
+        namespace_slug = str(
+            params.get("namespace_slug") or ""
+        ).strip() or await _namespace_slug(conn, ns_uuid)
         fl_label = _functional_location_label(namespace_slug, functional_location_id)
 
         await conn.execute(

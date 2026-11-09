@@ -20,6 +20,7 @@ except ImportError:
             self.status_code = status_code
             self.body = _json.dumps(content, default=str).encode("utf-8")
 
+
 from nce_verticals.entra_id.auth import EntraConfig, EntraVerificationError
 from nce_verticals.entra_id.guard import get_global_entra_gate
 
@@ -56,7 +57,10 @@ async def api_admin_entra_config_save(request: Any) -> JSONResponse:
 
     enforce_mode = str(body.get("enforce_mode", curr.enforce_mode)).strip().lower()
     if enforce_mode not in ("strict", "audit_only", "disabled"):
-        return JSONResponse({"error": "enforce_mode must be strict, audit_only, or disabled"}, status_code=422)
+        return JSONResponse(
+            {"error": "enforce_mode must be strict, audit_only, or disabled"},
+            status_code=422,
+        )
 
     new_secret = body.get("client_secret")
     client_secret = str(new_secret).strip() if new_secret else curr.client_secret
@@ -66,14 +70,33 @@ async def api_admin_entra_config_save(request: Any) -> JSONResponse:
         client_id=str(body.get("client_id", curr.client_id)).strip(),
         client_secret=client_secret,
         enforce_mode=enforce_mode,
-        allowed_group_ids=_parse_str_list(body.get("allowed_group_ids", curr.allowed_group_ids)),
-        allowed_app_roles=_parse_str_list(body.get("allowed_app_roles", curr.allowed_app_roles)),
-        allowed_upns=[u.lower() for u in _parse_str_list(body.get("allowed_upns", curr.allowed_upns))],
-        blocked_upns=[u.lower() for u in _parse_str_list(body.get("blocked_upns", curr.blocked_upns))],
-        require_graph_check=bool(body.get("require_graph_check", curr.require_graph_check)),
-        allow_os_silent_auth=bool(body.get("allow_os_silent_auth", curr.allow_os_silent_auth)),
-        allow_device_code_flow=bool(body.get("allow_device_code_flow", curr.allow_device_code_flow)),
-        session_ttl_seconds=max(300, min(86400, int(body.get("session_ttl_seconds", curr.session_ttl_seconds)))),
+        allowed_group_ids=_parse_str_list(
+            body.get("allowed_group_ids", curr.allowed_group_ids)
+        ),
+        allowed_app_roles=_parse_str_list(
+            body.get("allowed_app_roles", curr.allowed_app_roles)
+        ),
+        allowed_upns=[
+            u.lower()
+            for u in _parse_str_list(body.get("allowed_upns", curr.allowed_upns))
+        ],
+        blocked_upns=[
+            u.lower()
+            for u in _parse_str_list(body.get("blocked_upns", curr.blocked_upns))
+        ],
+        require_graph_check=bool(
+            body.get("require_graph_check", curr.require_graph_check)
+        ),
+        allow_os_silent_auth=bool(
+            body.get("allow_os_silent_auth", curr.allow_os_silent_auth)
+        ),
+        allow_device_code_flow=bool(
+            body.get("allow_device_code_flow", curr.allow_device_code_flow)
+        ),
+        session_ttl_seconds=max(
+            300,
+            min(86400, int(body.get("session_ttl_seconds", curr.session_ttl_seconds))),
+        ),
     )
     gate.authenticator.update_config(updated)
     gate.record_audit(

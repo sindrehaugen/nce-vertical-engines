@@ -153,7 +153,11 @@ async def do_my_day(
                     continue
 
                 if pred in ("is_gate_blocking", "gate_blocking"):
-                    task_data[task_lbl]["gate_blocking"] = obj.lower() in ("true", "1", "yes")
+                    task_data[task_lbl]["gate_blocking"] = obj.lower() in (
+                        "true",
+                        "1",
+                        "yes",
+                    )
                 elif pred in ("deadline", "has_deadline"):
                     task_data[task_lbl]["deadline"] = parse_date(obj)
                 elif pred in ("value", "has_value"):
@@ -182,7 +186,9 @@ async def do_my_day(
                         "task_label": label,
                         "priority": p,
                         "gate_blocking": data["gate_blocking"],
-                        "deadline": data["deadline"].isoformat() if data["deadline"] else None,
+                        "deadline": data["deadline"].isoformat()
+                        if data["deadline"]
+                        else None,
                         "value": data["value"],
                         "assigned_to": data["assigned_to"],
                     }
@@ -292,7 +298,9 @@ async def do_capacity(
             # 4. Resolve teams for assigned employees
             # Find unique employees assigned
             employees = {
-                data["assigned_to"] for data in filtered_tasks.values() if data["assigned_to"]
+                data["assigned_to"]
+                for data in filtered_tasks.values()
+                if data["assigned_to"]
             }
             employee_teams: dict[str, str] = {}
 
@@ -333,7 +341,9 @@ async def do_capacity(
                         "task_label": label,
                         "assigned_to": emp,
                         "load": data["load"],
-                        "deadline": data["deadline"].isoformat() if data["deadline"] else None,
+                        "deadline": data["deadline"].isoformat()
+                        if data["deadline"]
+                        else None,
                     }
                 )
 
@@ -347,5 +357,7 @@ async def do_capacity(
             }
 
     except Exception as exc:
-        log.error("do_capacity: failed to process ns=%s: %s", ns_uuid, exc, exc_info=True)
+        log.error(
+            "do_capacity: failed to process ns=%s: %s", ns_uuid, exc, exc_info=True
+        )
         return {"ok": False, "error": f"do_capacity: failed to process: {exc}"}

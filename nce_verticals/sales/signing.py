@@ -40,7 +40,10 @@ def _resolve_transport(engine: Any, method: str) -> SignTransport:
     Guards against MagicMock auto-synthesizing child mocks (Charter K-1).
     """
     # Guard against MagicMock auto-synthesizing an unconfigured child mock (Kaizen K-1)
-    if hasattr(engine, "_mock_return_value") or type(engine).__name__ in ("MagicMock", "AsyncMock"):
+    if hasattr(engine, "_mock_return_value") or type(engine).__name__ in (
+        "MagicMock",
+        "AsyncMock",
+    ):
         if "sign_transport" in getattr(engine, "__dict__", {}):
             return cast(SignTransport, engine.sign_transport)
         return get_signing_transport(method)
@@ -190,7 +193,9 @@ def _require_money_field(
                 f"{label} for quote {quote_id} is not finite ({key}={raw!r})"
             )
         if value < minimum or (maximum is not None and value > maximum):
-            bound = f"[{minimum}, {maximum}]" if maximum is not None else f">= {minimum}"
+            bound = (
+                f"[{minimum}, {maximum}]" if maximum is not None else f">= {minimum}"
+            )
             raise MissingSignedAmountError(
                 f"{label} for quote {quote_id} is out of range {bound} ({key}={raw!r})"
             )
@@ -245,8 +250,14 @@ async def do_request_signature(
     signer_email = str(signer.get("email") or "").strip()
     if not signer_name:
         raise MissingSignerError("signer 'name' is required and must not be empty")
-    if not signer_email or "@" not in signer_email or "." not in signer_email.split("@")[-1]:
-        raise MissingSignerError("signer 'email' is required and must be a valid email address")
+    if (
+        not signer_email
+        or "@" not in signer_email
+        or "." not in signer_email.split("@")[-1]
+    ):
+        raise MissingSignerError(
+            "signer 'email' is required and must be a valid email address"
+        )
     signer_payload = {"name": signer_name, "email": signer_email}
 
     method = params.get("method") or "manual"
@@ -278,9 +289,13 @@ async def do_request_signature(
 
         # Read line items from bom_line_content
         try:
-            line_items = await list_bom_lines_for_quote(conn, ns_uuid, quote_id=quote_id)
+            line_items = await list_bom_lines_for_quote(
+                conn, ns_uuid, quote_id=quote_id
+            )
         except Exception as exc:
-            log.warning("Could not read bom_line_content for quote %s: %s", quote_id, exc)
+            log.warning(
+                "Could not read bom_line_content for quote %s: %s", quote_id, exc
+            )
             line_items = []
 
         source_json = row["source_json"] or {}
@@ -293,11 +308,16 @@ async def do_request_signature(
         merged_quote = {**(source_json or {}), **(manual or {})}
         quote_details = {
             "name": row["name"] or merged_quote.get("name"),
-            "customer_name": merged_quote.get("customer_name") or merged_quote.get("customer"),
+            "customer_name": merged_quote.get("customer_name")
+            or merged_quote.get("customer"),
             "currency": merged_quote.get("currency") or "NOK",
             "description": merged_quote.get("description"),
         }
-        if not line_items and "lines" in merged_quote and isinstance(merged_quote["lines"], list):
+        if (
+            not line_items
+            and "lines" in merged_quote
+            and isinstance(merged_quote["lines"], list)
+        ):
             line_items = merged_quote["lines"]
 
         # Deterministically render quote PDF from the frozen baseline
@@ -487,18 +507,27 @@ async def do_on_signed_callback(
         # Retrieve baseline and line items to render deterministic quote PDF (Wave Q-3)
         baseline = await get_signed_baseline(conn, ns_uuid, quote_id)
         try:
-            line_items = await list_bom_lines_for_quote(conn, ns_uuid, quote_id=quote_id)
+            line_items = await list_bom_lines_for_quote(
+                conn, ns_uuid, quote_id=quote_id
+            )
         except Exception as exc:
-            log.warning("Could not read bom_line_content for quote %s: %s", quote_id, exc)
+            log.warning(
+                "Could not read bom_line_content for quote %s: %s", quote_id, exc
+            )
             line_items = []
-        if not line_items and "lines" in merged_quote and isinstance(merged_quote["lines"], list):
+        if (
+            not line_items
+            and "lines" in merged_quote
+            and isinstance(merged_quote["lines"], list)
+        ):
             line_items = merged_quote["lines"]
 
     # Render signed quote PDF from the frozen baseline
     quote_name = quote_db_name or merged_quote.get("name") or quote_id
     quote_details = {
         "name": quote_name,
-        "customer_name": merged_quote.get("customer_name") or merged_quote.get("customer"),
+        "customer_name": merged_quote.get("customer_name")
+        or merged_quote.get("customer"),
         "currency": merged_quote.get("currency") or "NOK",
         "description": merged_quote.get("description"),
     }
@@ -578,7 +607,9 @@ async def do_on_signed_callback(
                 f"Document Hash (SHA-256): {doc_hash}\n\n"
                 f"The signed document is attached.\n"
             ),
-            attachments=((f"quote_{quote_id}_signed.pdf", doc_bytes, "application/pdf"),),
+            attachments=(
+                (f"quote_{quote_id}_signed.pdf", doc_bytes, "application/pdf"),
+            ),
             cc=(),
             bcc=(),
         )
@@ -647,7 +678,9 @@ async def do_on_signed_callback(
         "project_id": convert_res.get("project_id"),
         "already_processed": False,
         "security_tier": active_sec_tier,
-        "deliveries_sent": sum(1 for d in delivered_records if d.get("status") == "sent"),
+        "deliveries_sent": sum(
+            1 for d in delivered_records if d.get("status") == "sent"
+        ),
         "delivery_records": delivered_records,
     }
 

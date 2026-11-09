@@ -66,8 +66,10 @@ def _extract_capabilities_from_etim(
         "model_number": model_number
         or etim_specs.get("model_number")
         or etim_specs.get("mfr_part_no"),
-        "device_category": etim_specs.get("device_category") or etim_specs.get("category"),
-        "power_draw_watts": etim_specs.get("power_draw_watts") or etim_specs.get("power_watts"),
+        "device_category": etim_specs.get("device_category")
+        or etim_specs.get("category"),
+        "power_draw_watts": etim_specs.get("power_draw_watts")
+        or etim_specs.get("power_watts"),
         "heat_btu_hr": etim_specs.get("heat_btu_hr") or etim_specs.get("heat_btu"),
         "redundancy_role": etim_specs.get("redundancy_role", "standalone"),
     }
@@ -95,9 +97,12 @@ def _extract_capabilities_from_etim(
             port_name = p.get("name") or p.get("label") or f"port_{idx}"
             port_cap = {
                 "port_name": port_name,
-                "signal_format": p.get("signal_format") or p.get("format") or p.get("type"),
+                "signal_format": p.get("signal_format")
+                or p.get("format")
+                or p.get("type"),
                 "signal_version": p.get("signal_version") or p.get("version"),
-                "port_direction": p.get("port_direction") or p.get("direction", "input"),
+                "port_direction": p.get("port_direction")
+                or p.get("direction", "input"),
                 "poe_class": p.get("poe_class"),
                 "poe_watts": p.get("poe_watts"),
                 "dante_rx_channels": p.get("dante_rx_channels"),

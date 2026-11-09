@@ -132,10 +132,14 @@ async def do_get_tier_status(
             if ag_node and ag_node["payload_ref"] and engine.mongo_client:
                 try:
                     async with scoped_mongo_session(engine.mongo_client, ns_uuid) as db:
-                        doc = await db.episodes.find_one({"_id": ObjectId(ag_node["payload_ref"])})
+                        doc = await db.episodes.find_one(
+                            {"_id": ObjectId(ag_node["payload_ref"])}
+                        )
                         if doc:
                             # Support both snake_case and camelCase
-                            kickback_tiers = doc.get("kickback_tiers") or doc.get("kickbackTiers")
+                            kickback_tiers = doc.get("kickback_tiers") or doc.get(
+                                "kickbackTiers"
+                            )
                 except Exception as e:
                     log.warning(
                         "Failed to fetch agreement MongoDB payload for ref %s: %s",
@@ -158,7 +162,9 @@ async def do_get_tier_status(
     # 4. Calculate YTD volume (real spend) for this vendor
     # We query match outcomes / match decisions from v3_cognitive_ledger in the current year
     today = datetime.date.today()
-    start_of_year = datetime.datetime(today.year, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
+    start_of_year = datetime.datetime(
+        today.year, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc
+    )
 
     ytd_volume = 0.0
     async with scoped_pg_session(engine.pg_pool, ns_uuid) as conn:
@@ -180,7 +186,12 @@ async def do_get_tier_status(
                 scores = json.loads(scores)
             if scores:
                 # Only sum monetary fields, NEVER match score
-                vol = scores.get("amount") or scores.get("volume") or scores.get("value") or 0.0
+                vol = (
+                    scores.get("amount")
+                    or scores.get("volume")
+                    or scores.get("value")
+                    or 0.0
+                )
                 if vol:
                     try:
                         ytd_volume += float(vol)

@@ -346,7 +346,9 @@ def _quantise_qty(value: Decimal, where: str) -> Decimal:
     try:
         return value.quantize(_QTY_SCALE, rounding=ROUND_HALF_UP)
     except DecimalException as exc:
-        raise ValueError(f"{where}: quantity is too large to express to 3dp: {value!r}") from exc
+        raise ValueError(
+            f"{where}: quantity is too large to express to 3dp: {value!r}"
+        ) from exc
 
 
 def _quantise_cost(value: Decimal, where: str) -> Decimal:
@@ -355,7 +357,9 @@ def _quantise_cost(value: Decimal, where: str) -> Decimal:
     try:
         return value.quantize(_COST_SCALE, rounding=ROUND_HALF_UP)
     except DecimalException as exc:
-        raise ValueError(f"{where}: cost is too large to express to 2dp: {value!r}") from exc
+        raise ValueError(
+            f"{where}: cost is too large to express to 2dp: {value!r}"
+        ) from exc
 
 
 def _as_ns_uuid(raw: Any, field: str) -> UUID:
@@ -384,7 +388,9 @@ def _as_po_ref(raw: Any) -> str:
     the case-sensitivity divergence this closes."""
     po_ref = str(raw or "").strip().upper()
     if not po_ref:
-        raise ValueError("do_record_goods_receipt: 'po_ref' is required and must be non-empty")
+        raise ValueError(
+            "do_record_goods_receipt: 'po_ref' is required and must be non-empty"
+        )
     return po_ref
 
 
@@ -432,7 +438,9 @@ def _as_optional_unit_cost(raw: Any, where: str) -> Decimal | None:
 # ---------------------------------------------------------------------------
 
 
-def _validate_and_aggregate_lines(raw_lines: Any) -> list[tuple[str, Decimal, Decimal | None]]:
+def _validate_and_aggregate_lines(
+    raw_lines: Any,
+) -> list[tuple[str, Decimal, Decimal | None]]:
     """Validate ``lines[]``, aggregate duplicate SKUs, and return them in
     ASCENDING SKU ORDER.
 
@@ -468,7 +476,9 @@ def _validate_and_aggregate_lines(raw_lines: Any) -> list[tuple[str, Decimal, De
             raise ValueError(f"do_record_goods_receipt: lines[{idx}] must be an object")
         sku = str(line.get("sku") or "").strip()
         if not sku:
-            raise ValueError(f"do_record_goods_receipt: lines[{idx}].sku must be non-empty")
+            raise ValueError(
+                f"do_record_goods_receipt: lines[{idx}].sku must be non-empty"
+            )
         qty = _as_qty(line.get("qty"), f"do_record_goods_receipt: lines[{idx}].qty")
         unit_cost = _as_optional_unit_cost(
             line.get("unit_cost"), f"do_record_goods_receipt: lines[{idx}].unit_cost"
@@ -515,14 +525,18 @@ def _validate_scans(raw_scans: Any) -> list[dict[str, str | None]]:
             raise ValueError(f"do_record_goods_receipt: scans[{idx}] must be an object")
         sku = str(scan.get("sku") or "").strip()
         if not sku:
-            raise ValueError(f"do_record_goods_receipt: scans[{idx}].sku must be non-empty")
+            raise ValueError(
+                f"do_record_goods_receipt: scans[{idx}].sku must be non-empty"
+            )
         serial = scan.get("serial")
         if serial is not None and (not isinstance(serial, str) or not serial.strip()):
             raise ValueError(
                 f"do_record_goods_receipt: scans[{idx}].serial must be a non-empty string or None"
             )
         barcode = scan.get("barcode")
-        if barcode is not None and (not isinstance(barcode, str) or not barcode.strip()):
+        if barcode is not None and (
+            not isinstance(barcode, str) or not barcode.strip()
+        ):
             raise ValueError(
                 f"do_record_goods_receipt: scans[{idx}].barcode must be a non-empty string or None"
             )
@@ -838,7 +852,9 @@ async def _seed_assets_with_serials(
     goods_receipt_label: str,
     po_ref: str,
     location_id: UUID,
-    serials: list[dict[str, str]],  # [{"sku": ..., "serial": ...}], never empty when called
+    serials: list[
+        dict[str, str]
+    ],  # [{"sku": ..., "serial": ...}], never empty when called
 ) -> list[dict[str, Any]]:
     """Hand serial-carrying receipt lines to the Assets engine (Module 9),
     one BEST-EFFORT call to :func:`do_seed_asset_from_bom` per captured
@@ -915,7 +931,10 @@ async def _seed_assets_with_serials(
     credential.
     """
     del conn  # accepted per this seam's call shape; see FAILURE POSTURE above
-    del goods_receipt_label, po_ref  # carried per the seam's contract; not needed for bom_line_id
+    del (
+        goods_receipt_label,
+        po_ref,
+    )  # carried per the seam's contract; not needed for bom_line_id
     results: list[dict[str, Any]] = []
     for entry in serials:
         sku = entry["sku"]
@@ -939,7 +958,9 @@ async def _seed_assets_with_serials(
                 serial,
                 exc,
             )
-            results.append({"ok": False, "sku": sku, "serial": serial, "error": str(exc)})
+            results.append(
+                {"ok": False, "sku": sku, "serial": serial, "error": str(exc)}
+            )
             continue
         results.append(seeded)
     return results
@@ -950,7 +971,9 @@ async def _seed_assets_with_serials(
 # ---------------------------------------------------------------------------
 
 
-async def do_record_goods_receipt(engine: NCEEngine, params: dict[str, Any]) -> dict[str, Any]:
+async def do_record_goods_receipt(
+    engine: NCEEngine, params: dict[str, Any]
+) -> dict[str, Any]:
     """Record one inbound delivery: idempotent capture, authoritative stock
     increment, costed ledger append — all in ONE transaction.
 
@@ -1172,7 +1195,9 @@ async def do_record_goods_receipt(engine: NCEEngine, params: dict[str, Any]) -> 
             # sitting inside one of them. It is caught HERE because this is
             # the only frame that knows which line it belongs to.
             try:
-                on_hand = await _increment_qty_on_hand(conn, ns_uuid, sku, location_id, qty)
+                on_hand = await _increment_qty_on_hand(
+                    conn, ns_uuid, sku, location_id, qty
+                )
                 await append_transaction(
                     conn,
                     ns_uuid,
@@ -1279,12 +1304,16 @@ async def do_record_goods_receipt(engine: NCEEngine, params: dict[str, Any]) -> 
                 po_ref,
             )
         except Exception as exc:
-            log.debug("Could not query procurement_po_lines for po_ref %s: %s", po_ref, exc)
+            log.debug(
+                "Could not query procurement_po_lines for po_ref %s: %s", po_ref, exc
+            )
 
         received_qty_by_sku: dict[str, Decimal] = {}
         for sku, qty, _ in lines:
             norm_sku = str(sku).strip().upper()
-            received_qty_by_sku[norm_sku] = received_qty_by_sku.get(norm_sku, Decimal("0")) + qty
+            received_qty_by_sku[norm_sku] = (
+                received_qty_by_sku.get(norm_sku, Decimal("0")) + qty
+            )
         received_skus = set(received_qty_by_sku.keys())
 
         matched_targets: list[tuple[str, str]] = []
@@ -1295,7 +1324,11 @@ async def do_record_goods_receipt(engine: NCEEngine, params: dict[str, Any]) -> 
                 plr_pid = str(plr["project_id"] or "").strip()
                 plr_bll = str(plr["bom_line_label"] or "").strip()
                 plr_artnr = str(plr["artnr"] or "").strip().upper()
-                if plr_pid and plr_bll and (not received_skus or plr_artnr in received_skus):
+                if (
+                    plr_pid
+                    and plr_bll
+                    and (not received_skus or plr_artnr in received_skus)
+                ):
                     matched_targets.append((plr_pid, plr_bll))
             if not matched_targets:
                 for plr in po_line_rows:
@@ -1313,14 +1346,18 @@ async def do_record_goods_receipt(engine: NCEEngine, params: dict[str, Any]) -> 
                     if received_skus and plr_artnr not in received_skus:
                         continue
                     rec_qty = received_qty_by_sku.get(plr_artnr, Decimal("0"))
-                    if "quantity_received" in plr and plr["quantity_received"] is not None:
+                    if (
+                        "quantity_received" in plr
+                        and plr["quantity_received"] is not None
+                    ):
                         try:
                             rec_qty = Decimal(str(plr["quantity_received"]))
                         except Exception:
                             pass
                     ord_raw = (
                         plr["quantity_ordered"]
-                        if "quantity_ordered" in plr and plr["quantity_ordered"] is not None
+                        if "quantity_ordered" in plr
+                        and plr["quantity_ordered"] is not None
                         else (plr["quantity"] if "quantity" in plr else None)
                     )
                     if ord_raw is not None:

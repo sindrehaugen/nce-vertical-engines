@@ -83,7 +83,9 @@ def _expand_kit_targets(
 
     for idx, raw_item in enumerate(items):
         if not isinstance(raw_item, dict):
-            raise ValueError(f"items[{idx}]: expected object, got {type(raw_item).__name__}")
+            raise ValueError(
+                f"items[{idx}]: expected object, got {type(raw_item).__name__}"
+            )
 
         if disallow_unconfirmed_accessories and (
             raw_item.get("expand_live_accessories") or raw_item.get("query_live_edges")
@@ -125,7 +127,9 @@ def _expand_kit_targets(
             )
         elif is_kit:
             # KIT DECISION: Product + confirmed accessories, components stocked per piece.
-            raw_components = raw_item.get("components") or raw_item.get("accessories") or []
+            raw_components = (
+                raw_item.get("components") or raw_item.get("accessories") or []
+            )
             if not isinstance(raw_components, list):
                 raise ValueError(
                     f"items[{idx}].components: expected list, got {type(raw_components).__name__}"

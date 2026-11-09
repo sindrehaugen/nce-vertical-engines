@@ -209,7 +209,11 @@ class NeowitTelemetryAdapter(TelemetryAdapter):
         if (method, gate_path) not in allowed:
             raise NeowitAllowListRefusal(method, gate_path)
         resp = await client.request(
-            method, f"{self._endpoint_url}{path}", headers=headers, params=params, data=data
+            method,
+            f"{self._endpoint_url}{path}",
+            headers=headers,
+            params=params,
+            data=data,
         )
         resp.raise_for_status()
         return resp
@@ -257,7 +261,11 @@ class NeowitTelemetryAdapter(TelemetryAdapter):
         self, client: httpx.AsyncClient, auth_headers: dict[str, str], serial: str
     ) -> dict[str, Any] | None:
         resp = await self._gated_request(
-            client, "GET", "/device/v1/device", allowed=_ALLOWED_READS, headers=auth_headers
+            client,
+            "GET",
+            "/device/v1/device",
+            allowed=_ALLOWED_READS,
+            headers=auth_headers,
         )
         wanted = serial.strip().lower()
         for row in _as_rows(resp.json(), "devices"):
@@ -292,11 +300,17 @@ class NeowitTelemetryAdapter(TelemetryAdapter):
                 timeout=self._timeout, transport=self._transport
             ) as client:
                 token = await self._access_token(client)
-                auth_headers = {"Accept": "application/json", "Authorization": f"Bearer {token}"}
+                auth_headers = {
+                    "Accept": "application/json",
+                    "Authorization": f"Bearer {token}",
+                }
 
                 device = await self._find_device_by_serial(client, auth_headers, serial)
                 if device is None:
-                    log.info("NeowitTelemetryAdapter: no Neowit device matching serial %s", serial)
+                    log.info(
+                        "NeowitTelemetryAdapter: no Neowit device matching serial %s",
+                        serial,
+                    )
                     return []
                 device_id = str(device.get("id") or "")
                 if not device_id:

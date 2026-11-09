@@ -67,7 +67,9 @@ log = logging.getLogger("nce_verticals.agreements.mcp_handlers")
 _MCP_AGREEMENTS_DISABLED_CODE: int = MCP_SCOPE_FORBIDDEN
 
 
-async def _check_agreements_enabled(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def _check_agreements_enabled(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """Check namespace opt-in; raise McpError(-32005) if not enabled.
 
     Returns the canonical namespace_id string on success.
@@ -183,7 +185,9 @@ def _serialize_lookup_row(row: Any) -> dict[str, Any]:
 
 
 @mcp_handler
-async def handle_agreements_lookup_terms(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_agreements_lookup_terms(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: agreements_lookup_terms — READ-ONLY agreement term lookup.
 
     Required arguments:
@@ -212,7 +216,9 @@ async def handle_agreements_lookup_terms(engine: NCEEngine, arguments: dict[str,
 
 
 @mcp_handler
-async def handle_agreements_coverage_matrix(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_agreements_coverage_matrix(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: agreements_coverage_matrix — READ-ONLY agreement coverage/gap matrix.
 
     Cross-joins agreements against Economy GL spend to detect leakage, expiring
@@ -233,7 +239,9 @@ async def handle_agreements_coverage_matrix(engine: NCEEngine, arguments: dict[s
 
 
 @mcp_handler
-async def handle_agreements_reconcile_kickback(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_agreements_reconcile_kickback(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: agreements_reconcile_kickback — READ-ONLY supplier kickback reconciliation.
 
     Reconciles an agreement's kickback tiers against real Economy GL spend.
@@ -260,7 +268,10 @@ async def handle_agreements_reconcile_kickback(engine: NCEEngine, arguments: dic
         params["since_iso"] = arguments["since_iso"]
     if "until_iso" in arguments:
         params["until_iso"] = arguments["until_iso"]
-    if "projected_kickback_nok" in arguments and arguments["projected_kickback_nok"] is not None:
+    if (
+        "projected_kickback_nok" in arguments
+        and arguments["projected_kickback_nok"] is not None
+    ):
         params["projected_kickback_nok"] = float(arguments["projected_kickback_nok"])
 
     result = await do_reconcile_kickback(engine, params)
@@ -313,7 +324,9 @@ async def handle_agreements_run_compliance_audit(
 
 
 @mcp_handler
-async def handle_agreements_extract(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_agreements_extract(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: agreements_extract — OCR extraction and confidence gating for agreement docs.
 
     Actor tool (mutation=True, admin_only=True).
@@ -432,7 +445,9 @@ async def handle_agreements_create(engine: NCEEngine, arguments: dict[str, Any])
 
 
 @mcp_handler
-async def handle_agreements_suggest_revision(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_agreements_suggest_revision(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: agreements_suggest_revision — record a proposed revision to an agreement clause.
 
     Actor tool (mutation=True, admin_only=True).
@@ -473,7 +488,9 @@ async def handle_agreements_suggest_revision(engine: NCEEngine, arguments: dict[
 
 
 @mcp_handler
-async def handle_agreements_request_signature(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_agreements_request_signature(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: agreements_request_signature — open a signing session for an agreement.
 
     Actor tool (mutation=True, admin_only=True).
@@ -507,7 +524,9 @@ async def handle_agreements_request_signature(engine: NCEEngine, arguments: dict
 
 
 @mcp_handler
-async def handle_agreements_record_signature(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_agreements_record_signature(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: agreements_record_signature — record a completed agreement signature.
 
     Actor tool (mutation=True, admin_only=True).
@@ -546,7 +565,9 @@ async def handle_agreements_record_signature(engine: NCEEngine, arguments: dict[
 
 
 @mcp_handler
-async def handle_agreements_review_extraction(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_agreements_review_extraction(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: agreements_review_extraction — human review of an extracted agreement.
 
     Operator tool (mutation=True, admin_only=True).
@@ -578,7 +599,9 @@ async def handle_agreements_review_extraction(engine: NCEEngine, arguments: dict
         "decision": decision,
         "reviewed_by": reviewed_by,
     }
-    if "corrected_terms" in arguments and isinstance(arguments["corrected_terms"], dict):
+    if "corrected_terms" in arguments and isinstance(
+        arguments["corrected_terms"], dict
+    ):
         review_params["corrected_terms"] = arguments["corrected_terms"]
 
     review_res = await do_review_extraction(engine, review_params)
@@ -604,7 +627,9 @@ async def handle_agreements_review_extraction(engine: NCEEngine, arguments: dict
 
 
 @mcp_handler
-async def handle_agreements_get_index_series(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_agreements_get_index_series(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: agreements_get_index_series — query economic index series (KPI, CPI, ICT).
 
     Optional arguments:
@@ -643,7 +668,9 @@ async def handle_agreements_calculate_index_adjustment(
 
 
 @mcp_handler
-async def handle_agreements_get_price_rules(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_agreements_get_price_rules(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: agreements_get_price_rules — query agreement pricing rules (prisregel).
 
     Optional arguments:

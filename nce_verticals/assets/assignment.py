@@ -117,8 +117,12 @@ def _row_to_asset_dict(row: Any) -> dict[str, Any]:
         "is_shell": bool(d.get("is_shell", False)),
         "product_id": str(d["product_id"]) if d.get("product_id") else None,
         "product_sku": d.get("product_sku"),
-        "created_at": created_at.isoformat() if hasattr(created_at, "isoformat") else None,
-        "updated_at": updated_at.isoformat() if hasattr(updated_at, "isoformat") else None,
+        "created_at": created_at.isoformat()
+        if hasattr(created_at, "isoformat")
+        else None,
+        "updated_at": updated_at.isoformat()
+        if hasattr(updated_at, "isoformat")
+        else None,
     }
 
 
@@ -520,7 +524,9 @@ async def do_link_subcomponent(
     change_origin = str(params.get("change_origin") or "agent").strip()
 
     if parent_uuid == sub_uuid:
-        raise SubcomponentCycleError("An asset cannot be linked as a sub-component of itself")
+        raise SubcomponentCycleError(
+            "An asset cannot be linked as a sub-component of itself"
+        )
 
     async with scoped_pg_session(pool, ns_uuid) as conn:
         # 1. Verify parent asset exists
@@ -533,7 +539,8 @@ async def do_link_subcomponent(
         )
         if parent_row is None:
             raise AssetNotFoundError(
-                asset_id=str(parent_uuid), message=f"Parent asset not found: {parent_uuid}"
+                asset_id=str(parent_uuid),
+                message=f"Parent asset not found: {parent_uuid}",
             )
 
         # 2. Verify sub asset exists
@@ -546,7 +553,8 @@ async def do_link_subcomponent(
         )
         if sub_row is None:
             raise AssetNotFoundError(
-                asset_id=str(sub_uuid), message=f"Sub-component asset not found: {sub_uuid}"
+                asset_id=str(sub_uuid),
+                message=f"Sub-component asset not found: {sub_uuid}",
             )
 
         # 3. Guard against circular hierarchy: check if sub_uuid is already an ancestor of parent_uuid

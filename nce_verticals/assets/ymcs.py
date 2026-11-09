@@ -80,7 +80,9 @@ log = logging.getLogger("nce_verticals.assets.ymcs")
 
 _DEFAULT_TIMEOUT_S = 4.5  # < 5.0s per AV Operations rule
 _LIST_PAGE_SIZE = 100
-_LIST_MAX_PAGES = 20  # a fleet larger than 2000 devices needs a narrower query, not a raised cap
+_LIST_MAX_PAGES = (
+    20  # a fleet larger than 2000 devices needs a narrower query, not a raised cap
+)
 
 #: The one auth route this adapter may call, labelled apart from the reads
 #: (ML-orch ruling on MLV16F-F1(e), charter §13 GO-F entry): an allow-list
@@ -185,7 +187,9 @@ def _numeric_samples(
     return samples
 
 
-def _samples_from_device_detail(payload: dict[str, Any], now: datetime) -> list[TelemetrySample]:
+def _samples_from_device_detail(
+    payload: dict[str, Any], now: datetime
+) -> list[TelemetrySample]:
     """``GET /v2/dm/devices/{id}?select=sensor,wifi`` — WiFi signal strength
     lives directly on the device; a room system's own environmental
     readings live one level down, on its bound "part" (see
@@ -199,7 +203,9 @@ def _samples_from_device_detail(payload: dict[str, Any], now: datetime) -> list[
     return samples
 
 
-def _samples_from_part_detail(payload: dict[str, Any], now: datetime) -> list[TelemetrySample]:
+def _samples_from_part_detail(
+    payload: dict[str, Any], now: datetime
+) -> list[TelemetrySample]:
     """A device's "part" (the room sensor accessory) carries its own
     readings in ``extraInfo`` — motion state, irradiance (light level),
     battery level; humidity travels the same way where the model reports
@@ -293,7 +299,9 @@ class YMCSTelemetryAdapter(TelemetryAdapter):
     async def _access_token(self, client: httpx.AsyncClient) -> str:
         """OAuth2 client-credentials exchange. The secret is used exactly
         once, to build this Basic header, and is never passed to ``log``."""
-        basic = base64.b64encode(f"{self._client_id}:{self._client_secret}".encode()).decode()
+        basic = base64.b64encode(
+            f"{self._client_id}:{self._client_secret}".encode()
+        ).decode()
         resp = await self._gated_request(
             client,
             "POST",
@@ -332,7 +340,10 @@ class YMCSTelemetryAdapter(TelemetryAdapter):
                     return row
             if len(rows) < _LIST_PAGE_SIZE:
                 return None
-        log.warning("YMCSTelemetryAdapter: listDevices exceeded %d pages, gave up", _LIST_MAX_PAGES)
+        log.warning(
+            "YMCSTelemetryAdapter: listDevices exceeded %d pages, gave up",
+            _LIST_MAX_PAGES,
+        )
         return None
 
     async def fetch_samples(
@@ -361,11 +372,16 @@ class YMCSTelemetryAdapter(TelemetryAdapter):
                 timeout=self._timeout, transport=self._transport
             ) as client:
                 token = await self._access_token(client)
-                auth_headers = {"Authorization": f"Bearer {token}", "Accept": "application/json"}
+                auth_headers = {
+                    "Authorization": f"Bearer {token}",
+                    "Accept": "application/json",
+                }
 
                 device = await self._find_device_by_serial(client, auth_headers, serial)
                 if device is None:
-                    log.info("YMCSTelemetryAdapter: no YMCS device with serial %s", serial)
+                    log.info(
+                        "YMCSTelemetryAdapter: no YMCS device with serial %s", serial
+                    )
                     return []
                 device_id = str(device.get("id") or "")
                 if not device_id:

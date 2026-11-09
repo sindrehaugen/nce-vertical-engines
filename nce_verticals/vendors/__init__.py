@@ -13,7 +13,10 @@ from nce_verticals.vendors.feed import (
 from nce_verticals.vendors.frontier import do_calibrate_weights, do_reliability_radar
 from nce_verticals.vendors.matching import do_match_contractor
 from nce_verticals.vendors.partner_view import do_partner_view
-from nce_verticals.vendors.performance import do_compute_performance, do_recall_similar_jobs
+from nce_verticals.vendors.performance import (
+    do_compute_performance,
+    do_recall_similar_jobs,
+)
 from nce_verticals.vendors.registry import (
     do_get_vendor,
     do_seed_vendors,

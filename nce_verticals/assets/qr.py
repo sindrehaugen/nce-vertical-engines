@@ -93,7 +93,9 @@ def generate_qr_matrix(data: str) -> list[list[int]]:
             v_info = info
             break
     if version is None or v_info is None:
-        raise ValueError(f"Payload too large for QR generator ({byte_len} bytes; max 134 bytes)")
+        raise ValueError(
+            f"Payload too large for QR generator ({byte_len} bytes; max 134 bytes)"
+        )
 
     size: int = v_info["size"]
     data_cw: int = v_info["data_cw"]
@@ -170,7 +172,11 @@ def generate_qr_matrix(data: str) -> list[list[int]]:
     for ar in align_coords:
         for ac in align_coords:
             # Skip if overlapping finders
-            if (ar < 9 and ac < 9) or (ar < 9 and ac > size - 9) or (ar > size - 9 and ac < 9):
+            if (
+                (ar < 9 and ac < 9)
+                or (ar < 9 and ac > size - 9)
+                or (ar > size - 9 and ac < 9)
+            ):
                 continue
             for dr in range(-2, 3):
                 for dc in range(-2, 3):
@@ -274,7 +280,7 @@ def render_qr_svg(matrix: list[list[int]], box_size: int = 8, border: int = 4) -
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {dim} {dim}" '
         f'width="{dim}" height="{dim}">'
         f'<rect width="100%" height="100%" fill="#ffffff"/>'
-        f'{"".join(rects)}'
+        f"{''.join(rects)}"
         f"</svg>"
     )
 
@@ -343,7 +349,9 @@ async def do_generate_asset_qr(engine: Any, params: dict[str, Any]) -> dict[str,
     deep_link_url = f"{prefix}{room_part}/assets/{asset_id}"
 
     # QR payload encoded in the matrix: standard URL or URI format
-    qr_payload = deep_link_url if base_url else f"nce://assets/{asset_id}?room={room_id}"
+    qr_payload = (
+        deep_link_url if base_url else f"nce://assets/{asset_id}?room={room_id}"
+    )
 
     # Generate matrix and SVG
     matrix = generate_qr_matrix(qr_payload)
@@ -385,7 +393,9 @@ async def do_get_room_register(engine: Any, params: dict[str, Any]) -> dict[str,
         ``{"ok": True, "room_id": str, "total_assets": int, "assets": list}``
     """
     namespace_id = require_namespace_id(params)
-    room_id = str(params.get("functional_location_id") or params.get("room_id") or "").strip()
+    room_id = str(
+        params.get("functional_location_id") or params.get("room_id") or ""
+    ).strip()
     if not room_id:
         raise ValueError("'functional_location_id' or 'room_id' is required")
 

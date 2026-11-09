@@ -195,7 +195,9 @@ _MAX_FINITE_SALIENCE: float = sys.float_info.max
 #: dropped — see :func:`_refuse_misplaced_lifecycle_keys`.
 _DEVICE_STATE_KEYS: frozenset[str] = frozenset(_STATE_KEYS)
 _RACK_STATE_KEYS: frozenset[str] = frozenset(_STATE_KEYS)
-_CONNECTION_STATE_KEYS: frozenset[str] = frozenset(f"{_CABLE_PREFIX}{k}" for k in _STATE_KEYS)
+_CONNECTION_STATE_KEYS: frozenset[str] = frozenset(
+    f"{_CABLE_PREFIX}{k}" for k in _STATE_KEYS
+)
 _PORT_STATE_KEYS: frozenset[str] = frozenset()
 
 # Capability table column names — used in _upsert_capability.
@@ -526,7 +528,9 @@ def _connection_confidence(cnx: dict[str, Any]) -> float:
         )
     value = float(value_raw)
     if not math.isfinite(value) or not (0.0 <= value <= 1.0):
-        raise ValueError(f"connection confidence must be a number in [0, 1]; got {value_raw!r}")
+        raise ValueError(
+            f"connection confidence must be a number in [0, 1]; got {value_raw!r}"
+        )
     return value
 
 
@@ -679,9 +683,13 @@ def _state_of(payload: dict[str, Any], prefix: str = "") -> dict[str, Any]:
             # the coercion is easier to keep correct than one that catches what
             # the coercion throws.
             if isinstance(value, int) and abs(value) > _MAX_FINITE_SALIENCE:
-                raise ValueError(f"{prefix}{key} is too large to store as a finite number")
+                raise ValueError(
+                    f"{prefix}{key} is too large to store as a finite number"
+                )
             if not math.isfinite(value):
-                raise ValueError(f"{prefix}{key} must be a finite number (not NaN or Infinity)")
+                raise ValueError(
+                    f"{prefix}{key} must be a finite number (not NaN or Infinity)"
+                )
         elif not isinstance(value, str) or not value.strip():
             raise ValueError(f"{prefix}{key} must be a non-empty string when supplied")
         state[key] = value
@@ -825,7 +833,9 @@ async def _upsert_node_state(
             seed_status,
         )
     except asyncpg.exceptions.CheckViolationError as exc:
-        reason = _STATE_CONSTRAINT_REASONS.get(getattr(exc, "constraint_name", "") or "")
+        reason = _STATE_CONSTRAINT_REASONS.get(
+            getattr(exc, "constraint_name", "") or ""
+        )
         if reason is None:
             # Not one of this table's constraints — not this module's to
             # reinterpret, and pretending otherwise would mislabel a genuine
@@ -835,7 +845,9 @@ async def _upsert_node_state(
         # vocabulary" tells a caller what rule they broke but not which of the
         # values they sent broke it, and a payload can carry many.
         offending = state.get("status") if "status" in reason else state.get("salience")
-        raise ValueError(f"{node_label} ({node_type}): {reason}; got {offending!r}") from exc
+        raise ValueError(
+            f"{node_label} ({node_type}): {reason}; got {offending!r}"
+        ) from exc
 
     return {
         "node_label": node_label,
@@ -1033,7 +1045,9 @@ async def do_author_device_topology(
             ``cable_*`` key appears on a connection naming no ``cable_ref``; or
             the database refused the row's status vocabulary.
     """
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
     conn_list: list[dict[str, Any]] = connections or []
     rack_list: list[dict[str, Any]] = racks or []
 
@@ -1059,11 +1073,17 @@ async def do_author_device_topology(
     # rather than being restructured around this pass.
     # ------------------------------------------------------------------
     for raw_rack in rack_list:
-        _refuse_misplaced_lifecycle_keys(raw_rack, accepted=_RACK_STATE_KEYS, where="a rack")
+        _refuse_misplaced_lifecycle_keys(
+            raw_rack, accepted=_RACK_STATE_KEYS, where="a rack"
+        )
     for raw_dev in devices:
-        _refuse_misplaced_lifecycle_keys(raw_dev, accepted=_DEVICE_STATE_KEYS, where="a device")
+        _refuse_misplaced_lifecycle_keys(
+            raw_dev, accepted=_DEVICE_STATE_KEYS, where="a device"
+        )
         for raw_port in raw_dev.get("ports", []):
-            _refuse_misplaced_lifecycle_keys(raw_port, accepted=_PORT_STATE_KEYS, where="a port")
+            _refuse_misplaced_lifecycle_keys(
+                raw_port, accepted=_PORT_STATE_KEYS, where="a port"
+            )
     for raw_cnx in conn_list:
         _refuse_misplaced_lifecycle_keys(
             raw_cnx, accepted=_CONNECTION_STATE_KEYS, where="a connection"
@@ -1071,9 +1091,9 @@ async def do_author_device_topology(
         port_label(design_id, raw_cnx["from_device_ref"], raw_cnx["from_port_ref"])
         port_label(design_id, raw_cnx["to_device_ref"], raw_cnx["to_port_ref"])
         _connection_confidence(raw_cnx)
-        if _has_explicit_lifecycle(_state_of(raw_cnx, _CABLE_PREFIX)) and not raw_cnx.get(
-            "cable_ref"
-        ):
+        if _has_explicit_lifecycle(
+            _state_of(raw_cnx, _CABLE_PREFIX)
+        ) and not raw_cnx.get("cable_ref"):
             raise ValueError(
                 "cable_status / cable_revision / cable_salience describe the CABLE node; "
                 "supply cable_ref on the connection, or remove them"
@@ -1092,16 +1112,26 @@ async def do_author_device_topology(
     # receipt order.  The four loops keep their relative order: racks -> devices
     # -> ports -> connections is a dependency order, not a lock order.
     for rack in sorted(rack_list, key=lambda r: rack_label(design_id, r["rack_ref"])):
-        _refuse_misplaced_lifecycle_keys(rack, accepted=_RACK_STATE_KEYS, where="a rack")
+        _refuse_misplaced_lifecycle_keys(
+            rack, accepted=_RACK_STATE_KEYS, where="a rack"
+        )
         rack_state = _state_of(rack)
         rack_ref: str = rack["rack_ref"]
         rack_lbl = rack_label(design_id, rack_ref)
 
-        rack_is_new = await _upsert_node(conn, ns_uuid, rack_lbl, _NODE_TYPE_RACK, source_id)
+        rack_is_new = await _upsert_node(
+            conn, ns_uuid, rack_lbl, _NODE_TYPE_RACK, source_id
+        )
         node_count += 1
 
         await _upsert_edge(
-            conn, ns_uuid, design_lbl, _PRED_HAS_RACK, rack_lbl, _STRUCTURAL_CONFIDENCE, source_id
+            conn,
+            ns_uuid,
+            design_lbl,
+            _PRED_HAS_RACK,
+            rack_lbl,
+            _STRUCTURAL_CONFIDENCE,
+            source_id,
         )
         edge_count += 1
 
@@ -1129,17 +1159,27 @@ async def do_author_device_topology(
     # 2. Devices + their ports
     # ------------------------------------------------------------------
     for dev in sorted(devices, key=lambda d: device_label(design_id, d["device_ref"])):
-        _refuse_misplaced_lifecycle_keys(dev, accepted=_DEVICE_STATE_KEYS, where="a device")
+        _refuse_misplaced_lifecycle_keys(
+            dev, accepted=_DEVICE_STATE_KEYS, where="a device"
+        )
         dev_state = _state_of(dev)
         dev_ref: str = dev["device_ref"]
         dev_lbl = device_label(design_id, dev_ref)
 
-        dev_is_new = await _upsert_node(conn, ns_uuid, dev_lbl, _NODE_TYPE_DEVICE, source_id)
+        dev_is_new = await _upsert_node(
+            conn, ns_uuid, dev_lbl, _NODE_TYPE_DEVICE, source_id
+        )
         node_count += 1
 
         # DESIGN -[contains]-> DEVICE
         await _upsert_edge(
-            conn, ns_uuid, design_lbl, _PRED_CONTAINS, dev_lbl, _STRUCTURAL_CONFIDENCE, source_id
+            conn,
+            ns_uuid,
+            design_lbl,
+            _PRED_CONTAINS,
+            dev_lbl,
+            _STRUCTURAL_CONFIDENCE,
+            source_id,
         )
         edge_count += 1
 
@@ -1168,7 +1208,13 @@ async def do_author_device_topology(
         if rack_ref_str:
             r_lbl = rack_label(design_id, rack_ref_str)
             await _upsert_edge(
-                conn, ns_uuid, dev_lbl, _PRED_MOUNTED_IN, r_lbl, _STRUCTURAL_CONFIDENCE, source_id
+                conn,
+                ns_uuid,
+                dev_lbl,
+                _PRED_MOUNTED_IN,
+                r_lbl,
+                _STRUCTURAL_CONFIDENCE,
+                source_id,
             )
             edge_count += 1
 
@@ -1179,7 +1225,9 @@ async def do_author_device_topology(
         ):
             # A PORT has no lifecycle status anywhere in NetBox, so it accepts
             # NONE of the keys — in any spelling, prefixed or not.
-            _refuse_misplaced_lifecycle_keys(port, accepted=_PORT_STATE_KEYS, where="a port")
+            _refuse_misplaced_lifecycle_keys(
+                port, accepted=_PORT_STATE_KEYS, where="a port"
+            )
             port_ref: str = port["port_ref"]
             port_lbl = port_label(design_id, dev_ref, port_ref)
 
@@ -1188,7 +1236,13 @@ async def do_author_device_topology(
 
             # DEVICE -[has_port]-> PORT
             await _upsert_edge(
-                conn, ns_uuid, dev_lbl, _PRED_HAS_PORT, port_lbl, _STRUCTURAL_CONFIDENCE, source_id
+                conn,
+                ns_uuid,
+                dev_lbl,
+                _PRED_HAS_PORT,
+                port_lbl,
+                _STRUCTURAL_CONFIDENCE,
+                source_id,
             )
             edge_count += 1
 
@@ -1217,9 +1271,13 @@ async def do_author_device_topology(
         # whether a CABLE node exists at all.  Reached only inside that branch,
         # a malformed cable_salience on a connection naming no cable returned
         # 200 with the value unexamined and discarded.
-        _refuse_misplaced_lifecycle_keys(cnx, accepted=_CONNECTION_STATE_KEYS, where="a connection")
+        _refuse_misplaced_lifecycle_keys(
+            cnx, accepted=_CONNECTION_STATE_KEYS, where="a connection"
+        )
         cable_state = _state_of(cnx, _CABLE_PREFIX)
-        from_port_lbl = port_label(design_id, cnx["from_device_ref"], cnx["from_port_ref"])
+        from_port_lbl = port_label(
+            design_id, cnx["from_device_ref"], cnx["from_port_ref"]
+        )
         to_port_lbl = port_label(design_id, cnx["to_device_ref"], cnx["to_port_ref"])
         cnx_conf: float = _connection_confidence(cnx)
         cnx_source: str | None = cnx.get("source_id") or source_id
@@ -1235,7 +1293,13 @@ async def do_author_device_topology(
             )
 
         await _upsert_edge(
-            conn, ns_uuid, from_port_lbl, _PRED_CONNECTED_TO, to_port_lbl, cnx_conf, cnx_source
+            conn,
+            ns_uuid,
+            from_port_lbl,
+            _PRED_CONNECTED_TO,
+            to_port_lbl,
+            cnx_conf,
+            cnx_source,
         )
         edge_count += 1
 

@@ -72,7 +72,9 @@ log = logging.getLogger("nce_verticals.product.sources.manufacturer_api")
 # ---------------------------------------------------------------------------
 # Internal-only fields — stripped before yielding (ADR-0017)
 # ---------------------------------------------------------------------------
-_INTERNAL_FIELDS: frozenset[str] = frozenset({"unit_cost", "bid_price", "supplier_price"})
+_INTERNAL_FIELDS: frozenset[str] = frozenset(
+    {"unit_cost", "bid_price", "supplier_price"}
+)
 
 # ---------------------------------------------------------------------------
 # Native-field → canonical-field map
@@ -204,10 +206,14 @@ class ManufacturerApiAdapter(SourceAdapter):
         effective_key = api_key if api_key is not None else _api_key()
         effective_url = api_url if api_url is not None else _api_url()
         effective_batch = batch_size if batch_size is not None else _batch_size()
-        effective_timeout = http_timeout if http_timeout is not None else _http_timeout()
+        effective_timeout = (
+            http_timeout if http_timeout is not None else _http_timeout()
+        )
 
         if _mock_items is None and (not effective_key or not effective_url):
-            log.info("manufacturer_api: required config absent — adapter is disabled (no-op)")
+            log.info(
+                "manufacturer_api: required config absent — adapter is disabled (no-op)"
+            )
             return
 
         items: list[dict[str, Any]]

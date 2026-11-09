@@ -57,7 +57,9 @@ if TYPE_CHECKING:
 def _load_quality_config() -> dict[str, Any]:
     """Load quality grade thresholds from config_data (config-as-IP)."""
     config_path = (
-        Path(__file__).resolve().parent.parent.parent / "config_data" / "product-quality.json"
+        Path(__file__).resolve().parent.parent.parent
+        / "config_data"
+        / "product-quality.json"
     )
     with config_path.open("r", encoding="utf-8") as fh:
         return json.load(fh)
@@ -462,8 +464,12 @@ def _format_single_product_quality(row: Any, channel: str) -> dict[str, Any]:
     return {
         "status": "ok",
         "product_id": str(row["id"]) if "id" in row else None,
-        "manufacturer": row.get("manufacturer") if hasattr(row, "get") else row["manufacturer"],
-        "mfr_part_no": row.get("mfr_part_no") if hasattr(row, "get") else row["mfr_part_no"],
+        "manufacturer": row.get("manufacturer")
+        if hasattr(row, "get")
+        else row["manufacturer"],
+        "mfr_part_no": row.get("mfr_part_no")
+        if hasattr(row, "get")
+        else row["mfr_part_no"],
         "gtin": row.get("gtin")
         if hasattr(row, "get")
         else (row["gtin"] if "gtin" in row else None),
@@ -521,7 +527,10 @@ async def do_product_quality(
 
     pool = (
         engine.pg_pool
-        if ("pg_pool" in getattr(engine, "__dict__", {}) or hasattr(type(engine), "pg_pool"))
+        if (
+            "pg_pool" in getattr(engine, "__dict__", {})
+            or hasattr(type(engine), "pg_pool")
+        )
         else engine
     )
 
@@ -640,7 +649,9 @@ async def do_product_quality(
 
     total_products = len(product_results)
     avg_comp = (
-        round(sum(r["completeness"]["score"] for r in product_results) / total_products, 4)
+        round(
+            sum(r["completeness"]["score"] for r in product_results) / total_products, 4
+        )
         if total_products > 0
         else 0.0
     )

@@ -185,7 +185,9 @@ async def _fetch_best_bids(
         d = dict(r)
         synced_at = d.get("synced_at")
         valid_to = d.get("valid_to")
-        is_stale_by_age = _is_stale(synced_at, cfg.NCE_PRICING_MAX_AGE) if synced_at else False
+        is_stale_by_age = (
+            _is_stale(synced_at, cfg.NCE_PRICING_MAX_AGE) if synced_at else False
+        )
         is_expired = (valid_to < now) if valid_to else False
         stale = is_stale_by_age or is_expired
         d["source"] = "bid"

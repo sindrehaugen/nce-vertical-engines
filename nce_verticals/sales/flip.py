@@ -156,7 +156,9 @@ async def do_stalled_deal_watcher(
                 {
                     "deal_id": row["source_id"],
                     "name": row["name"],
-                    "stalled_since": row["updated_at"].isoformat() if row["updated_at"] else None,
+                    "stalled_since": row["updated_at"].isoformat()
+                    if row["updated_at"]
+                    else None,
                     "payload": source_json,
                 }
             )

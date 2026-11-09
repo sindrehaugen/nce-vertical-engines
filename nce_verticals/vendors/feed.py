@@ -107,7 +107,9 @@ async def do_detect_reliability_degradation(
     recent_events = events[half:]
 
     def calc_metrics(evs: list[dict[str, Any]]) -> tuple[float, float]:
-        on_time_count = sum(1 for e in evs if e.get("on_time") is True or e.get("on_time") == 1)
+        on_time_count = sum(
+            1 for e in evs if e.get("on_time") is True or e.get("on_time") == 1
+        )
         defect_count = sum(
             1 for e in evs if e.get("defect_rma") is True or e.get("defect_rma") == 1
         )
@@ -171,7 +173,9 @@ async def do_check_tier_at_risk(
     )
 
     days_left_val = (
-        params.get("days_left") if params.get("days_left") is not None else status.get("days_left")
+        params.get("days_left")
+        if params.get("days_left") is not None
+        else status.get("days_left")
     )
     days_left = int(days_left_val) if days_left_val is not None else 0
 

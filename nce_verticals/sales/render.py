@@ -101,7 +101,9 @@ def render_quote_document(
 
     details = quote_details or {}
     quote_name = str(details.get("name") or f"Sales Proposal {quote_id}")
-    customer_name = str(details.get("customer_name") or details.get("customer") or "Valued Client")
+    customer_name = str(
+        details.get("customer_name") or details.get("customer") or "Valued Client"
+    )
     currency = str(details.get("currency") or "NOK").upper()
 
     signer_dict = signer or {}
@@ -333,7 +335,9 @@ def render_quote_document(
     stream_ops.append("/F1 9 Tf")
     stream_ops.append("0 0 0 rg")
     stream_ops.append("50 85 Td")
-    stream_ops.append(f"(Agreed and accepted for: {_escape_pdf_text(customer_name)}) Tj")
+    stream_ops.append(
+        f"(Agreed and accepted for: {_escape_pdf_text(customer_name)}) Tj"
+    )
     stream_ops.append("320 0 Td")
     stream_ops.append("(E-Signature Ceremony Reference:) Tj")
     stream_ops.append("ET")
@@ -387,9 +391,9 @@ def render_quote_document(
     ]
 
     # Deterministic Document ID derived from baseline natural key and timestamp
-    doc_id_hex = hashlib.sha256(f"{quote_id}:{frozen_iso}:{total_val:.2f}".encode()).hexdigest()[
-        :32
-    ]
+    doc_id_hex = hashlib.sha256(
+        f"{quote_id}:{frozen_iso}:{total_val:.2f}".encode()
+    ).hexdigest()[:32]
 
     # Write PDF stream with cross-reference table and trailer
     out = io.BytesIO()

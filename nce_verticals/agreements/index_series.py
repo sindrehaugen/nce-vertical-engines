@@ -152,7 +152,11 @@ def calculate_index_uplift(
     raw_change = (t_idx - b_idx) / b_idx
 
     # Apply regulation ratio (e.g. 1.0 for 100%, 0.8 for 80%)
-    ratio = Decimal(str(regulation_ratio)) if regulation_ratio is not None else Decimal("1.0")
+    ratio = (
+        Decimal(str(regulation_ratio))
+        if regulation_ratio is not None
+        else Decimal("1.0")
+    )
     adjusted_uplift = raw_change * ratio
 
     # Apply floor (default 0.0 — contracts typically do not deflate prices unless explicitly configured)
@@ -205,7 +209,9 @@ def do_get_index_series(engine: Any, params: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def do_calculate_index_adjustment(engine: Any, params: dict[str, Any]) -> dict[str, Any]:
+def do_calculate_index_adjustment(
+    engine: Any, params: dict[str, Any]
+) -> dict[str, Any]:
     """Domain query: compute index-linked price adjustment and optional renewal amount."""
     series_id = params.get("series_id") or params.get("index_series_id")
     if not series_id:

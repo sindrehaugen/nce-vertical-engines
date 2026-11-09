@@ -140,7 +140,11 @@ async def do_add_quote_line(
     ref = _require_text(line_ref, "line_ref")
     quantity = _require_decimal(qty, "qty", allow_zero=False)
     price = _require_decimal(unit_price, "unit_price")
-    total = quantity * price if line_total is None else _require_decimal(line_total, "line_total")
+    total = (
+        quantity * price
+        if line_total is None
+        else _require_decimal(line_total, "line_total")
+    )
 
     code = "NOK" if currency is None else _require_text(currency, "currency").upper()
     if len(code) != 3:

@@ -102,7 +102,9 @@ async def do_match_bom_line(
     # -- Feedback branch -------------------------------------------------------
     decision = str(params.get("decision") or "").strip().lower()
     if decision:
-        return await do_record_match_decision(engine, params, namespace_id, bom_line, decision)
+        return await do_record_match_decision(
+            engine, params, namespace_id, bom_line, decision
+        )
 
     # -- Match branch ----------------------------------------------------------
     return await _match(engine, namespace_id, bom_line, params)
@@ -205,7 +207,9 @@ async def do_record_match_decision(
     else:
         namespace_id = str(namespace_id).strip()
         if not namespace_id:
-            raise ValueError("'namespace_id' is required and must be a non-empty string")
+            raise ValueError(
+                "'namespace_id' is required and must be a non-empty string"
+            )
 
     if bom_line is None:
         bom_line = str(params.get("bom_line") or "").strip()
@@ -277,7 +281,9 @@ async def do_record_match_decision(
         )
     except Exception as exc:
         log.error(
-            "do_record_match_decision: decision feedback write failed: %s", exc, exc_info=True
+            "do_record_match_decision: decision feedback write failed: %s",
+            exc,
+            exc_info=True,
         )
         try:
             from nce.degradation import record_degradation

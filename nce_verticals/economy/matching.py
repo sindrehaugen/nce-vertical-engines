@@ -104,7 +104,7 @@ from typing import Any
 # Config loader — reads from nce/config_data/ (no config class)
 # ---------------------------------------------------------------------------
 
-_CONFIG_DATA_DIR = Path(__file__).parents[3] / "nce" / "config_data"
+_CONFIG_DATA_DIR = Path(__file__).resolve().parents[1] / "config_data"
 
 
 def load_economy_thresholds() -> dict[str, Any]:
@@ -204,7 +204,9 @@ def _score_supplier(context: dict[str, Any], reasons: list[str]) -> int:
     return 0
 
 
-def _score_amount(context: dict[str, Any], line: dict[str, Any], reasons: list[str]) -> int:
+def _score_amount(
+    context: dict[str, Any], line: dict[str, Any], reasons: list[str]
+) -> int:
     expected_amount = _as_amount(context.get("expected_amount", 0))
     # Guard FIRST: also prevents division by zero. NaN/inf/negative all fail this
     # comparison to True only when <= 0 (NaN comparisons are always False in Python,
@@ -311,7 +313,11 @@ def _score_po_number_match(context: dict[str, Any], reasons: list[str]) -> int:
 # Per-pair scoring — one invoice line vs one candidate (the ported algorithm)
 # ---------------------------------------------------------------------------
 
-_EMPTY_CANDIDATE: dict[str, Any] = {"bom_line": None, "context": {}, "three_way_result": None}
+_EMPTY_CANDIDATE: dict[str, Any] = {
+    "bom_line": None,
+    "context": {},
+    "three_way_result": None,
+}
 
 
 def _score_pair(
@@ -447,7 +453,9 @@ def _coerce_cutoff(value: Any) -> int | float | None:
     return value
 
 
-def _resolve_thresholds(thresholds: dict[str, Any], invoice: dict[str, Any]) -> dict[str, Any]:
+def _resolve_thresholds(
+    thresholds: dict[str, Any], invoice: dict[str, Any]
+) -> dict[str, Any]:
     """Resolve (green, yellow) cutoffs: JSON defaults overlaid by a per-supplier override
     keyed on the invoice's ``supplier_orgnr``. Cutoffs always come from ``thresholds`` —
     never a literal here (config-as-IP, §2.9).
@@ -514,7 +522,13 @@ def _resolve_thresholds(thresholds: dict[str, Any], invoice: dict[str, Any]) -> 
     #   green < yellow     -> inverted pair; a should-be-YELLOW score returns GREEN
     # Note green == yellow stays legal: it is a coherent (if blunt) operator choice that
     # collapses the review band, and all weights are multiples of 5 so 70/69 is identical.
-    if green is None or yellow is None or green <= _MIN_GREEN or yellow <= 0 or green < yellow:
+    if (
+        green is None
+        or yellow is None
+        or green <= _MIN_GREEN
+        or yellow <= 0
+        or green < yellow
+    ):
         raise ValueError(
             f"economy match thresholds incoherent after override resolution: "
             f"green={raw_green!r} yellow={raw_yellow!r} "
@@ -604,7 +618,9 @@ def do_match_invoice(
 
     breakdown: list[dict[str, Any]] = []
     for line_index, line in enumerate(lines):
-        candidate_index, candidate, result = _best_candidate_result(invoice, line, candidates)
+        candidate_index, candidate, result = _best_candidate_result(
+            invoice, line, candidates
+        )
         line_tier = _tier_for_score(result["total"], green, yellow)
 
         entry = dict(result)
@@ -622,6 +638,8 @@ def do_match_invoice(
         breakdown.append(entry)
 
     invoice_tier = _worst_tier([entry["tier"] for entry in breakdown])
-    invoice_score = min(entry["total"] for entry in breakdown if entry["tier"] == invoice_tier)
+    invoice_score = min(
+        entry["total"] for entry in breakdown if entry["tier"] == invoice_tier
+    )
 
     return {"score": invoice_score, "tier": invoice_tier, "breakdown": breakdown}

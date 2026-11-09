@@ -19,6 +19,7 @@ except ImportError:
             self.status_code = status_code
             self.body = _json.dumps(content, default=str).encode("utf-8")
 
+
 from nce_verticals.salesforce.auth import SalesforceAuthConfig
 from nce_verticals.salesforce.operations import get_global_salesforce_ops
 from nce_verticals.salesforce.sync import SalesforceSyncEngine
@@ -49,9 +50,16 @@ async def api_admin_salesforce_config_save(request: Any) -> JSONResponse:
     curr = ops.config
 
     auth_mode = str(body.get("auth_mode", curr.auth_mode)).strip().lower()
-    if auth_mode not in ("client_credentials", "refresh_token", "jwt_bearer", "entra_delegated"):
+    if auth_mode not in (
+        "client_credentials",
+        "refresh_token",
+        "jwt_bearer",
+        "entra_delegated",
+    ):
         return JSONResponse(
-            {"error": "auth_mode must be client_credentials, refresh_token, jwt_bearer, or entra_delegated"},
+            {
+                "error": "auth_mode must be client_credentials, refresh_token, jwt_bearer, or entra_delegated"
+            },
             status_code=422,
         )
 
@@ -61,24 +69,38 @@ async def api_admin_salesforce_config_save(request: Any) -> JSONResponse:
 
     updated = SalesforceAuthConfig(
         enabled=bool(body.get("enabled", curr.enabled)),
-        instance_url=str(body.get("instance_url", curr.instance_url)).strip().rstrip("/"),
+        instance_url=str(body.get("instance_url", curr.instance_url))
+        .strip()
+        .rstrip("/"),
         login_url=str(body.get("login_url", curr.login_url)).strip().rstrip("/"),
         api_version=str(body.get("api_version", curr.api_version)).strip(),
         auth_mode=auth_mode,
         client_id=str(body.get("client_id", curr.client_id)).strip(),
-        client_secret=str(body["client_secret"]).strip() if body.get("client_secret") else curr.client_secret,
-        refresh_token=str(body["refresh_token"]).strip() if body.get("refresh_token") else curr.refresh_token,
+        client_secret=str(body["client_secret"]).strip()
+        if body.get("client_secret")
+        else curr.client_secret,
+        refresh_token=str(body["refresh_token"]).strip()
+        if body.get("refresh_token")
+        else curr.refresh_token,
         jwt_subject=str(body.get("jwt_subject", curr.jwt_subject)).strip(),
-        jwt_private_key=str(body["jwt_private_key"]).strip() if body.get("jwt_private_key") else curr.jwt_private_key,
+        jwt_private_key=str(body["jwt_private_key"]).strip()
+        if body.get("jwt_private_key")
+        else curr.jwt_private_key,
         static_access_token=(
             str(body["static_access_token"]).strip()
             if body.get("static_access_token")
             else curr.static_access_token
         ),
-        webhook_secret=str(body["webhook_secret"]).strip() if body.get("webhook_secret") else curr.webhook_secret,
-        standalone_passthrough=bool(body.get("standalone_passthrough", curr.standalone_passthrough)),
+        webhook_secret=str(body["webhook_secret"]).strip()
+        if body.get("webhook_secret")
+        else curr.webhook_secret,
+        standalone_passthrough=bool(
+            body.get("standalone_passthrough", curr.standalone_passthrough)
+        ),
         sync_enabled=bool(body.get("sync_enabled", curr.sync_enabled)),
-        require_entra_gate=bool(body.get("require_entra_gate", curr.require_entra_gate)),
+        require_entra_gate=bool(
+            body.get("require_entra_gate", curr.require_entra_gate)
+        ),
         sync_objects=list(sync_objs),
     )
     ops.token_manager.config = updated
@@ -153,10 +175,14 @@ async def api_salesforce_webhook_ingest(request: Any) -> JSONResponse:
     ops = get_global_salesforce_ops()
     receiver = SalesforceWebhookReceiver(ops=ops)
     raw_body = await request.body()
-    sig = request.headers.get("X-Salesforce-Signature") or request.headers.get("x-salesforce-signature")
+    sig = request.headers.get("X-Salesforce-Signature") or request.headers.get(
+        "x-salesforce-signature"
+    )
 
     if not receiver.verify_signature(raw_body, sig):
-        return JSONResponse({"error": "Invalid X-Salesforce-Signature"}, status_code=401)
+        return JSONResponse(
+            {"error": "Invalid X-Salesforce-Signature"}, status_code=401
+        )
 
     content_type = request.headers.get("Content-Type", "application/json")
     try:
@@ -170,4 +196,6 @@ async def api_salesforce_webhook_ingest(request: Any) -> JSONResponse:
 async def api_admin_salesforce_webhooks(request: Any) -> JSONResponse:
     """GET /api/admin/salesforce/webhooks — list recent received Salesforce webhook events."""
     ops = get_global_salesforce_ops()
-    return JSONResponse({"total": len(ops._webhook_history), "items": ops._webhook_history[:100]})
+    return JSONResponse(
+        {"total": len(ops._webhook_history), "items": ops._webhook_history[:100]}
+    )

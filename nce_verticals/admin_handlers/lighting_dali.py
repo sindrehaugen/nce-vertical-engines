@@ -20,6 +20,7 @@ except ImportError:
             self.status_code = status_code
             self.body = _json.dumps(content, default=str).encode("utf-8")
 
+
 from nce_verticals.lighting_dali.analyser import (
     EN12464_ZONES,
     analyze_dali2_bus,
@@ -117,7 +118,11 @@ async def api_admin_lighting_parse_photometric(request: Any) -> JSONResponse:
         return JSONResponse({"error": "content is required"}, status_code=422)
 
     try:
-        if fmt == "ies" or content.upper().startswith("IESNA") or "TILT=" in content.upper():
+        if (
+            fmt == "ies"
+            or content.upper().startswith("IESNA")
+            or "TILT=" in content.upper()
+        ):
             res = parse_iesna_ies(content)
         else:
             res = parse_eulumdat_ldt(content)

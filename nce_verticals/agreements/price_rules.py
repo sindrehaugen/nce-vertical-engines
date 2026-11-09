@@ -102,7 +102,9 @@ def evaluate_price_rule(rule_id: str, context: dict[str, Any]) -> dict[str, Any]
     params = rule.get("parameters", {})
 
     if rule_type == "cpi_index_regulation":
-        index_series_id = context.get("index_series_id") or params.get("index_series_id", "SSB_KPI")
+        index_series_id = context.get("index_series_id") or params.get(
+            "index_series_id", "SSB_KPI"
+        )
         reg_ratio = context.get("regulation_ratio", params.get("regulation_ratio", 1.0))
         rule_cap = params.get("cap_pct")
         context_cap = context.get("cap_pct") or context.get("cpi_cap")
@@ -232,7 +234,9 @@ def evaluate_price_rule(rule_id: str, context: dict[str, Any]) -> dict[str, Any]
         }
 
     elif rule_type == "multi_year_commitment":
-        months = int(context.get("commitment_months", params.get("commitment_months", 36)))
+        months = int(
+            context.get("commitment_months", params.get("commitment_months", 36))
+        )
         rule_months = int(params.get("commitment_months", 36))
         discount_pct = (
             Decimal(str(params.get("discount_pct", 0.08)))

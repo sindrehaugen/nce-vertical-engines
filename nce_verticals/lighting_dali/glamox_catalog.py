@@ -44,13 +44,23 @@ GLAMOX_LUMINAIRE_CATALOG: dict[str, dict[str, Any]] = {
         "cri_ra": 80,
         "cct_k": 4000,
         "optics": ["MP (Microprismatic UGR<=19)", "OP (Opal)", "CI (Circle)"],
-        "dali2_device_types": ["DT6 (IEC 62386-207)", "DT8 Tunable White (IEC 62386-209)", "DT1 Emergency (IEC 62386-202)", "D4i / SR (IEC 62386-251..253)"],
+        "dali2_device_types": [
+            "DT6 (IEC 62386-207)",
+            "DT8 Tunable White (IEC 62386-209)",
+            "DT1 Emergency (IEC 62386-202)",
+            "D4i / SR (IEC 62386-251..253)",
+        ],
         "dali_bus_current_ma": 2.0,
         "inrush_peak_a": 21.0,
         "inrush_width_us": 180.0,
         "max_per_b16_mcb": 30,
         "max_per_c16_mcb": 50,
-        "applications": ["OFFICE_WRITING", "MEETING_ROOM", "CLASSROOM", "CAD_WORKSTATION"],
+        "applications": [
+            "OFFICE_WRITING",
+            "MEETING_ROOM",
+            "CLASSROOM",
+            "CAD_WORKSTATION",
+        ],
     },
     "C95-S": {
         "family": "C95",
@@ -89,7 +99,12 @@ GLAMOX_LUMINAIRE_CATALOG: dict[str, dict[str, Any]] = {
         "efficacy_lm_w": 129.6,
         "cri_ra": 80,
         "cct_k": 4000,
-        "optics": ["MP (Microprismatic)", "OP (Opal)", "SL (Silver Matt Reflector)", "AS (Asymmetric)"],
+        "optics": [
+            "MP (Microprismatic)",
+            "OP (Opal)",
+            "SL (Silver Matt Reflector)",
+            "AS (Asymmetric)",
+        ],
         "dali2_device_types": ["DT6", "DT8 Tunable White", "DT1 Emergency", "D4i / SR"],
         "dali_bus_current_ma": 2.0,
         "inrush_peak_a": 19.0,
@@ -112,14 +127,22 @@ GLAMOX_LUMINAIRE_CATALOG: dict[str, dict[str, Any]] = {
         "efficacy_lm_w": 144.8,
         "cri_ra": 80,
         "cct_k": 4000,
-        "optics": ["SI (Specular Darklight Reflector UGR<=16)", "MP (Microprismatic UGR<=19)"],
+        "optics": [
+            "SI (Specular Darklight Reflector UGR<=16)",
+            "MP (Microprismatic UGR<=19)",
+        ],
         "dali2_device_types": ["DT6", "DT8 Tunable White", "DT1 Emergency", "D4i / SR"],
         "dali_bus_current_ma": 2.0,
         "inrush_peak_a": 20.0,
         "inrush_width_us": 175.0,
         "max_per_b16_mcb": 30,
         "max_per_c16_mcb": 50,
-        "applications": ["CAD_WORKSTATION", "CONTROL_ROOM", "OFFICE_WRITING", "MEETING_ROOM"],
+        "applications": [
+            "CAD_WORKSTATION",
+            "CONTROL_ROOM",
+            "OFFICE_WRITING",
+            "MEETING_ROOM",
+        ],
     },
     "C77-P": {
         "family": "C77",
@@ -136,7 +159,11 @@ GLAMOX_LUMINAIRE_CATALOG: dict[str, dict[str, Any]] = {
         "cri_ra": 80,
         "cct_k": 4000,
         "optics": ["SI (Specular Louver)", "MP (Microprismatic 50/50 Up/Down)"],
-        "dali2_device_types": ["DT6 (1 or 2 DALI addresses for Up/Down)", "DT8 Tunable White", "D4i / SR"],
+        "dali2_device_types": [
+            "DT6 (1 or 2 DALI addresses for Up/Down)",
+            "DT8 Tunable White",
+            "D4i / SR",
+        ],
         "dali_bus_current_ma": 2.0,
         "inrush_peak_a": 24.0,
         "inrush_width_us": 190.0,
@@ -158,7 +185,11 @@ GLAMOX_LUMINAIRE_CATALOG: dict[str, dict[str, Any]] = {
         "efficacy_lm_w": 122.2,
         "cri_ra": 80,
         "cct_k": 3000,
-        "optics": ["SI (Specular Reflector)", "SM (Semi-Matt Reflector)", "WH (White Reflector)"],
+        "optics": [
+            "SI (Specular Reflector)",
+            "SM (Semi-Matt Reflector)",
+            "WH (White Reflector)",
+        ],
         "dali2_device_types": ["DT6", "DT8 Tunable White", "DT1 Emergency"],
         "dali_bus_current_ma": 2.0,
         "inrush_peak_a": 15.0,
@@ -181,7 +212,10 @@ GLAMOX_LUMINAIRE_CATALOG: dict[str, dict[str, Any]] = {
         "efficacy_lm_w": 132.4,
         "cri_ra": 90,
         "cct_k": 4000,
-        "optics": ["MP (Tempered Glass + Microprismatic)", "OP (Tempered Glass + Opal)"],
+        "optics": [
+            "MP (Tempered Glass + Microprismatic)",
+            "OP (Tempered Glass + Opal)",
+        ],
         "dali2_device_types": ["DT6", "DT8 Tunable White (Human Centric Lighting)"],
         "dali_bus_current_ma": 2.0,
         "inrush_peak_a": 24.0,
@@ -257,7 +291,11 @@ GLAMOX_LUMINAIRE_CATALOG: dict[str, dict[str, Any]] = {
         "inrush_width_us": 210.0,
         "max_per_b16_mcb": 20,
         "max_per_c16_mcb": 34,
-        "applications": ["MARINE_ENGINE_ROOM", "OFFSHORE_HAZARDOUS_EX", "INDUSTRIAL_ASSEMBLY"],
+        "applications": [
+            "MARINE_ENGINE_ROOM",
+            "OFFSHORE_HAZARDOUS_EX",
+            "INDUSTRIAL_ASSEMBLY",
+        ],
     },
 }
 
@@ -307,7 +345,12 @@ GLAMOX_CONTROL_DEVICES: dict[str, dict[str, Any]] = {
         "iec_standard": "IEC 62386-103 / 301 (Push Buttons)",
         "role": "input_device_switch",
         "ecd_addresses_used": 1,
-        "instances": ["301_PUSHBUTTON_1", "301_PUSHBUTTON_2", "301_PUSHBUTTON_3", "301_PUSHBUTTON_4"],
+        "instances": [
+            "301_PUSHBUTTON_1",
+            "301_PUSHBUTTON_2",
+            "301_PUSHBUTTON_3",
+            "301_PUSHBUTTON_4",
+        ],
         "dali_bus_current_ma": 4.0,
     },
 }
@@ -329,10 +372,17 @@ def decode_glamox_code(raw_code_or_description: str) -> dict[str, Any]:
             matched_model = model_key
             break
     if not matched_model:
-        fam_match = re.search(r"\b(C95|C90|C80|C77|C52|C35|C20|D70|D20|A65|I80|I75|I40|MAX|FX60|TL60)(?:-[A-Z0-9]+)?\b", upper)
+        fam_match = re.search(
+            r"\b(C95|C90|C80|C77|C52|C35|C20|D70|D20|A65|I80|I75|I40|MAX|FX60|TL60)(?:-[A-Z0-9]+)?\b",
+            upper,
+        )
         if fam_match:
             candidate = fam_match.group(0)
-            matched_model = candidate if candidate in GLAMOX_LUMINAIRE_CATALOG else fam_match.group(1)
+            matched_model = (
+                candidate
+                if candidate in GLAMOX_LUMINAIRE_CATALOG
+                else fam_match.group(1)
+            )
 
     base_spec = GLAMOX_LUMINAIRE_CATALOG.get(matched_model or "", {})
 
@@ -362,7 +412,26 @@ def decode_glamox_code(raw_code_or_description: str) -> dict[str, Any]:
         clean_num = re.sub(r"LM$", "", tok)
         if clean_num.isdigit():
             val = int(clean_num)
-            if val not in (827, 830, 835, 840, 850, 865, 927, 930, 940, 965, 300, 600, 1200, 1500) and 800 <= val <= 35000:
+            if (
+                val
+                not in (
+                    827,
+                    830,
+                    835,
+                    840,
+                    850,
+                    865,
+                    927,
+                    930,
+                    940,
+                    965,
+                    300,
+                    600,
+                    1200,
+                    1500,
+                )
+                and 800 <= val <= 35000
+            ):
                 flux_lm = float(val)
                 break
 
@@ -381,7 +450,9 @@ def decode_glamox_code(raw_code_or_description: str) -> dict[str, Any]:
 
     # 6. Identify Emergency Lighting (DT1 / 1H / 3H)
     has_emergency = bool(re.search(r"\b(EM|EM1H|EM3H|DA-EM|DT1|1H|3H|ST)\b", upper))
-    emergency_duration_h = 3 if "3H" in upper else (1 if "1H" in upper else (3 if has_emergency else 0))
+    emergency_duration_h = (
+        3 if "3H" in upper else (1 if "1H" in upper else (3 if has_emergency else 0))
+    )
     if has_emergency and ("DALI" in control_type or "DA-EM" in upper or "DT1" in upper):
         dali_device_types.append("DT1 Emergency (IEC 62386-202)")
 
@@ -398,7 +469,11 @@ def decode_glamox_code(raw_code_or_description: str) -> dict[str, Any]:
             break
 
     efficacy = float(base_spec.get("efficacy_lm_w", 133.3))
-    wattage_w = round(flux_lm / efficacy, 1) if efficacy > 0 else float(base_spec.get("default_wattage_w", 30.0))
+    wattage_w = (
+        round(flux_lm / efficacy, 1)
+        if efficacy > 0
+        else float(base_spec.get("default_wattage_w", 30.0))
+    )
 
     # DALI short addresses consumed by this luminaire
     ecg_addresses = (1 if "DT6" in " ".join(dali_device_types) else 0) + (
@@ -415,7 +490,9 @@ def decode_glamox_code(raw_code_or_description: str) -> dict[str, Any]:
         "title": base_spec.get("title", text or "LED Luminaire"),
         "dimensions_mm": dimensions_mm,
         "optic_code": optic_code,
-        "ugr_rating": 16.0 if optic_code == "SI" else (19.0 if optic_code == "MP" else float(base_spec.get("ugr_rating", 22.0))),
+        "ugr_rating": 16.0
+        if optic_code == "SI"
+        else (19.0 if optic_code == "MP" else float(base_spec.get("ugr_rating", 22.0))),
         "flux_lm": flux_lm,
         "wattage_w": wattage_w,
         "efficacy_lm_w": round(flux_lm / max(1.0, wattage_w), 1),

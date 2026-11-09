@@ -137,7 +137,7 @@ from typing import Any
 # load_economy_thresholds() in matching.py / load_procurement_config() in procurement/tco.py
 # ---------------------------------------------------------------------------
 
-_CONFIG_DATA_DIR = Path(__file__).parents[3] / "nce" / "config_data"
+_CONFIG_DATA_DIR = Path(__file__).resolve().parents[1] / "config_data"
 
 
 def load_finago_chart_of_accounts() -> dict[str, Any]:
@@ -260,7 +260,9 @@ def _as_decimal(value: Any, where: str) -> Decimal:
     if value is None:
         return _ZERO
     if isinstance(value, bool):
-        raise ValueError(f"ngaap periodisering: {where} must be a number, got bool {value!r}")
+        raise ValueError(
+            f"ngaap periodisering: {where} must be a number, got bool {value!r}"
+        )
     if isinstance(value, Decimal):
         candidate = value
     elif isinstance(value, int):
@@ -268,7 +270,9 @@ def _as_decimal(value: Any, where: str) -> Decimal:
     elif isinstance(value, float):
         try:
             candidate = Decimal(str(value))
-        except DecimalException as exc:  # pragma: no cover — str(float) is always parseable
+        except (
+            DecimalException
+        ) as exc:  # pragma: no cover — str(float) is always parseable
             raise ValueError(
                 f"ngaap periodisering: {where} is not a usable number: {value!r}"
             ) from exc
@@ -485,7 +489,9 @@ def _normalised_params_buckets(params: dict[str, Any]) -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 
-def _resolve_accounts(chart: dict[str, Any], mapping: dict[str, Any]) -> dict[str, dict[str, Any]]:
+def _resolve_accounts(
+    chart: dict[str, Any], mapping: dict[str, Any]
+) -> dict[str, dict[str, Any]]:
     """Resolve every ``(bucket, role)`` target from *chart* + *mapping*, once, up front.
 
     Returns ``{bucket: {role: {"account", "account_name", "account_type", "mva_code",
@@ -501,7 +507,9 @@ def _resolve_accounts(chart: dict[str, Any], mapping: dict[str, Any]) -> dict[st
     plan = _require_mapping(chart, "accounts", "chart-of-accounts")
     role_mva = _require_mapping(mapping, "role_mva_code", "account-mapping")
     role_side = _require_mapping(mapping, "role_balance_side", "account-mapping")
-    overrides = _require_mapping(mapping, "account_mva_overrides", "account-mapping", optional=True)
+    overrides = _require_mapping(
+        mapping, "account_mva_overrides", "account-mapping", optional=True
+    )
 
     resolved: dict[str, dict[str, Any]] = {}
     for bucket in ALL_BUCKETS:
@@ -519,7 +527,13 @@ def _resolve_accounts(chart: dict[str, Any], mapping: dict[str, Any]) -> dict[st
             )
         for role in _SHARED_ROLES:
             targets[role] = _target(
-                shared_accounts.get(role), role, plan, role_mva, role_side, overrides, bucket
+                shared_accounts.get(role),
+                role,
+                plan,
+                role_mva,
+                role_side,
+                overrides,
+                bucket,
             )
         resolved[bucket] = targets
     return resolved
@@ -605,7 +619,9 @@ def _compute_bucket(inputs: dict[str, Any]) -> dict[str, Decimal]:
     # A.7 — a change order the customer has not approved is NOT earned revenue. Strip it from
     # the earning base; it reappears below as `unrecognized`, held out of the P&L.
     gated_base = (
-        expected_revenue - expected_revenue_from_co if co_recognition_gated else expected_revenue
+        expected_revenue - expected_revenue_from_co
+        if co_recognition_gated
+        else expected_revenue
     )
 
     # §4-1 nr. 2 opptjeningsprinsippet — revenue is earned by DELIVERY, not by invoicing or by
@@ -639,7 +655,10 @@ def _compute_bucket(inputs: dict[str, Any]) -> dict[str, Decimal]:
     target_wip = actual_cost - target_recognized_cogs
 
     target_unrecognized = (
-        _quantise(_product(expected_revenue_from_co, delivery_pct, "unrecognized"), "unrecognized")
+        _quantise(
+            _product(expected_revenue_from_co, delivery_pct, "unrecognized"),
+            "unrecognized",
+        )
         if co_recognition_gated
         else _ZERO
     )
@@ -655,7 +674,9 @@ def _compute_bucket(inputs: dict[str, Any]) -> dict[str, Decimal]:
         "actual_invoiced": actual_invoiced,
         # Reference parity: `recognitionBasisPct: deliveryPct * 100`. Not money, so not
         # quantised — it is reported, never posted.
-        "recognition_basis_pct": _product(delivery_pct, Decimal(100), "recognition_basis_pct"),
+        "recognition_basis_pct": _product(
+            delivery_pct, Decimal(100), "recognition_basis_pct"
+        ),
     }
 
 
@@ -672,7 +693,9 @@ def _assert_bucket_identities(bucket: str, amounts: dict[str, Decimal]) -> None:
             f"recognized_cogs + wip = {cost_side} != actual_cost {amounts['actual_cost']}"
         )
     revenue_side = (
-        amounts["actual_invoiced"] + amounts["target_accrued"] - amounts["target_deferred"]
+        amounts["actual_invoiced"]
+        + amounts["target_accrued"]
+        - amounts["target_deferred"]
     )
     if revenue_side != amounts["earned_revenue"]:
         raise ValueError(

@@ -162,9 +162,13 @@ async def seed_warehouse_and_vans(
             f"seed_warehouse_and_vans: 'van_count' must be a non-negative int, got {van_count!r}"
         )
     if van_count < 0:
-        raise ValueError(f"seed_warehouse_and_vans: 'van_count' must be >= 0, got {van_count}")
+        raise ValueError(
+            f"seed_warehouse_and_vans: 'van_count' must be >= 0, got {van_count}"
+        )
 
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
 
     async with scoped_pg_session(engine.pg_pool, ns_uuid) as conn:
         warehouse_id, warehouse_created = await _get_or_create_top_level_location(

@@ -61,7 +61,9 @@ def publisher_prefix() -> str:
     return _validate_prefix(cfg.NCE_D365_PUBLISHER_PREFIX)
 
 
-def prefixed_field(suffix: str, *, lookup: bool = False, prefix: str | None = None) -> str:
+def prefixed_field(
+    suffix: str, *, lookup: bool = False, prefix: str | None = None
+) -> str:
     """Build a publisher-prefixed Dataverse field name.
 
     ``prefixed_field("industry")`` -> ``"<prefix>_industry"``
@@ -158,12 +160,20 @@ def _select_fields() -> dict[str, list[str]]:
             prefixed_field("customerneeds", prefix=p),
             prefixed_field("jobdescription", prefix=p),
             "description",
-            prefixed_field("subject@OData.Community.Display.V1.FormattedValue", prefix=p),
+            prefixed_field(
+                "subject@OData.Community.Display.V1.FormattedValue", prefix=p
+            ),
             "modifiedon",
         ],
         "quotes": ["quoteid", "name", "statecode", "modifiedon"],
         "agreements": ["msdyn_agreementid", "msdyn_name", "modifiedon"],
-        "systemusers": ["systemuserid", "fullname", "isdisabled", "title", "modifiedon"],
+        "systemusers": [
+            "systemuserid",
+            "fullname",
+            "isdisabled",
+            "title",
+            "modifiedon",
+        ],
         "incidents": [
             "incidentid",
             "statecode",
@@ -277,7 +287,9 @@ class SalesD365SyncEngine:
             is_deleted,
         )
 
-    async def _reconcile_deletions(self, entity_name: str, entity_set: str, pk_field: str) -> int:
+    async def _reconcile_deletions(
+        self, entity_name: str, entity_set: str, pk_field: str
+    ) -> int:
         """Reconcile deletions during a full sync by marking missing items as is_deleted = true."""
         active_lower = {
             str(rec.get(pk_field)).lower()
@@ -314,7 +326,9 @@ class SalesD365SyncEngine:
             return len(missing_ids)
         return 0
 
-    async def sync_entity(self, entity_name: str, incremental: bool = True) -> dict[str, Any]:
+    async def sync_entity(
+        self, entity_name: str, incremental: bool = True
+    ) -> dict[str, Any]:
         """Sync a single Dataverse entity into the local database read-model."""
         entity_set = _ENTITY_SETS[entity_name]
         pk_field = _ENTITY_PK_FIELDS[entity_name]
@@ -330,10 +344,19 @@ class SalesD365SyncEngine:
         use_change_tracking = cfg.NCE_D365_CHANGE_TRACKING_ENABLED and incremental
 
         if use_change_tracking:
-            delta_link = watermark if (watermark and watermark.startswith("http")) else None
+            delta_link = (
+                watermark if (watermark and watermark.startswith("http")) else None
+            )
             try:
-                changed_records, removed_ids, new_delta = await self._client.track_changes(
-                    entity_set, select=select, delta_link=delta_link, page_size=self._page_size
+                (
+                    changed_records,
+                    removed_ids,
+                    new_delta,
+                ) = await self._client.track_changes(
+                    entity_set,
+                    select=select,
+                    delta_link=delta_link,
+                    page_size=self._page_size,
                 )
 
                 for rec in changed_records:
@@ -386,11 +409,16 @@ class SalesD365SyncEngine:
             ts = parse_datetime(watermark_ts)
             if ts:
                 ts_skewed = ts - timedelta(seconds=CURSOR_OVERLAP_SECONDS)
-                filter_expr = f"modifiedon gt {ts_skewed.strftime('%Y-%m-%dT%H:%M:%SZ')}"
+                filter_expr = (
+                    f"modifiedon gt {ts_skewed.strftime('%Y-%m-%dT%H:%M:%SZ')}"
+                )
 
         max_modified = None
         async for rec in self._client.paginate(
-            entity_set, select=select, filter_expr=filter_expr, page_size=self._page_size
+            entity_set,
+            select=select,
+            filter_expr=filter_expr,
+            page_size=self._page_size,
         ):
             source_id = rec.get(pk_field)
             if not source_id:
@@ -400,7 +428,9 @@ class SalesD365SyncEngine:
             if mod_on:
                 if max_modified is None or mod_on > max_modified:
                     max_modified = mod_on
-            await self._upsert_record(entity_name, source_id, name, mod_on, rec, is_deleted=False)
+            await self._upsert_record(
+                entity_name, source_id, name, mod_on, rec, is_deleted=False
+            )
             upserted_count += 1
 
         if max_modified:
@@ -408,7 +438,9 @@ class SalesD365SyncEngine:
             await self._save_watermark(entity_name, new_watermark)
 
         if not incremental:
-            deleted_count = await self._reconcile_deletions(entity_name, entity_set, pk_field)
+            deleted_count = await self._reconcile_deletions(
+                entity_name, entity_set, pk_field
+            )
             method = "full_reconcile"
 
         return {
@@ -418,7 +450,9 @@ class SalesD365SyncEngine:
             "method": method,
         }
 
-    async def run_incremental_sync(self, entity_types: list[str] | None = None) -> dict[str, Any]:
+    async def run_incremental_sync(
+        self, entity_types: list[str] | None = None
+    ) -> dict[str, Any]:
         """Perform incremental sync on requested entities."""
         targets = entity_types or list(_ENTITY_SETS.keys())
         results = []
@@ -432,7 +466,9 @@ class SalesD365SyncEngine:
             "results": results,
         }
 
-    async def run_full_sync(self, entity_types: list[str] | None = None) -> dict[str, Any]:
+    async def run_full_sync(
+        self, entity_types: list[str] | None = None
+    ) -> dict[str, Any]:
         """Perform full sync on requested entities, with delete reconciliation."""
         targets = entity_types or list(_ENTITY_SETS.keys())
         results = []

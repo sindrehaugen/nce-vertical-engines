@@ -74,7 +74,9 @@ class NetBoxAssetClient:
     async def fetch_devices(self, limit: int | None = None) -> list[dict[str, Any]]:
         """Paginate and return NetBox devices."""
         results: list[dict[str, Any]] = []
-        next_url: str | None = f"{self._base}/api/dcim/devices/?limit={self._page_size}&offset=0"
+        next_url: str | None = (
+            f"{self._base}/api/dcim/devices/?limit={self._page_size}&offset=0"
+        )
 
         async with httpx.AsyncClient(timeout=30.0) as client:
             while next_url:
@@ -159,7 +161,9 @@ async def do_sync_netbox(engine: Any, params: dict[str, Any]) -> dict[str, Any]:
     netbox_token = getattr(cfg, "NCE_NETBOX_TOKEN", "").strip()
 
     if not netbox_url or not netbox_token:
-        log.warning("assets_sync_netbox: NetBox URL or token not configured; sync skipped")
+        log.warning(
+            "assets_sync_netbox: NetBox URL or token not configured; sync skipped"
+        )
         return {
             "ok": True,
             "synced": False,
@@ -295,7 +299,9 @@ async def do_sync_netbox(engine: Any, params: dict[str, Any]) -> dict[str, Any]:
             device_label = f"NetBoxDevice:{dev_id}"
 
             # Bidirectional graph edges
-            edges_to_write.append((asset_label, _PRED_MAPS_TO, device_label, match_confidence))
+            edges_to_write.append(
+                (asset_label, _PRED_MAPS_TO, device_label, match_confidence)
+            )
             edges_to_write.append(
                 (device_label, _PRED_MAPPED_TO_ASSET, asset_label, match_confidence)
             )

@@ -23,7 +23,9 @@ log = logging.getLogger("nce_verticals.sales.write_routing")
 _SALES_ENGINE: str = "sales"
 
 
-async def do_create_customer(engine: NCEEngine, params: dict[str, Any]) -> dict[str, Any]:
+async def do_create_customer(
+    engine: NCEEngine, params: dict[str, Any]
+) -> dict[str, Any]:
     """Create a customer using write routing.
 
     Mode:

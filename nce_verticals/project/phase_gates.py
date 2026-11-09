@@ -41,7 +41,7 @@ from typing import Any
 # Config loader
 # ---------------------------------------------------------------------------
 
-_CONFIG_DATA_DIR = Path(__file__).parents[3] / "nce" / "config_data"
+_CONFIG_DATA_DIR = Path(__file__).resolve().parents[1] / "config_data"
 
 
 def load_gate_config() -> dict[str, Any]:
@@ -72,7 +72,9 @@ def _validate_gate_config(config: dict[str, Any]) -> None:
     """Raise KeyError if required top-level keys are absent."""
     for key in ("VALID_PHASE_TRANSITIONS", "GATE_CRITERIA"):
         if key not in config:
-            raise KeyError(f"project-gate-criteria.json is missing required key '{key}'")
+            raise KeyError(
+                f"project-gate-criteria.json is missing required key '{key}'"
+            )
 
 
 # ---------------------------------------------------------------------------

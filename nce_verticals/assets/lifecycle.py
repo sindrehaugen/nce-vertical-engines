@@ -68,7 +68,7 @@ from typing import Any
 # (no config class), mirrors project/phase_gates.py's load_gate_config().
 # ---------------------------------------------------------------------------
 
-_CONFIG_DATA_DIR = Path(__file__).parents[3] / "nce" / "config_data"
+_CONFIG_DATA_DIR = Path(__file__).resolve().parents[1] / "config_data"
 _CONFIG_FILENAME = "asset-lifecycle.json"
 
 _REQUIRED_CONFIG_KEYS: tuple[str, ...] = (
@@ -202,7 +202,9 @@ def advance(
     warranty_set = False
     warranty_until = existing_warranty_until
     if target_state in warranty_states and warranty_months is not None:
-        effective_today = today if today is not None else datetime.now(timezone.utc).date()
+        effective_today = (
+            today if today is not None else datetime.now(timezone.utc).date()
+        )
         warranty_until = _add_months(effective_today, warranty_months).isoformat()
         warranty_set = True
 

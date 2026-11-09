@@ -125,7 +125,9 @@ async def upsert_po_node(
         for retirement tracking). COALESCE on conflict so a later untagged write
         never clears an existing tag.
     """
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
 
     await assert_owner(conn, ns_uuid, _NODE_TYPE_PO, _PROCUREMENT_ENGINE)
 
@@ -191,7 +193,9 @@ async def upsert_procurement_match_node(
     source_id:
         Optional procurement source record ID for retirement tracking.
     """
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
 
     await assert_owner(conn, ns_uuid, _NODE_TYPE_MATCH, _PROCUREMENT_ENGINE)
 
@@ -269,7 +273,9 @@ async def upsert_offers_edge(
     source_id:
         Optional procurement source record ID for retirement tracking.
     """
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
 
     subject = _vendor_label(vendor_id)
     obj = _sku_label(manufacturer, mfr_part_no)
@@ -333,7 +339,9 @@ async def upsert_matched_by_edge(
     source_id:
         Optional procurement source record ID for retirement tracking.
     """
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
 
     subject = _po_label(po_number)
     obj = _procurement_match_label(match_id)

@@ -194,7 +194,11 @@ async def do_recall_similar_jobs(
         c_id = (
             tlx.get("contractor_id")
             or meta.get("contractor_id")
-            or (row["name"] if row["name"] and row["name"].startswith("CONTRACTOR:") else None)
+            or (
+                row["name"]
+                if row["name"] and row["name"].startswith("CONTRACTOR:")
+                else None
+            )
         )
         wo_id = tlx.get("work_order_id") or meta.get("work_order_id")
 
@@ -210,7 +214,9 @@ async def do_recall_similar_jobs(
                 "work_order_id": wo_id,
                 "description": desc,
                 "rating": rating,
-                "similarity": float(row["similarity"]) if row["similarity"] is not None else 0.0,
+                "similarity": float(row["similarity"])
+                if row["similarity"] is not None
+                else 0.0,
             }
         )
 

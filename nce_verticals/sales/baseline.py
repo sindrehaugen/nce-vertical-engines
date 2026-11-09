@@ -75,7 +75,9 @@ async def do_freeze_baseline(
                 try:
                     signed_at_dt = datetime.datetime.fromisoformat(str(signed_at_val))
                 except ValueError as exc:
-                    raise ValueError(f"signed_at must be an ISO-8601 string or datetime: {exc}")
+                    raise ValueError(
+                        f"signed_at must be an ISO-8601 string or datetime: {exc}"
+                    )
         else:
             signed_at_dt = datetime.datetime.now(datetime.timezone.utc)
 
@@ -91,7 +93,11 @@ async def do_freeze_baseline(
     else:
         # Signature 2: do_freeze_baseline(conn, namespace_id, *, quote_id, ...)
         conn = engine_or_conn
-        ns_uuid = UUID(str(params_or_ns)) if not isinstance(params_or_ns, UUID) else params_or_ns
+        ns_uuid = (
+            UUID(str(params_or_ns))
+            if not isinstance(params_or_ns, UUID)
+            else params_or_ns
+        )
 
         if not quote_id:
             raise ValueError("quote_id is required")
@@ -137,7 +143,9 @@ async def _do_freeze_baseline_direct(
         quote_id,
     )
     if existing:
-        log.info("Quote baseline for %s already frozen (id: %s)", quote_id, existing["id"])
+        log.info(
+            "Quote baseline for %s already frozen (id: %s)", quote_id, existing["id"]
+        )
         return {
             "ok": True,
             "status": "already_frozen",

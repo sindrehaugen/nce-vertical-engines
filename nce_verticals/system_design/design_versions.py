@@ -122,7 +122,9 @@ def validate_room_spec(spec: dict[str, Any]) -> dict[str, Any]:
       - notes (str)
     """
     if not isinstance(spec, dict):
-        raise InvalidRoomSpecError(f"room_spec must be a dictionary, got {type(spec).__name__}")
+        raise InvalidRoomSpecError(
+            f"room_spec must be a dictionary, got {type(spec).__name__}"
+        )
 
     cleaned: dict[str, Any] = {}
     float_keys = (
@@ -142,7 +144,9 @@ def validate_room_spec(spec: dict[str, Any]) -> dict[str, Any]:
                     raise ValueError(f"{k} must be non-negative")
                 cleaned[k] = val
             except (ValueError, TypeError) as exc:
-                raise InvalidRoomSpecError(f"Invalid numeric value for {k}: {exc}") from exc
+                raise InvalidRoomSpecError(
+                    f"Invalid numeric value for {k}: {exc}"
+                ) from exc
 
     if "seating_capacity" in spec and spec["seating_capacity"] is not None:
         try:
@@ -210,12 +214,16 @@ async def create_design(
     if not name or not str(name).strip():
         raise InvalidDesignError("name is required and cannot be empty")
     if not functional_location_id or not str(functional_location_id).strip():
-        raise InvalidDesignError("functional_location_id is required and cannot be empty")
+        raise InvalidDesignError(
+            "functional_location_id is required and cannot be empty"
+        )
 
     raw_id = clean_design_id(design_id)
     design_lbl = canonical_design_label(raw_id)
     fl_lbl = normalize_fl_identifier(functional_location_id)
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
     ns_str = str(ns_uuid)
 
     validated_room_spec = validate_room_spec(room_spec) if room_spec else {}
@@ -353,7 +361,9 @@ async def get_design(
     """Fetch a single DESIGN by its ID or label."""
     raw_id = clean_design_id(design_id)
     design_lbl = canonical_design_label(raw_id)
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
     ns_str = str(ns_uuid)
 
     if conn is not None:
@@ -369,9 +379,15 @@ async def get_design(
             design_lbl,
         )
         if row is None:
-            raise DesignNotFoundError(f"Design {raw_id!r} not found in namespace {ns_str}")
+            raise DesignNotFoundError(
+                f"Design {raw_id!r} not found in namespace {ns_str}"
+            )
 
-        meta = row["meta"] if isinstance(row["meta"], dict) else json.loads(row["meta"] or "{}")
+        meta = (
+            row["meta"]
+            if isinstance(row["meta"], dict)
+            else json.loads(row["meta"] or "{}")
+        )
         created_at_iso = (
             row["created_at"].isoformat()
             if hasattr(row["created_at"], "isoformat")
@@ -415,9 +431,15 @@ async def list_designs(
     offset: int = 0,
 ) -> list[dict[str, Any]]:
     """List designs with optional filtering by functional location, active status, and search query."""
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
     ns_str = str(ns_uuid)
-    fl_lbl = normalize_fl_identifier(functional_location_id) if functional_location_id else None
+    fl_lbl = (
+        normalize_fl_identifier(functional_location_id)
+        if functional_location_id
+        else None
+    )
 
     if conn is not None:
         clauses = [
@@ -459,7 +481,11 @@ async def list_designs(
         for row in rows:
             lbl = row["node_label"]
             raw_id = clean_design_id(lbl)
-            meta = row["meta"] if isinstance(row["meta"], dict) else json.loads(row["meta"] or "{}")
+            meta = (
+                row["meta"]
+                if isinstance(row["meta"], dict)
+                else json.loads(row["meta"] or "{}")
+            )
             created_at_iso = (
                 row["created_at"].isoformat()
                 if hasattr(row["created_at"], "isoformat")
@@ -499,7 +525,10 @@ async def list_designs(
             continue
         if query:
             q_lower = query.lower()
-            if q_lower not in d.get("name", "").lower() and q_lower not in d.get("id", "").lower():
+            if (
+                q_lower not in d.get("name", "").lower()
+                and q_lower not in d.get("id", "").lower()
+            ):
                 continue
         results.append(dict(d))
 
@@ -521,15 +550,25 @@ async def update_design(
     raw_id = existing["id"]
     design_lbl = existing["label"]
     fl_lbl = existing["functional_location_id"]
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
     ns_str = str(ns_uuid)
 
-    updated_name = name.strip() if name is not None and str(name).strip() else existing["name"]
-    updated_revision = revision.strip() if revision is not None else existing.get("revision")
-    updated_room_spec = (
-        validate_room_spec(room_spec) if room_spec is not None else existing.get("room_spec", {})
+    updated_name = (
+        name.strip() if name is not None and str(name).strip() else existing["name"]
     )
-    updated_metadata = metadata if metadata is not None else existing.get("metadata", {})
+    updated_revision = (
+        revision.strip() if revision is not None else existing.get("revision")
+    )
+    updated_room_spec = (
+        validate_room_spec(room_spec)
+        if room_spec is not None
+        else existing.get("room_spec", {})
+    )
+    updated_metadata = (
+        metadata if metadata is not None else existing.get("metadata", {})
+    )
     updated_is_active = (
         bool(is_active) if is_active is not None else existing.get("is_active", False)
     )
@@ -620,7 +659,9 @@ async def set_active_design(
     raw_id = existing["id"]
     design_lbl = existing["label"]
     fl_lbl = existing["functional_location_id"]
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
     ns_str = str(ns_uuid)
 
     if conn is not None:

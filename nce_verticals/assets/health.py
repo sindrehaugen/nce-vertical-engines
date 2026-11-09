@@ -137,7 +137,9 @@ def compute_asset_health(
     predictive_thresh = float(
         thresholds.get("predictive_failure_threshold", _DEFAULT_PREDICTIVE_THRESHOLD)
     )
-    lifespan_days = float(defaults.get("expected_lifespan_days", _DEFAULT_LIFESPAN_DAYS))
+    lifespan_days = float(
+        defaults.get("expected_lifespan_days", _DEFAULT_LIFESPAN_DAYS)
+    )
 
     ref_now = now or datetime.now(timezone.utc)
     if created_at.tzinfo is None:
@@ -318,9 +320,13 @@ def compute_asset_health(
         },
         "input_scores": {
             "age_score": round(age_score, 2),
-            "telemetry_score": round(telemetry_score, 2) if telemetry_score is not None else None,
+            "telemetry_score": round(telemetry_score, 2)
+            if telemetry_score is not None
+            else None,
             "mtbf_score": round(mtbf_score, 2) if mtbf_score is not None else None,
-            "ticket_score": round(ticket_score, 2) if ticket_score is not None else None,
+            "ticket_score": round(ticket_score, 2)
+            if ticket_score is not None
+            else None,
         },
         "lifecycle_state": current_state,
         "new_lifecycle_state": new_lifecycle_state,
@@ -338,7 +344,9 @@ def compute_asset_health(
 # ---------------------------------------------------------------------------
 
 
-async def do_compute_health(engine: NCEEngine, params: dict[str, Any]) -> dict[str, Any]:
+async def do_compute_health(
+    engine: NCEEngine, params: dict[str, Any]
+) -> dict[str, Any]:
     """Compute and persist health score for an asset (Module 9, Phase 2 — B3).
 
     Fuses latest telemetry + NetBox MTBF + open tickets + age.
@@ -400,7 +408,9 @@ async def do_compute_health(engine: NCEEngine, params: dict[str, Any]) -> dict[s
                 "metric": r["metric"],
                 "value": r["value"],
                 "sampled_at": r["sampled_at"],
-                "raw": json.loads(r["raw"]) if isinstance(r["raw"], str) else (r["raw"] or {}),
+                "raw": json.loads(r["raw"])
+                if isinstance(r["raw"], str)
+                else (r["raw"] or {}),
             }
             for r in samples_rows
         ]
@@ -426,7 +436,9 @@ async def do_compute_health(engine: NCEEngine, params: dict[str, Any]) -> dict[s
 
         # 4. Optional NetBox MTBF failure probability
         mtbf_prob_fail = (
-            float(params["mtbf_prob_fail"]) if params.get("mtbf_prob_fail") is not None else None
+            float(params["mtbf_prob_fail"])
+            if params.get("mtbf_prob_fail") is not None
+            else None
         )
 
         # 5. Compute health
@@ -488,7 +500,9 @@ async def do_compute_health(engine: NCEEngine, params: dict[str, Any]) -> dict[s
                 _MODEL_VERSION,
             )
         except Exception as exc:
-            log.debug("Failed appending health computation to v3_cognitive_ledger: %s", exc)
+            log.debug(
+                "Failed appending health computation to v3_cognitive_ledger: %s", exc
+            )
 
     return {
         "ok": True,

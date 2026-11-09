@@ -35,7 +35,9 @@ async def do_partner_view(
         raise ValueError("namespace_id is required")
     ns_uuid = UUID(str(ns_raw)) if not isinstance(ns_raw, UUID) else ns_raw
 
-    node_id = params.get("node_id") or params.get("contractor_id") or params.get("vendor_id")
+    node_id = (
+        params.get("node_id") or params.get("contractor_id") or params.get("vendor_id")
+    )
     if not node_id:
         raise ValueError("node_id is required")
     node_id_str = str(node_id).strip()
@@ -116,11 +118,17 @@ async def do_partner_view(
         if row["payload_ref"] and engine.mongo_client:
             try:
                 async with scoped_mongo_session(engine.mongo_client, ns_uuid) as db:
-                    doc = await db.episodes.find_one({"_id": ObjectId(row["payload_ref"])})
+                    doc = await db.episodes.find_one(
+                        {"_id": ObjectId(row["payload_ref"])}
+                    )
                     if doc:
                         mongo_doc = doc
             except Exception as e:
-                log.warning("Failed to fetch MongoDB payload for ref %s: %s", row["payload_ref"], e)
+                log.warning(
+                    "Failed to fetch MongoDB payload for ref %s: %s",
+                    row["payload_ref"],
+                    e,
+                )
 
         # Merge MongoDB fields
         if "merged_fields" in mongo_doc:

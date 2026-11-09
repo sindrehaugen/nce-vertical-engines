@@ -311,7 +311,10 @@ def evaluate_signal_distribution(params: dict[str, Any]) -> dict[str, Any]:
     if norm["wants_charging"]:
         if not role_info.get("supports_charging", False):
             power_status = "unsupported"
-        elif norm["laptop_watt"] > 85.0 and primary_role in ("USBC_DIRECT", "USBC_ACTIVE_EXTENDER"):
+        elif norm["laptop_watt"] > 85.0 and primary_role in (
+            "USBC_DIRECT",
+            "USBC_ACTIVE_EXTENDER",
+        ):
             power_status = "warning_high_wattage"
 
     return {
@@ -331,7 +334,13 @@ def do_get_signal_rules(engine: Any, params: dict[str, Any]) -> dict[str, Any]:
     """Public core: return curated signal distribution rules and roles, or evaluate when inputs provided."""
     if params and any(
         k in params
-        for k in ("containment", "distance_m", "altmode", "wants_wireless", "wants_charging")
+        for k in (
+            "containment",
+            "distance_m",
+            "altmode",
+            "wants_wireless",
+            "wants_charging",
+        )
     ):
         return evaluate_signal_distribution(params)
     return {

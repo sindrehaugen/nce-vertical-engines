@@ -148,7 +148,9 @@ async def _read_economy_gl_rows(
         )
 
     if isinstance(payload, dict) and "error" in payload:
-        raise NotImplementedError(f"economy_get_gl_records returned error: {payload['error']}")
+        raise NotImplementedError(
+            f"economy_get_gl_records returned error: {payload['error']}"
+        )
 
     records = payload.get("records") if isinstance(payload, dict) else payload
     if not isinstance(records, list):
@@ -330,7 +332,9 @@ def _expiry_review_flags(
                     "flag_type": "expiry",
                     "detail": f"Agreement validTo={ag['valid_to']} is in the past",
                     "gl_supplier_node_id": None,
-                    "agreement_supplier_node_id": str(ag_vendor_node) if ag_vendor_node else None,
+                    "agreement_supplier_node_id": str(ag_vendor_node)
+                    if ag_vendor_node
+                    else None,
                 }
             )
 
@@ -341,7 +345,9 @@ def _expiry_review_flags(
                     "flag_type": "review",
                     "detail": f"Agreement review_status={ag['review_status']}",
                     "gl_supplier_node_id": None,
-                    "agreement_supplier_node_id": str(ag_vendor_node) if ag_vendor_node else None,
+                    "agreement_supplier_node_id": str(ag_vendor_node)
+                    if ag_vendor_node
+                    else None,
                 }
             )
     return flags
@@ -414,7 +420,9 @@ async def _leakage_flags(
                                 f"{gl_row.get('gl_date')}"
                             ),
                             "gl_supplier_node_id": str(gl_node_id),
-                            "agreement_supplier_node_id": str(agreement_vendor_nodes[ag_id_str])
+                            "agreement_supplier_node_id": str(
+                                agreement_vendor_nodes[ag_id_str]
+                            )
                             if agreement_vendor_nodes[ag_id_str]
                             else None,
                         }
@@ -528,7 +536,9 @@ async def do_coverage_matrix(
         # Leakage flags (require GL rows).
         if gl_available:
             flags.extend(
-                await _leakage_flags(conn, ns_uuid, agreements, agreement_vendor_nodes, gl_rows)
+                await _leakage_flags(
+                    conn, ns_uuid, agreements, agreement_vendor_nodes, gl_rows
+                )
             )
 
     return {

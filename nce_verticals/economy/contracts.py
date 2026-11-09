@@ -195,7 +195,9 @@ def _quantise(value: Decimal, where: str) -> Decimal:
     try:
         return value.quantize(_ORE, rounding=ROUND_HALF_UP)
     except DecimalException as exc:
-        raise ValueError(f"{where}: amount is too large to express in øre: {value!r}") from exc
+        raise ValueError(
+            f"{where}: amount is too large to express in øre: {value!r}"
+        ) from exc
 
 
 def _quantise_cpi_cap(value: Decimal, where: str) -> Decimal:
@@ -218,7 +220,9 @@ def _quantise_cpi_cap(value: Decimal, where: str) -> Decimal:
     try:
         return value.quantize(_CPI_CAP_SCALE, rounding=ROUND_HALF_UP)
     except DecimalException as exc:
-        raise ValueError(f"{where}: value is too large to express to 4dp: {value!r}") from exc
+        raise ValueError(
+            f"{where}: value is too large to express to 4dp: {value!r}"
+        ) from exc
 
 
 def _as_money(value: Any, where: str) -> Decimal:
@@ -304,10 +308,14 @@ def _parse_period(value: Any, where: str) -> str:
     wants — it only stores/forwards the string.
     """
     if not isinstance(value, str):
-        raise ValueError(f"{where}: expected a 'YYYY-MM' string, got {type(value).__name__}")
+        raise ValueError(
+            f"{where}: expected a 'YYYY-MM' string, got {type(value).__name__}"
+        )
     match = _PERIOD_RE.fullmatch(value.strip())
     if match is None:
-        raise ValueError(f"{where}: expected 'YYYY-MM' (zero-padded month), got {value!r}")
+        raise ValueError(
+            f"{where}: expected 'YYYY-MM' (zero-padded month), got {value!r}"
+        )
     return f"{match.group(1)}-{match.group(2)}"
 
 
@@ -327,8 +335,12 @@ def _as_date(value: Any, where: str) -> date:
         try:
             return date.fromisoformat(value.strip())
         except ValueError as exc:
-            raise ValueError(f"{where}: expected an ISO 'YYYY-MM-DD' date, got {value!r}") from exc
-    raise ValueError(f"{where}: expected a date/datetime/ISO string, got {type(value).__name__}")
+            raise ValueError(
+                f"{where}: expected an ISO 'YYYY-MM-DD' date, got {value!r}"
+            ) from exc
+    raise ValueError(
+        f"{where}: expected a date/datetime/ISO string, got {type(value).__name__}"
+    )
 
 
 def _as_contract_id(raw: Any, where: str) -> str:
@@ -378,7 +390,9 @@ def _is_due_for_renewal(next_renewal_date: date, as_of: date, window_days: int) 
 # ---------------------------------------------------------------------------
 
 
-async def do_upsert_contract(engine: NCEEngine, params: dict[str, Any]) -> dict[str, Any]:
+async def do_upsert_contract(
+    engine: NCEEngine, params: dict[str, Any]
+) -> dict[str, Any]:
     """
     Create or update one contract's ``economy_contracts`` row.
 
@@ -435,7 +449,9 @@ async def do_upsert_contract(engine: NCEEngine, params: dict[str, Any]) -> dict[
 
     annual_amount = _as_money(params.get("annual_amount"), "annual_amount")
     if annual_amount <= _ZERO:
-        raise ValueError(f"do_upsert_contract: 'annual_amount' must be > 0, got {annual_amount}")
+        raise ValueError(
+            f"do_upsert_contract: 'annual_amount' must be > 0, got {annual_amount}"
+        )
 
     start_period = _parse_period(params.get("start_period"), "start_period")
     next_renewal_date = _as_date(params.get("next_renewal_date"), "next_renewal_date")
@@ -595,7 +611,9 @@ async def fetch_contracts_for_recognition(
     ]
 
 
-async def do_validate_contract(engine: NCEEngine, params: dict[str, Any]) -> dict[str, Any]:
+async def do_validate_contract(
+    engine: NCEEngine, params: dict[str, Any]
+) -> dict[str, Any]:
     """
     Validate a PROPOSED CPI uplift for one contract's renewal against that
     contract's own ``cpi_cap`` (the contract-validator).
@@ -785,7 +803,11 @@ async def do_scan_renewals(engine: NCEEngine, params: dict[str, Any]) -> dict[st
     as_of = _as_date(raw_as_of, "as_of_date")
 
     window_days = params.get("window_days", _DEFAULT_RENEWAL_WINDOW_DAYS)
-    if not isinstance(window_days, int) or isinstance(window_days, bool) or window_days <= 0:
+    if (
+        not isinstance(window_days, int)
+        or isinstance(window_days, bool)
+        or window_days <= 0
+    ):
         raise ValueError(
             f"do_scan_renewals: 'window_days' must be a positive int, got {window_days!r}"
         )

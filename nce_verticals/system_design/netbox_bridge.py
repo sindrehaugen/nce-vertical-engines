@@ -187,7 +187,9 @@ class _NetBoxClient:
 
     async def create_site(self, name: str, slug: str) -> dict[str, Any]:
         """Create a NetBox site and return the created object."""
-        return await self._post(_NB_SITES_PATH, {"name": name, "slug": slug, "status": "active"})
+        return await self._post(
+            _NB_SITES_PATH, {"name": name, "slug": slug, "status": "active"}
+        )
 
     async def create_location(
         self,
@@ -343,7 +345,9 @@ class SystemDesignNetBoxBridge:
         existing_sites = await self._nb.fetch_sites()
         existing_locs = await self._nb.fetch_locations()
 
-        site_by_norm: dict[str, dict[str, Any]] = {_normalize(s["name"]): s for s in existing_sites}
+        site_by_norm: dict[str, dict[str, Any]] = {
+            _normalize(s["name"]): s for s in existing_sites
+        }
         loc_by_norm_site: dict[tuple[str, int], dict[str, Any]] = {
             (_normalize(loc["name"]), (loc.get("site") or {}).get("id", -1)): loc
             for loc in existing_locs
@@ -356,7 +360,11 @@ class SystemDesignNetBoxBridge:
             try:
                 nb_site = await self._nb.create_site(site_name, slug)
                 result.sites_created += 1
-                log.info("[SD-NB-BRIDGE] created NetBox site name=%r slug=%r", site_name, slug)
+                log.info(
+                    "[SD-NB-BRIDGE] created NetBox site name=%r slug=%r",
+                    site_name,
+                    slug,
+                )
             except Exception as exc:
                 msg = f"Failed to create site {site_name!r}: {exc}"
                 log.warning("[SD-NB-BRIDGE] %s", msg)
@@ -364,7 +372,11 @@ class SystemDesignNetBoxBridge:
                 return result
         else:
             result.sites_reused += 1
-            log.debug("[SD-NB-BRIDGE] reused NetBox site name=%r id=%d", site_name, nb_site["id"])
+            log.debug(
+                "[SD-NB-BRIDGE] reused NetBox site name=%r id=%d",
+                site_name,
+                nb_site["id"],
+            )
 
         nb_site_id: int = nb_site["id"]
         site_fl_label = _fl_label(self._slug, site_name)
@@ -385,7 +397,9 @@ class SystemDesignNetBoxBridge:
                     loc_by_norm_site[(_normalize(bld_name), nb_site_id)] = nb_bld
                     log.info("[SD-NB-BRIDGE] created location building=%r", bld_name)
                 except Exception as exc:
-                    result.errors.append(f"Failed to create building {bld_name!r}: {exc}")
+                    result.errors.append(
+                        f"Failed to create building {bld_name!r}: {exc}"
+                    )
                     continue
             else:
                 result.locations_reused += 1
@@ -393,7 +407,12 @@ class SystemDesignNetBoxBridge:
             nb_bld_id: int = nb_bld["id"]
             bld_fl_label = _fl_label(self._slug, site_name, bld_name)
             edges.append(
-                (bld_fl_label, _PRED_SYNC_TO_NB, f"NetBoxLocation:{nb_bld_id}", _CONF_STRUCTURAL)
+                (
+                    bld_fl_label,
+                    _PRED_SYNC_TO_NB,
+                    f"NetBoxLocation:{nb_bld_id}",
+                    _CONF_STRUCTURAL,
+                )
             )
 
             for floor in building.get("floors", []):
@@ -402,13 +421,18 @@ class SystemDesignNetBoxBridge:
                 if nb_flr is None:
                     try:
                         nb_flr = await self._nb.create_location(
-                            flr_name, _slugify(flr_name), nb_site_id, parent_id=nb_bld_id
+                            flr_name,
+                            _slugify(flr_name),
+                            nb_site_id,
+                            parent_id=nb_bld_id,
                         )
                         result.locations_created += 1
                         loc_by_norm_site[(_normalize(flr_name), nb_site_id)] = nb_flr
                         log.info("[SD-NB-BRIDGE] created location floor=%r", flr_name)
                     except Exception as exc:
-                        result.errors.append(f"Failed to create floor {flr_name!r}: {exc}")
+                        result.errors.append(
+                            f"Failed to create floor {flr_name!r}: {exc}"
+                        )
                         continue
                 else:
                     result.locations_reused += 1
@@ -436,16 +460,24 @@ class SystemDesignNetBoxBridge:
                                 parent_id=nb_flr_id,
                             )
                             result.locations_created += 1
-                            loc_by_norm_site[(_normalize(room_name), nb_site_id)] = nb_room
-                            log.info("[SD-NB-BRIDGE] created location room=%r", room_name)
+                            loc_by_norm_site[(_normalize(room_name), nb_site_id)] = (
+                                nb_room
+                            )
+                            log.info(
+                                "[SD-NB-BRIDGE] created location room=%r", room_name
+                            )
                         except Exception as exc:
-                            result.errors.append(f"Failed to create room {room_name!r}: {exc}")
+                            result.errors.append(
+                                f"Failed to create room {room_name!r}: {exc}"
+                            )
                             continue
                     else:
                         result.locations_reused += 1
 
                     nb_room_id: int = nb_room["id"]
-                    room_fl_label = _fl_label(self._slug, site_name, bld_name, flr_name, room_name)
+                    room_fl_label = _fl_label(
+                        self._slug, site_name, bld_name, flr_name, room_name
+                    )
                     edges.append(
                         (
                             room_fl_label,
@@ -456,7 +488,9 @@ class SystemDesignNetBoxBridge:
                     )
 
                     for pos_name in room.get("positions", []):
-                        nb_pos = loc_by_norm_site.get((_normalize(pos_name), nb_site_id))
+                        nb_pos = loc_by_norm_site.get(
+                            (_normalize(pos_name), nb_site_id)
+                        )
                         if nb_pos is None:
                             try:
                                 nb_pos = await self._nb.create_location(
@@ -466,8 +500,13 @@ class SystemDesignNetBoxBridge:
                                     parent_id=nb_room_id,
                                 )
                                 result.locations_created += 1
-                                loc_by_norm_site[(_normalize(pos_name), nb_site_id)] = nb_pos
-                                log.info("[SD-NB-BRIDGE] created location position=%r", pos_name)
+                                loc_by_norm_site[(_normalize(pos_name), nb_site_id)] = (
+                                    nb_pos
+                                )
+                                log.info(
+                                    "[SD-NB-BRIDGE] created location position=%r",
+                                    pos_name,
+                                )
                             except Exception as exc:
                                 result.errors.append(
                                     f"Failed to create position {pos_name!r}: {exc}"
@@ -477,7 +516,12 @@ class SystemDesignNetBoxBridge:
                             result.locations_reused += 1
 
                         pos_fl_label = _fl_label(
-                            self._slug, site_name, bld_name, flr_name, room_name, pos_name
+                            self._slug,
+                            site_name,
+                            bld_name,
+                            flr_name,
+                            room_name,
+                            pos_name,
                         )
                         nb_pos_id: int = nb_pos["id"]
                         edges.append(
@@ -558,17 +602,25 @@ class SystemDesignNetBoxBridge:
                 continue
 
             asbuilt_label = _asbuilt_label(intent_label)
-            diverged = _normalize(asbuilt_name) != _normalize(intent_name) and bool(asbuilt_name)
+            diverged = _normalize(asbuilt_name) != _normalize(intent_name) and bool(
+                asbuilt_name
+            )
             status = ReconcileStatus.DIVERGED if diverged else ReconcileStatus.PROMOTED
 
             # promoted_to_asbuilt: intent → as-built (always written on confirmation)
-            edges.append((intent_label, _PRED_PROMOTED, asbuilt_label, _CONF_STRUCTURAL))
+            edges.append(
+                (intent_label, _PRED_PROMOTED, asbuilt_label, _CONF_STRUCTURAL)
+            )
             # as_built_confirms: as-built → intent (reverse link)
-            edges.append((asbuilt_label, _PRED_CONFIRMS, intent_label, _CONF_STRUCTURAL))
+            edges.append(
+                (asbuilt_label, _PRED_CONFIRMS, intent_label, _CONF_STRUCTURAL)
+            )
 
             if diverged:
                 # has_divergence: intent → as-built with reduced confidence
-                edges.append((intent_label, _PRED_DIVERGENCE, asbuilt_label, _CONF_DIVERGED))
+                edges.append(
+                    (intent_label, _PRED_DIVERGENCE, asbuilt_label, _CONF_DIVERGED)
+                )
                 result.diverged += 1
                 log.warning(
                     "[SD-NB-BRIDGE] divergence: intent=%r asbuilt=%r ns=%s",
@@ -578,7 +630,9 @@ class SystemDesignNetBoxBridge:
                 )
             else:
                 result.promoted += 1
-                log.info("[SD-NB-BRIDGE] promoted: label=%r ns=%s", intent_label, self._ns)
+                log.info(
+                    "[SD-NB-BRIDGE] promoted: label=%r ns=%s", intent_label, self._ns
+                )
 
             _ = status  # used above for branching; kept for explicit named enum
 
@@ -673,7 +727,8 @@ def build_bridge(
         )
     if not token:
         raise DeploymentConfigurationError(
-            "NCE_NETBOX_TOKEN", "NetBox token is not configured (NCE_NETBOX_TOKEN is empty)"
+            "NCE_NETBOX_TOKEN",
+            "NetBox token is not configured (NCE_NETBOX_TOKEN is empty)",
         )
 
     nb_client = _NetBoxClient(url, token, page_size=page_size)

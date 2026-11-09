@@ -260,7 +260,9 @@ _MAX_LOOKBACK_DAYS = 36_525
 _LOCATION_SCOPED_DEPLETION_CATEGORIES: frozenset[str] = frozenset(
     {"consumption", "adjustment", "transfer_out"}
 )
-_NAMESPACE_WIDE_DEPLETION_CATEGORIES: frozenset[str] = frozenset({"consumption", "adjustment"})
+_NAMESPACE_WIDE_DEPLETION_CATEGORIES: frozenset[str] = frozenset(
+    {"consumption", "adjustment"}
+)
 
 
 def _depletion_categories_for_scope(location_id: UUID | None) -> frozenset[str]:
@@ -319,7 +321,9 @@ def _quantise_qty(value: Decimal, where: str) -> Decimal:
     try:
         return value.quantize(_QTY_SCALE, rounding=ROUND_HALF_UP)
     except DecimalException as exc:
-        raise ValueError(f"{where}: quantity is too large to express to 3dp: {value!r}") from exc
+        raise ValueError(
+            f"{where}: quantity is too large to express to 3dp: {value!r}"
+        ) from exc
 
 
 def _as_ns_uuid(raw: Any, field: str) -> UUID:
@@ -358,7 +362,7 @@ def _as_optional_sku(raw: Any) -> str | None:
 # transactions.py's load_inventory_valuation_config().
 # ---------------------------------------------------------------------------
 
-_CONFIG_DATA_DIR = Path(__file__).parents[3] / "nce" / "config_data"
+_CONFIG_DATA_DIR = Path(__file__).resolve().parents[1] / "config_data"
 _REORDER_POINTS_CONFIG_FILENAME = "inventory-reorder-points.json"
 
 
@@ -438,7 +442,9 @@ def _parse_reorder_points(raw: Mapping[str, Any]) -> dict[str, Decimal]:
     ``{sku: Decimal}``, quantised to the ledger's own 3dp scale."""
     return {
         str(sku): _quantise_qty(
-            _as_decimal(value, f"inventory-reorder-points.json.reorder_points[{sku!r}]"),
+            _as_decimal(
+                value, f"inventory-reorder-points.json.reorder_points[{sku!r}]"
+            ),
             f"inventory-reorder-points.json.reorder_points[{sku!r}]",
         )
         for sku, value in raw.items()
@@ -636,7 +642,9 @@ def _build_recommendation(
         for row in metrics.velocity_rows
     ]
     row_citations = (
-        ", ".join(f"{r['id']}[{r['reason_category']}:{r['delta']}]" for r in ledger_rows_out)
+        ", ".join(
+            f"{r['id']}[{r['reason_category']}:{r['delta']}]" for r in ledger_rows_out
+        )
         or "no depleting rows in the lookback window"
     )
 
@@ -783,7 +791,9 @@ async def do_recommend_restock(
         )
 
         demand_qty = await work_order_demand(engine, ns_uuid, sku, location_id)
-        demand_qty = _quantise_qty(_as_decimal(demand_qty, "work_order_demand"), "demand_qty")
+        demand_qty = _quantise_qty(
+            _as_decimal(demand_qty, "work_order_demand"), "demand_qty"
+        )
         if demand_qty < _ZERO_QTY:
             # Defensive only -- a well-behaved seam never returns a negative
             # demand; a misbehaving one must not silently inflate the

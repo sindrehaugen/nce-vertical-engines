@@ -161,7 +161,9 @@ def _normalize_tiers(raw_tiers: Any) -> list[dict[str, float]]:
     if raw_tiers is None:
         return []
     if not isinstance(raw_tiers, list):
-        raise MalformedTermsError(f"kickbackTiers is not a list: {type(raw_tiers).__name__}")
+        raise MalformedTermsError(
+            f"kickbackTiers is not a list: {type(raw_tiers).__name__}"
+        )
     tiers: list[dict[str, float]] = []
     for i, entry in enumerate(raw_tiers):
         if not isinstance(entry, dict):
@@ -176,7 +178,9 @@ def _normalize_tiers(raw_tiers: Any) -> list[dict[str, float]]:
             threshold_f = float(threshold)
             pct_f = float(pct)
         except (TypeError, ValueError) as exc:
-            raise MalformedTermsError(f"tier[{i}] threshold/pct not numeric: {exc}") from exc
+            raise MalformedTermsError(
+                f"tier[{i}] threshold/pct not numeric: {exc}"
+            ) from exc
         # float() accepts "nan"/"inf"/"-Infinity" — non-finite values would
         # poison the money math (NaN survives quantize) or create an
         # always-active tier, so they fail closed like any other guess.
@@ -227,7 +231,9 @@ def _tier_progression(tiers: list[dict[str, float]], spend: Decimal) -> dict[str
 
     to_next: Decimal | None = None
     if nxt is not None:
-        to_next = (Decimal(str(nxt["threshold"])) - spend).quantize(_MONEY_QUANT, ROUND_HALF_UP)
+        to_next = (Decimal(str(nxt["threshold"])) - spend).quantize(
+            _MONEY_QUANT, ROUND_HALF_UP
+        )
 
     return {
         "active_tier": active,
@@ -258,7 +264,9 @@ def _within_period(gl_date_raw: Any, since: date | None, until: date | None) -> 
 
 def _terms_equal(a: Any, b: Any) -> bool:
     """Deterministic deep-equality for term dicts (JSON-canonical compare)."""
-    return json.dumps(a, sort_keys=True, default=str) == json.dumps(b, sort_keys=True, default=str)
+    return json.dumps(a, sort_keys=True, default=str) == json.dumps(
+        b, sort_keys=True, default=str
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -430,7 +438,9 @@ async def do_reconcile_kickback(
         try:
             projected_dec = Decimal(str(projected))
         except InvalidOperation as exc:
-            raise ValueError(f"projected_kickback_nok is not numeric: {projected!r}") from exc
+            raise ValueError(
+                f"projected_kickback_nok is not numeric: {projected!r}"
+            ) from exc
         if not projected_dec.is_finite():
             raise ValueError(f"projected_kickback_nok is not finite: {projected!r}")
     period = {"since_iso": since_iso, "until_iso": until_iso}
@@ -532,9 +542,9 @@ async def do_reconcile_kickback(
             if not _within_period(gl_row.get("gl_date"), since_date, until_date):
                 # An unparseable date under requested bounds is a skipped
                 # row, not merely an out-of-period one — keep it VISIBLE.
-                if (since_date is not None or until_date is not None) and _parse_date_or_none(
-                    gl_row.get("gl_date")
-                ) is None:
+                if (
+                    since_date is not None or until_date is not None
+                ) and _parse_date_or_none(gl_row.get("gl_date")) is None:
                     gl_rows_skipped += 1
                 continue
             gl_node_id = await _resolve_vendor_node_id(
@@ -542,7 +552,11 @@ async def do_reconcile_kickback(
                 ns_uuid,
                 raw_id=gl_row.get("supplier_id"),
             )
-            if supplier_node_id is None or gl_node_id is None or gl_node_id != supplier_node_id:
+            if (
+                supplier_node_id is None
+                or gl_node_id is None
+                or gl_node_id != supplier_node_id
+            ):
                 continue
             amount_raw = gl_row.get("amount_nok")
             if amount_raw is None or isinstance(amount_raw, bool):
@@ -587,7 +601,9 @@ async def do_reconcile_kickback(
     to_next: Decimal | None = progression["to_next_tier"]
     projection_drift: float | None = None
     if projected_dec is not None:
-        projection_drift = float((earned - projected_dec).quantize(_MONEY_QUANT, ROUND_HALF_UP))
+        projection_drift = float(
+            (earned - projected_dec).quantize(_MONEY_QUANT, ROUND_HALF_UP)
+        )
 
     return {
         "status": "ok",

@@ -244,7 +244,9 @@ def _quantise_qty(value: Decimal, where: str) -> Decimal:
     try:
         return value.quantize(_QTY_SCALE, rounding=ROUND_HALF_UP)
     except DecimalException as exc:
-        raise ValueError(f"{where}: quantity is too large to express to 3dp: {value!r}") from exc
+        raise ValueError(
+            f"{where}: quantity is too large to express to 3dp: {value!r}"
+        ) from exc
 
 
 def _as_quantity(value: Any, where: str) -> Decimal:
@@ -636,7 +638,9 @@ async def do_release_stock(engine: NCEEngine, params: dict[str, Any]) -> dict[st
                 location_id=location,
                 project_id=project_label,
                 requested=qty,
-                currently_reserved=current_reserved if current_reserved is not None else _ZERO_QTY,
+                currently_reserved=current_reserved
+                if current_reserved is not None
+                else _ZERO_QTY,
             )
 
         on_hand = row["qty_on_hand"]

@@ -231,7 +231,9 @@ async def fetch_source_fl_rows(
     )
 
 
-async def _find_node_by_source_key(conn: Any, namespace_id: str | UUID, key: str) -> UUID | None:
+async def _find_node_by_source_key(
+    conn: Any, namespace_id: str | UUID, key: str
+) -> UUID | None:
     if conn is None or not hasattr(conn, "fetchval"):
         return None
     row_id = await conn.fetchval(
@@ -248,7 +250,9 @@ async def _find_node_by_source_key(conn: Any, namespace_id: str | UUID, key: str
     return UUID(str(row_id)) if row_id is not None else None
 
 
-async def _find_node_by_label(conn: Any, namespace_id: str | UUID, label: str) -> UUID | None:
+async def _find_node_by_label(
+    conn: Any, namespace_id: str | UUID, label: str
+) -> UUID | None:
     if conn is None or not hasattr(conn, "fetchval"):
         return None
     row_id = await conn.fetchval(
@@ -393,7 +397,11 @@ async def dry_run_fl_backfill(
     report = DryRunReport(total_source_rows=len(rows))
     for row in rows:
         decision = await decide_fl_backfill_action(
-            conn, namespace_id, row, namespace_slug=namespace_slug, fold_rules=fold_rules
+            conn,
+            namespace_id,
+            row,
+            namespace_slug=namespace_slug,
+            fold_rules=fold_rules,
         )
         report.decisions.append(decision)
         if decision.action == "insert":

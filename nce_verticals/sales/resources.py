@@ -236,7 +236,13 @@ QUOTE_SPEC = ResourceSpec(
     id_field="id",
     version_field="updated_at",
     soft_delete_field="is_archived",
-    filterable_fields=("status", "deal_id", "customer_id", "is_archived", "billing_method"),
+    filterable_fields=(
+        "status",
+        "deal_id",
+        "customer_id",
+        "is_archived",
+        "billing_method",
+    ),
     searchable_fields=("quote_number", "title"),
     writable_fields=(
         "quote_number",

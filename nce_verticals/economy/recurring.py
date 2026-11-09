@@ -165,7 +165,9 @@ def _quantise(value: Decimal, where: str) -> Decimal:
     try:
         return value.quantize(_ORE, rounding=ROUND_HALF_UP)
     except DecimalException as exc:
-        raise ValueError(f"{where}: amount is too large to express in øre: {value!r}") from exc
+        raise ValueError(
+            f"{where}: amount is too large to express in øre: {value!r}"
+        ) from exc
 
 
 def _as_money(value: Any, where: str) -> Decimal:
@@ -208,10 +210,14 @@ def _parse_period(value: Any, where: str) -> tuple[int, int]:
     """Parse a ``YYYY-MM`` string into ``(year, month)``. Refuses anything else
     (unpadded months, non-strings, out-of-range months) rather than guessing."""
     if not isinstance(value, str):
-        raise ValueError(f"{where}: expected a 'YYYY-MM' string, got {type(value).__name__}")
+        raise ValueError(
+            f"{where}: expected a 'YYYY-MM' string, got {type(value).__name__}"
+        )
     match = _PERIOD_RE.fullmatch(value.strip())
     if match is None:
-        raise ValueError(f"{where}: expected 'YYYY-MM' (zero-padded month), got {value!r}")
+        raise ValueError(
+            f"{where}: expected 'YYYY-MM' (zero-padded month), got {value!r}"
+        )
     return int(match.group(1)), int(match.group(2))
 
 
@@ -311,7 +317,9 @@ def do_compute_recognition_schedule(params: dict[str, Any]) -> dict[str, Any]:
             }
         )
 
-    if running_total != annual_amount:  # pragma: no cover - defensive, construction guarantees this
+    if (
+        running_total != annual_amount
+    ):  # pragma: no cover - defensive, construction guarantees this
         raise ValueError(
             f"do_compute_recognition_schedule: internal invariant broken for {contract_id!r} — "
             f"twelve periods sum to {running_total}, not annual_amount {annual_amount}"
@@ -353,8 +361,12 @@ def _as_snapshot_contracts(raw: Any) -> list[dict[str, Any]]:
     contracts: list[dict[str, Any]] = []
     for index, entry in enumerate(raw):
         if not isinstance(entry, dict):
-            raise ValueError(f"do_snapshot_mrr_arr_churn: contracts[{index}] must be an object")
-        annual_amount = _as_money(entry.get("annual_amount"), f"contracts[{index}].annual_amount")
+            raise ValueError(
+                f"do_snapshot_mrr_arr_churn: contracts[{index}] must be an object"
+            )
+        annual_amount = _as_money(
+            entry.get("annual_amount"), f"contracts[{index}].annual_amount"
+        )
         status = entry.get("status")
         if status not in _VALID_CONTRACT_STATUSES:
             raise ValueError(
@@ -406,7 +418,9 @@ def do_snapshot_mrr_arr_churn(params: dict[str, Any]) -> dict[str, Any]:
     active_count = 0
     churned_count = 0
     for contract in contracts:
-        monthly = _quantise(contract["annual_amount"] / _MONTHS_PER_YEAR, "annual_amount / 12")
+        monthly = _quantise(
+            contract["annual_amount"] / _MONTHS_PER_YEAR, "annual_amount / 12"
+        )
         if contract["status"] == "active":
             mrr += monthly
             active_count += 1
@@ -511,17 +525,23 @@ def _as_contracts(raw: Any) -> list[dict[str, Any]]:
     contracts: list[dict[str, Any]] = []
     for index, entry in enumerate(raw):
         if not isinstance(entry, dict):
-            raise ValueError(f"do_recognize_recurring: contracts[{index}] must be an object")
+            raise ValueError(
+                f"do_recognize_recurring: contracts[{index}] must be an object"
+            )
         contract_id = str(entry.get("contract_id") or "").strip()
         if not contract_id:
-            raise ValueError(f"do_recognize_recurring: contracts[{index}].contract_id is required")
+            raise ValueError(
+                f"do_recognize_recurring: contracts[{index}].contract_id is required"
+            )
         if contract_id in seen:
             raise ValueError(
                 f"do_recognize_recurring: duplicate contract_id {contract_id!r} in 'contracts' "
                 f"— ambiguous, refusing to guess which entry is authoritative"
             )
         seen.add(contract_id)
-        annual_amount = _as_money(entry.get("annual_amount"), f"contracts[{index}].annual_amount")
+        annual_amount = _as_money(
+            entry.get("annual_amount"), f"contracts[{index}].annual_amount"
+        )
         start_year, start_month = _parse_period(
             entry.get("start_period"), f"contracts[{index}].start_period"
         )
@@ -542,7 +562,9 @@ def _as_contracts(raw: Any) -> list[dict[str, Any]]:
     return contracts
 
 
-async def do_recognize_recurring(engine: NCEEngine, params: dict[str, Any]) -> dict[str, Any]:
+async def do_recognize_recurring(
+    engine: NCEEngine, params: dict[str, Any]
+) -> dict[str, Any]:
     """Idempotent ratable-1/12 revenue recognition for one period, across a
     caller-supplied list of contracts.
 
@@ -609,13 +631,19 @@ async def do_recognize_recurring(engine: NCEEngine, params: dict[str, Any]) -> d
                     "start_period": contract["start_period"],
                 }
             )
-            entry = next((p for p in schedule["periods"] if p["period"] == period), None)
+            entry = next(
+                (p for p in schedule["periods"] if p["period"] == period), None
+            )
             if entry is None:
                 not_due.append(contract["contract_id"])
                 continue
 
             is_new = await _record_recognition(
-                conn, ns_uuid, entry["finago_ref"], contract["contract_id"], entry["amount"]
+                conn,
+                ns_uuid,
+                entry["finago_ref"],
+                contract["contract_id"],
+                entry["amount"],
             )
             if is_new:
                 recognized.append(
@@ -638,7 +666,8 @@ async def do_recognize_recurring(engine: NCEEngine, params: dict[str, Any]) -> d
     mrr_snapshot = do_snapshot_mrr_arr_churn(
         {
             "contracts": [
-                {"annual_amount": c["annual_amount"], "status": c["status"]} for c in contracts
+                {"annual_amount": c["annual_amount"], "status": c["status"]}
+                for c in contracts
             ]
         }
     )

@@ -183,7 +183,9 @@ async def _upsert_task_node(
         _NODE_TYPE_TASK,
         str(ns_uuid),
     )
-    log.debug("upserted PROJECT_TASK node label=%s kind=%s ns=%s", task_label, kind, ns_uuid)
+    log.debug(
+        "upserted PROJECT_TASK node label=%s kind=%s ns=%s", task_label, kind, ns_uuid
+    )
 
 
 async def _upsert_generates_edge(
@@ -240,7 +242,9 @@ async def _close_superseded_tasks(
     Returns list of closed task labels.
     """
     # Statuses whose tasks are now superseded.
-    current_idx = _STATUS_ORDER.index(current_status) if current_status in _STATUS_ORDER else -1
+    current_idx = (
+        _STATUS_ORDER.index(current_status) if current_status in _STATUS_ORDER else -1
+    )
     superseded_statuses = _STATUS_ORDER[:current_idx]  # all statuses before current
 
     closed: list[str] = []
@@ -641,11 +645,13 @@ def derive_bom_sync_from_goods_receipt_payload(
         else:
             status = "DELIVERED"
 
-        transitions.append({
-            "bom_line_label": label,
-            "status": status,
-            "qty_received": rcv,
-            "qty_ordered": ord_qty,
-        })
+        transitions.append(
+            {
+                "bom_line_label": label,
+                "status": status,
+                "qty_received": rcv,
+                "qty_ordered": ord_qty,
+            }
+        )
 
     return transitions

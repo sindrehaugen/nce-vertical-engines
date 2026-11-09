@@ -194,7 +194,9 @@ async def do_generate_po(
     """
     ns_str = str(namespace_id)
 
-    effective_bom_line = dict(bom_line) if bom_line else {"quantity": 1, "unit_price": 0.0}
+    effective_bom_line = (
+        dict(bom_line) if bom_line else {"quantity": 1, "unit_price": 0.0}
+    )
     effective_candidates = (
         list(candidates)
         if candidates
@@ -210,7 +212,12 @@ async def do_generate_po(
     )
     effective_artnrs = list(artnrs) if artnrs else []
     effective_weights = weights or {
-        "TCO_WEIGHTS": {"freight": 0.05, "warranty": 0.03, "stock": 0.02, "delivery_risk": 0.05},
+        "TCO_WEIGHTS": {
+            "freight": 0.05,
+            "warranty": 0.03,
+            "stock": 0.02,
+            "delivery_risk": 0.05,
+        },
         "SCORING_WEIGHTS": {
             "tco": 0.30,
             "delivery_reliability": 0.20,
@@ -223,7 +230,9 @@ async def do_generate_po(
     # ------------------------------------------------------------------
     # Step 1: Rank suppliers (Wave 2 — pure, no I/O)
     # ------------------------------------------------------------------
-    ranking = do_rank_suppliers(effective_weights, effective_bom_line, effective_candidates)
+    ranking = do_rank_suppliers(
+        effective_weights, effective_bom_line, effective_candidates
+    )
     ranked_winner: dict[str, Any] = ranking["ranked"][0]
     log.info(
         "[generate-po] ranking done: winner=%s rebate_override=%s ns=%s",
@@ -278,10 +287,14 @@ async def do_generate_po(
                 "sku": effective_bom_line.get("artnr")
                 or effective_bom_line.get("sku")
                 or (effective_artnrs[0] if effective_artnrs else None),
-                "qty": effective_bom_line.get("quantity") or effective_bom_line.get("qty") or 1,
+                "qty": effective_bom_line.get("quantity")
+                or effective_bom_line.get("qty")
+                or 1,
                 "unit_price": effective_bom_line.get("unit_price") or 0.0,
                 "total_amount": float(
-                    effective_bom_line.get("quantity") or effective_bom_line.get("qty") or 1
+                    effective_bom_line.get("quantity")
+                    or effective_bom_line.get("qty")
+                    or 1
                 )
                 * float(effective_bom_line.get("unit_price") or 0.0),
             }
@@ -404,11 +417,15 @@ async def _call_agreements_compliance_audit(
             ) from exc
         except (EngineUnavailableError, KeyError) as exc:
             log.warning("[submit-po] Agreements engine not found in registry: %s", exc)
-            raise RuntimeError("Agreements engine not found in engine registry") from exc
+            raise RuntimeError(
+                "Agreements engine not found in engine registry"
+            ) from exc
 
         audit_fn = getattr(agreements_mod, "do_run_compliance_audit", None)
         if audit_fn is None:
-            raise RuntimeError("Agreements module does not export do_run_compliance_audit")
+            raise RuntimeError(
+                "Agreements module does not export do_run_compliance_audit"
+            )
 
         result = await audit_fn(
             engine,
@@ -543,7 +560,9 @@ async def _governed_place_po(
     Do NOT call this directly — use ``do_submit_po``.
     """
     ns_str = str(namespace_id)
-    _transport: PoTransport = transport if transport is not None else NetsetPoTransport()
+    _transport: PoTransport = (
+        transport if transport is not None else NetsetPoTransport()
+    )
 
     transport_result = await _transport.place_order(
         po_number,
@@ -724,7 +743,9 @@ async def do_submit_po(
     # ------------------------------------------------------------------
     if rebate_override and confirm:
         try:
-            has_engine_modules = engine is not None and getattr(engine, "modules", None) is not None
+            has_engine_modules = (
+                engine is not None and getattr(engine, "modules", None) is not None
+            )
             if a2a_client is None and not has_engine_modules:
                 raise RuntimeError(
                     "Agreements cross-engine module or A2A client not provided; cannot audit rebate override."

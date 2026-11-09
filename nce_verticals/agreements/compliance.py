@@ -114,7 +114,11 @@ _RESTRICTED_CLAUSE_MARKERS: tuple[str, ...] = (
 )
 
 # Term fields the discount-limit ceiling is derived from.
-_CEILING_FIELDS: tuple[str, ...] = ("kickbackTiers", "frameDiscountPct", "volumeCommitment")
+_CEILING_FIELDS: tuple[str, ...] = (
+    "kickbackTiers",
+    "frameDiscountPct",
+    "volumeCommitment",
+)
 
 # Term fields the negotiator (do_suggest_terms) compares against a benchmark.
 _NEGOTIABLE_FIELDS: tuple[str, ...] = (
@@ -184,7 +188,9 @@ def _evaluate_restricted_clause(extracted: dict[str, Any]) -> tuple[bool, list[s
     return (not hits), hits
 
 
-def _evaluate_discount_limit(terms: dict[str, Any], rebate: Decimal) -> tuple[bool, str | None]:
+def _evaluate_discount_limit(
+    terms: dict[str, Any], rebate: Decimal
+) -> tuple[bool, str | None]:
     """Decide whether ``rebate`` is within the ceiling derivable from signed terms.
 
     ``terms`` holds the UNWRAPPED ``kickbackTiers`` / ``frameDiscountPct`` /
@@ -218,8 +224,12 @@ def _evaluate_discount_limit(terms: dict[str, Any], rebate: Decimal) -> tuple[bo
     """
     try:
         tiers = _normalize_tiers(terms.get("kickbackTiers"))
-        frame_pct = _coerce_finite_nonneg(terms.get("frameDiscountPct"), "frameDiscountPct")
-        volume = _coerce_finite_nonneg(terms.get("volumeCommitment"), "volumeCommitment")
+        frame_pct = _coerce_finite_nonneg(
+            terms.get("frameDiscountPct"), "frameDiscountPct"
+        )
+        volume = _coerce_finite_nonneg(
+            terms.get("volumeCommitment"), "volumeCommitment"
+        )
     except MalformedTermsError as exc:
         return False, f"malformed signed terms: {exc}"
 
@@ -320,7 +330,9 @@ def _evaluate_term_recommendations(
                     "field": field,
                     "current_value": ours,
                     "benchmark_value": peer,
-                    "recommendation": _phrase_numeric_gap(field, ours, peer, ours_num, peer_num),
+                    "recommendation": _phrase_numeric_gap(
+                        field, ours, peer, ours_num, peer_num
+                    ),
                 }
             )
         elif ours != peer:
@@ -362,7 +374,9 @@ def _phrase_numeric_gap(
 # ---------------------------------------------------------------------------
 
 
-async def _append_ledger_entry(conn: Any, ns_uuid: uuid.UUID, payload: dict[str, Any]) -> str:
+async def _append_ledger_entry(
+    conn: Any, ns_uuid: uuid.UUID, payload: dict[str, Any]
+) -> str:
     """Append ONE row to ``v3_cognitive_ledger`` and return its id (append-only).
 
     ``payload`` must already carry its ``kind`` discriminator; the recorded
@@ -371,7 +385,10 @@ async def _append_ledger_entry(conn: Any, ns_uuid: uuid.UUID, payload: dict[str,
     """
     ledger_id = uuid.uuid4()
     recorded_at = await conn.fetchval("SELECT now()")
-    full_payload: dict[str, Any] = {**payload, "recorded_at_iso": recorded_at.isoformat()}
+    full_payload: dict[str, Any] = {
+        **payload,
+        "recorded_at_iso": recorded_at.isoformat(),
+    }
     await conn.execute(
         """
         INSERT INTO v3_cognitive_ledger (
@@ -503,7 +520,9 @@ async def _record_decision(
 # ---------------------------------------------------------------------------
 
 
-async def do_run_compliance_audit(engine: Any, params: dict[str, Any]) -> dict[str, Any]:
+async def do_run_compliance_audit(
+    engine: Any, params: dict[str, Any]
+) -> dict[str, Any]:
     """Authorize (or refuse) a rebate/kickback override against SIGNED agreements.
 
     This is the core wrapped by the A2A tool ``agreements.compliance_audit``
@@ -612,7 +631,9 @@ async def do_run_compliance_audit(engine: Any, params: dict[str, Any]) -> dict[s
             }
 
         # Step 2a: resolve the requesting supplier to a canonical VENDOR node.
-        supplier_node_id = await _resolve_vendor_node_id(conn, ns_uuid, raw_id=supplier_id)
+        supplier_node_id = await _resolve_vendor_node_id(
+            conn, ns_uuid, raw_id=supplier_id
+        )
         if supplier_node_id is None:
             return await _finish(
                 False,
@@ -625,7 +646,9 @@ async def do_run_compliance_audit(engine: Any, params: dict[str, Any]) -> dict[s
             conn, ns_uuid, supplier_node_id, agreement_id_raw
         )
         if matched is None:
-            return await _finish(False, [reason or "no signed agreement governs supplier"], None)
+            return await _finish(
+                False, [reason or "no signed agreement governs supplier"], None
+            )
         agreement_id_str, extracted = matched
         checks["signed_agreement"] = True
 
@@ -708,7 +731,9 @@ async def do_suggest_terms(engine: Any, params: dict[str, Any]) -> dict[str, Any
             str(ns_uuid),
         )
         extracted = _coerce_extracted(row["extracted"]) if row is not None else {}
-        current_terms = {field: _unwrap_field(extracted, field) for field in _NEGOTIABLE_FIELDS}
+        current_terms = {
+            field: _unwrap_field(extracted, field) for field in _NEGOTIABLE_FIELDS
+        }
         recommendations = _evaluate_term_recommendations(current_terms, benchmark or {})
 
         payload: dict[str, Any] = {

@@ -178,7 +178,9 @@ _AGENT_ID: str = "system-design-author"
 
 
 @mcp_handler
-async def handle_system_design_ping(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_system_design_ping(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: system_design_ping — liveness probe for the System Design vertical.
 
     Requires ``namespace_id`` in *arguments*.  Returns ``{"ok": true, "engine":
@@ -212,7 +214,9 @@ async def handle_system_design_publish_design_docs(
 
 
 @mcp_handler
-async def handle_system_design_get_topology(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_system_design_get_topology(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: system_design_get_topology — read a DESIGN's full topology.
 
     Read-only (``cacheable=True, admin_only=False, mutation=False``).
@@ -373,7 +377,9 @@ def expected_version_of(arguments: dict[str, Any]) -> int | None:
     if value < 0:
         raise ValueError("expected_version must not be negative")
     if value > BIGINT_MAX:
-        raise ValueError(f"expected_version must not exceed {BIGINT_MAX} (the column is BIGINT)")
+        raise ValueError(
+            f"expected_version must not exceed {BIGINT_MAX} (the column is BIGINT)"
+        )
     return value
 
 
@@ -986,7 +992,9 @@ def version_conflict_mcp_error(exc: VersionConflictError) -> McpError:
 
 
 @mcp_handler
-async def handle_system_design_author_topology(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_system_design_author_topology(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: system_design_author_topology — author a DESIGN's device topology.
 
     Mutating (``cacheable=False, admin_only=False, mutation=True``).  Copper's
@@ -1026,7 +1034,9 @@ async def handle_system_design_author_functional_location(
 
 
 @mcp_handler
-async def handle_system_design_delete_planned(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_system_design_delete_planned(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: system_design_delete_planned — SOFT-RETIRES by default; the name is a mismatch.
 
     🔴 **Read that first line again.**  The tool is called
@@ -1080,7 +1090,9 @@ async def handle_system_design_delete_planned(engine: NCEEngine, arguments: dict
 
 
 @mcp_handler
-async def handle_system_design_from_quote(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_system_design_from_quote(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: system_design_from_quote -- realise a Sales QUOTE into a DESIGN.
 
     MUTATING (``cacheable=False, admin_only=False, mutation=True``): the core
@@ -1103,7 +1115,9 @@ async def handle_system_design_from_quote(engine: NCEEngine, arguments: dict[str
 
 
 @mcp_handler
-async def handle_system_design_to_quote(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_system_design_to_quote(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: system_design_to_quote -- derive quote lines back from a DESIGN.
 
     MUTATING (``cacheable=False, admin_only=False, mutation=True``): the core
@@ -1122,7 +1136,9 @@ async def handle_system_design_to_quote(engine: NCEEngine, arguments: dict[str, 
 
 
 @mcp_handler
-async def handle_system_design_generate_sow(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_system_design_generate_sow(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: system_design_generate_sow -- statement of work for a DESIGN.
 
     READ-ONLY (``cacheable=False, admin_only=False, mutation=False``). The core
@@ -1171,7 +1187,9 @@ async def handle_system_design_enrich_design_lines(
 
 
 @mcp_handler
-async def handle_system_design_propose_design(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_system_design_propose_design(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: system_design_propose_design -- recall-driven BOM proposal.
 
     PROPOSE-ONLY (``cacheable=False, admin_only=False, mutation=False``). The core
@@ -1201,7 +1219,9 @@ async def handle_system_design_propose_design(engine: NCEEngine, arguments: dict
 
 
 @mcp_handler
-async def handle_system_design_get_standards(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_system_design_get_standards(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: system_design_get_standards -- query curated AV cabling/mounting standards."""
     result = do_get_standards(engine, arguments or {})
     return json.dumps(result, default=str)
@@ -1279,7 +1299,9 @@ async def handle_system_design_get_functional_location(
 
 
 @mcp_handler
-async def handle_system_design_get_fl_children(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_system_design_get_fl_children(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: system_design_get_fl_children -- retrieve child functional locations."""
     from nce_verticals.system_design.fl_tree import get_fl_children
 
@@ -1291,9 +1313,13 @@ async def handle_system_design_get_fl_children(engine: NCEEngine, arguments: dic
 
     if getattr(engine, "pg_pool", None):
         async with scoped_pg_session(engine.pg_pool, namespace_id) as conn:
-            children = await get_fl_children(conn, namespace_id, node_id, recursive=recursive)
+            children = await get_fl_children(
+                conn, namespace_id, node_id, recursive=recursive
+            )
     else:
-        children = await get_fl_children(None, namespace_id, node_id, recursive=recursive)
+        children = await get_fl_children(
+            None, namespace_id, node_id, recursive=recursive
+        )
     return json.dumps(children, default=str)
 
 
@@ -1318,7 +1344,9 @@ async def handle_system_design_get_fl_ancestors(
 
 
 @mcp_handler
-async def handle_system_design_get_fl_path(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_system_design_get_fl_path(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: system_design_get_fl_path -- retrieve full path [root, ..., node] and path string."""
     from nce_verticals.system_design.fl_tree import get_fl_path
 
@@ -1351,9 +1379,13 @@ async def handle_system_design_move_functional_location(
 
     if getattr(engine, "pg_pool", None):
         async with scoped_pg_session(engine.pg_pool, namespace_id) as conn:
-            result = await move_fl_node(conn, namespace_id, node_id, new_parent_id, actor=actor)
+            result = await move_fl_node(
+                conn, namespace_id, node_id, new_parent_id, actor=actor
+            )
     else:
-        result = await move_fl_node(None, namespace_id, node_id, new_parent_id, actor=actor)
+        result = await move_fl_node(
+            None, namespace_id, node_id, new_parent_id, actor=actor
+        )
     return json.dumps(result, default=str)
 
 
@@ -1375,11 +1407,21 @@ async def handle_system_design_merge_functional_locations(
     if getattr(engine, "pg_pool", None):
         async with scoped_pg_session(engine.pg_pool, namespace_id) as conn:
             result = await merge_fl_nodes(
-                conn, namespace_id, survivor_id, absorbed_id, reversible=reversible, actor=actor
+                conn,
+                namespace_id,
+                survivor_id,
+                absorbed_id,
+                reversible=reversible,
+                actor=actor,
             )
     else:
         result = await merge_fl_nodes(
-            None, namespace_id, survivor_id, absorbed_id, reversible=reversible, actor=actor
+            None,
+            namespace_id,
+            survivor_id,
+            absorbed_id,
+            reversible=reversible,
+            actor=actor,
         )
     return json.dumps(result, default=str)
 
@@ -1444,7 +1486,10 @@ async def handle_system_design_set_fl_room_category(
 
     namespace_id = require_namespace_id(arguments)
     fl_id = str(
-        arguments.get("fl_id") or arguments.get("node_id") or arguments.get("fl_id_or_label") or ""
+        arguments.get("fl_id")
+        or arguments.get("node_id")
+        or arguments.get("fl_id_or_label")
+        or ""
     ).strip()
     if not fl_id:
         raise ValueError("fl_id is required")
@@ -1470,7 +1515,10 @@ async def handle_system_design_get_fl_room_category(
 
     namespace_id = require_namespace_id(arguments)
     fl_id = str(
-        arguments.get("fl_id") or arguments.get("node_id") or arguments.get("fl_id_or_label") or ""
+        arguments.get("fl_id")
+        or arguments.get("node_id")
+        or arguments.get("fl_id_or_label")
+        or ""
     ).strip()
     if not fl_id:
         raise ValueError("fl_id is required")
@@ -1488,7 +1536,10 @@ async def handle_system_design_assign_fl_responsible(
 
     namespace_id = require_namespace_id(arguments)
     fl_id = str(
-        arguments.get("fl_id") or arguments.get("node_id") or arguments.get("fl_id_or_label") or ""
+        arguments.get("fl_id")
+        or arguments.get("node_id")
+        or arguments.get("fl_id_or_label")
+        or ""
     ).strip()
     if not fl_id:
         raise ValueError("fl_id is required")
@@ -1516,7 +1567,10 @@ async def handle_system_design_unassign_fl_responsible(
 
     namespace_id = require_namespace_id(arguments)
     fl_id = str(
-        arguments.get("fl_id") or arguments.get("node_id") or arguments.get("fl_id_or_label") or ""
+        arguments.get("fl_id")
+        or arguments.get("node_id")
+        or arguments.get("fl_id_or_label")
+        or ""
     ).strip()
     if not fl_id:
         raise ValueError("fl_id is required")
@@ -1542,7 +1596,10 @@ async def handle_system_design_list_fl_responsible(
 
     namespace_id = require_namespace_id(arguments)
     fl_id = str(
-        arguments.get("fl_id") or arguments.get("node_id") or arguments.get("fl_id_or_label") or ""
+        arguments.get("fl_id")
+        or arguments.get("node_id")
+        or arguments.get("fl_id_or_label")
+        or ""
     ).strip()
     if not fl_id:
         raise ValueError("fl_id is required")
@@ -1561,7 +1618,9 @@ async def handle_system_design_list_my_responsible_fls(
     namespace_id = require_namespace_id(arguments)
     employee_id = arguments.get("employee_id")
 
-    results = await do_list_my_responsible_fls(engine, namespace_id, employee_id=employee_id)
+    results = await do_list_my_responsible_fls(
+        engine, namespace_id, employee_id=employee_id
+    )
     return json.dumps(results, default=str)
 
 
@@ -1571,7 +1630,9 @@ async def handle_system_design_list_my_responsible_fls(
 
 
 @mcp_handler
-async def handle_system_design_list_designs(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_system_design_list_designs(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: system_design_list_designs -- list designs with optional FL and active filters."""
     from nce_verticals.system_design.design_versions import list_designs
 
@@ -1613,7 +1674,9 @@ async def handle_system_design_list_designs(engine: NCEEngine, arguments: dict[s
 
 
 @mcp_handler
-async def handle_system_design_get_design(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_system_design_get_design(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: system_design_get_design -- fetch details of a design version."""
     from nce_verticals.system_design.design_versions import get_design
 
@@ -1631,14 +1694,18 @@ async def handle_system_design_get_design(engine: NCEEngine, arguments: dict[str
 
 
 @mcp_handler
-async def handle_system_design_create_design(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_system_design_create_design(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: system_design_create_design -- create a new design version for a functional location."""
     from nce_verticals.system_design.design_versions import create_design
 
     namespace_id = require_namespace_id(arguments)
     design_id = str(arguments.get("design_id") or arguments.get("id") or "").strip()
     name = str(arguments.get("name") or "").strip()
-    fl_id = str(arguments.get("functional_location_id") or arguments.get("fl_id") or "").strip()
+    fl_id = str(
+        arguments.get("functional_location_id") or arguments.get("fl_id") or ""
+    ).strip()
     version = int(arguments.get("version", 1))
     revision = arguments.get("revision")
     room_spec = arguments.get("room_spec")
@@ -1679,7 +1746,9 @@ async def handle_system_design_create_design(engine: NCEEngine, arguments: dict[
 
 
 @mcp_handler
-async def handle_system_design_update_design(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_system_design_update_design(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: system_design_update_design -- update design fields."""
     from nce_verticals.system_design.design_versions import update_design
 
@@ -1754,7 +1823,9 @@ async def handle_system_design_get_active_design(
     from nce_verticals.system_design.design_versions import get_active_design_for_fl
 
     namespace_id = require_namespace_id(arguments)
-    fl_id = str(arguments.get("functional_location_id") or arguments.get("fl_id") or "").strip()
+    fl_id = str(
+        arguments.get("functional_location_id") or arguments.get("fl_id") or ""
+    ).strip()
     if not fl_id:
         raise ValueError("functional_location_id is required")
 
@@ -1767,7 +1838,9 @@ async def handle_system_design_get_active_design(
 
 
 @mcp_handler
-async def handle_system_design_get_room_spec(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_system_design_get_room_spec(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: system_design_get_room_spec -- get ROOM_SPEC metadata from a design."""
     from nce_verticals.system_design.design_versions import get_room_spec
 
@@ -1785,7 +1858,9 @@ async def handle_system_design_get_room_spec(engine: NCEEngine, arguments: dict[
 
 
 @mcp_handler
-async def handle_system_design_set_room_spec(engine: NCEEngine, arguments: dict[str, Any]) -> str:
+async def handle_system_design_set_room_spec(
+    engine: NCEEngine, arguments: dict[str, Any]
+) -> str:
     """MCP tool: system_design_set_room_spec -- update ROOM_SPEC metadata on a design."""
     from nce_verticals.system_design.design_versions import set_room_spec
 
@@ -1818,7 +1893,9 @@ async def handle_system_design_create_design_request(
     namespace_id = require_namespace_id(arguments)
     title = str(arguments.get("title") or "").strip()
     quote_id = arguments.get("quote_id")
-    functional_location_id = arguments.get("functional_location_id") or arguments.get("fl_id")
+    functional_location_id = arguments.get("functional_location_id") or arguments.get(
+        "fl_id"
+    )
     description = arguments.get("description")
     priority = arguments.get("priority", "normal")
     owner_id = arguments.get("owner_id")
@@ -1893,7 +1970,9 @@ async def handle_system_design_list_design_requests(
     status = arguments.get("status")
     owner_id = arguments.get("owner_id")
     quote_id = arguments.get("quote_id")
-    functional_location_id = arguments.get("functional_location_id") or arguments.get("fl_id")
+    functional_location_id = arguments.get("functional_location_id") or arguments.get(
+        "fl_id"
+    )
     priority = arguments.get("priority")
     query = arguments.get("query")
     limit = int(arguments.get("limit", 50))
@@ -2000,7 +2079,9 @@ async def handle_system_design_assign_design_request(
 
     if getattr(engine, "pg_pool", None):
         async with scoped_pg_session(engine.pg_pool, namespace_id) as conn:
-            assigned = await assign_design_request(conn, namespace_id, request_id, owner_id)
+            assigned = await assign_design_request(
+                conn, namespace_id, request_id, owner_id
+            )
     else:
         assigned = await assign_design_request(None, namespace_id, request_id, owner_id)
     return json.dumps(assigned, default=str)
@@ -2023,9 +2104,13 @@ async def handle_system_design_complete_design_request(
 
     if getattr(engine, "pg_pool", None):
         async with scoped_pg_session(engine.pg_pool, namespace_id) as conn:
-            completed = await complete_design_request(conn, namespace_id, request_id, design_id)
+            completed = await complete_design_request(
+                conn, namespace_id, request_id, design_id
+            )
     else:
-        completed = await complete_design_request(None, namespace_id, request_id, design_id)
+        completed = await complete_design_request(
+            None, namespace_id, request_id, design_id
+        )
     return json.dumps(completed, default=str)
 
 

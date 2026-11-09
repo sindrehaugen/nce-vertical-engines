@@ -101,7 +101,7 @@ if TYPE_CHECKING:
 
 log = logging.getLogger("nce_verticals.inventory.reconcile")
 
-_CONFIG_DATA_DIR = Path(__file__).parents[3] / "nce" / "config_data"
+_CONFIG_DATA_DIR = Path(__file__).resolve().parents[1] / "config_data"
 _DEAD_STOCK_CONFIG_FILENAME = "inventory-dead-stock.json"
 
 BUCKET_BALANCED = "balanced"
@@ -146,7 +146,9 @@ def _as_dead_stock_days(raw: Any, where: str) -> int:
     if isinstance(raw, bool):
         raise ValueError(f"{where}: bool is not a number of days, got {raw!r}")
     if not isinstance(raw, int):
-        raise ValueError(f"{where}: expected a non-negative int, got {type(raw).__name__} {raw!r}")
+        raise ValueError(
+            f"{where}: expected a non-negative int, got {type(raw).__name__} {raw!r}"
+        )
     if raw < 0:
         raise ValueError(f"{where}: must be >= 0, got {raw}")
     return raw
@@ -306,7 +308,9 @@ _DEAD_SET_SQL = """
 """
 
 
-async def do_reconcile_dead_stock(engine: NCEEngine, params: dict[str, Any]) -> dict[str, Any]:
+async def do_reconcile_dead_stock(
+    engine: NCEEngine, params: dict[str, Any]
+) -> dict[str, Any]:
     """Reconcile every dead ``(sku, location)`` pair against the ledger.
 
     A pair is *dead* when it holds stock (``qty_on_hand > 0``) and its latest

@@ -208,8 +208,12 @@ def analyze_room_en12464(room: dict[str, Any]) -> dict[str, Any]:
     worst_ugr = 0.0
     min_cri = 100
     total_ecg = 0
-    total_ecd = int(room.get("sensors_count", 1)) + int(room.get("pushbuttons_count", 1))
-    total_bus_ma = (int(room.get("sensors_count", 1)) * 6.0) + (int(room.get("pushbuttons_count", 1)) * 4.0)
+    total_ecd = int(room.get("sensors_count", 1)) + int(
+        room.get("pushbuttons_count", 1)
+    )
+    total_bus_ma = (int(room.get("sensors_count", 1)) * 6.0) + (
+        int(room.get("pushbuttons_count", 1)) * 4.0
+    )
 
     for lum in luminaires:
         code = str(lum.get("code") or "Glamox C95-R 4000 DALI 840 MP")
@@ -233,7 +237,9 @@ def analyze_room_en12464(room: dict[str, Any]) -> dict[str, Any]:
         min_cri = 80
         worst_ugr = 19.0
 
-    calculated_em_lux = round((total_flux_lm * uf * mf) / area_m2, 1) if area_m2 > 0 else 0.0
+    calculated_em_lux = (
+        round((total_flux_lm * uf * mf) / area_m2, 1) if area_m2 > 0 else 0.0
+    )
     em_lux = float(room.get("relux_em_lux") or calculated_em_lux)
 
     # Estimate spacing-to-height uniformity U0 if not supplied by Relux
@@ -244,11 +250,16 @@ def analyze_room_en12464(room: dict[str, Any]) -> dict[str, Any]:
     ugr_actual = float(room.get("relux_ugr") or worst_ugr)
 
     lpd_w_m2 = round(total_wattage_w / area_m2, 2) if area_m2 > 0 else 0.0
-    norm_power_100lx = round((lpd_w_m2 * 100.0) / max(1.0, em_lux), 2) if em_lux > 0 else 0.0
+    norm_power_100lx = (
+        round((lpd_w_m2 * 100.0) / max(1.0, em_lux), 2) if em_lux > 0 else 0.0
+    )
 
     # Recommended luminaire count for target Em using primary luminaire (or Glamox C95-R 4000lm)
     ref_flux = (total_flux_lm / total_qty) if total_qty > 0 else 4000.0
-    recommended_qty = max(1, math.ceil((zone_req["em_target_lux"] * area_m2) / max(1.0, ref_flux * uf * mf)))
+    recommended_qty = max(
+        1,
+        math.ceil((zone_req["em_target_lux"] * area_m2) / max(1.0, ref_flux * uf * mf)),
+    )
 
     violations: list[str] = []
     if em_lux < zone_req["em_target_lux"]:
@@ -257,14 +268,18 @@ def analyze_room_en12464(room: dict[str, Any]) -> dict[str, Any]:
             f"recommend >= {recommended_qty} luminaires."
         )
     if u0 < zone_req["u0_min"]:
-        violations.append(f"Uniformity U0 ({u0:.2f}) is below minimum ({zone_req['u0_min']:.2f}).")
+        violations.append(
+            f"Uniformity U0 ({u0:.2f}) is below minimum ({zone_req['u0_min']:.2f})."
+        )
     if ugr_actual > zone_req["ugr_max"]:
         violations.append(
             f"Glare rating UGR ({ugr_actual:.1f}) exceeds max ({zone_req['ugr_max']:.1f}); "
             "switch to Glamox MP (Microprismatic) or C77 SI reflector."
         )
     if min_cri < zone_req["ra_min"]:
-        violations.append(f"Color rendering Ra ({min_cri}) is below minimum ({zone_req['ra_min']}).")
+        violations.append(
+            f"Color rendering Ra ({min_cri}) is below minimum ({zone_req['ra_min']})."
+        )
 
     return {
         "room_id": room.get("room_id", "RM-01"),
@@ -338,15 +353,23 @@ def analyze_dali2_bus(
     voltage_drop_v = round((bus_current_ma / 1000.0) * r_loop_ohm, 3)
 
     # Max permissible length at 250 mA for 2.0 V drop: L_max = (2.0 * A) / (2 * rho_Cu * 0.25)
-    max_length_for_section_m = min(300.0, round((2.0 * area_mm2) / (2.0 * RHO_CU_20C * 0.25), 1))
+    max_length_for_section_m = min(
+        300.0, round((2.0 * area_mm2) / (2.0 * RHO_CU_20C * 0.25), 1)
+    )
 
     # NEK 400 MCB Inrush evaluation
     mcb_clean = str(mcb_rating or "B16").strip().upper()
     mcb_driver_limits = {"B10": 18, "B16": 30, "C10": 31, "C16": 50}
     max_drivers_per_mcb = mcb_driver_limits.get(mcb_clean, 30)
-    required_mcb_circuits = max(1, math.ceil(max(1, int(ecg_count)) / max_drivers_per_mcb))
+    required_mcb_circuits = max(
+        1, math.ceil(max(1, int(ecg_count)) / max_drivers_per_mcb)
+    )
 
-    est_wattage_w = float(total_driver_wattage_w) if total_driver_wattage_w is not None else (int(ecg_count) * 30.0)
+    est_wattage_w = (
+        float(total_driver_wattage_w)
+        if total_driver_wattage_w is not None
+        else (int(ecg_count) * 30.0)
+    )
     steady_current_a = round(est_wattage_w / (230.0 * 0.95), 2)
 
     violations: list[str] = []
@@ -414,7 +437,9 @@ def analyze_dali2_bus(
     }
 
 
-def design_dali2_universe_allocation(rooms_analysis: list[dict[str, Any]]) -> dict[str, Any]:
+def design_dali2_universe_allocation(
+    rooms_analysis: list[dict[str, Any]],
+) -> dict[str, Any]:
     """
     Automatically partition rooms across DALI-2 subnets (keeping <= 54 ECGs, <= 48 ECDs,
     and <= 200 mA per subnet for engineering margin) and size required Glamox Ethernet2DALI
@@ -470,7 +495,9 @@ def design_dali2_universe_allocation(rooms_analysis: list[dict[str, Any]]) -> di
         )
 
     eth2dali_spec = GLAMOX_CONTROL_DEVICES["GLAMOX-ETH2DALI-3"]
-    controllers_needed = max(1, math.ceil(len(universes) / int(eth2dali_spec["dali_lines_per_unit"])))
+    controllers_needed = max(
+        1, math.ceil(len(universes) / int(eth2dali_spec["dali_lines_per_unit"]))
+    )
 
     return {
         "total_dali2_subnets": len(universes),
@@ -504,7 +531,9 @@ def analyze_lighting_project(project_data: dict[str, Any]) -> dict[str, Any]:
             "total_wattage_w": total_wattage_w,
             "average_lpd_w_m2": round(total_wattage_w / max(1.0, total_area_m2), 2),
             "total_dali2_subnets": dali_allocation["total_dali2_subnets"],
-            "glamox_eth2dali_controllers": dali_allocation["glamox_eth2dali_controllers_required"],
+            "glamox_eth2dali_controllers": dali_allocation[
+                "glamox_eth2dali_controllers_required"
+            ],
         },
         "rooms_analysis": room_reports,
         "dali2_topology": dali_allocation,

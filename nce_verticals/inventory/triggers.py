@@ -547,7 +547,9 @@ def _fold_article(raw: Any) -> str:
     return str(raw).strip().upper()
 
 
-def _counted_articles(po_article: str, invoice_article: str, invoice: dict[str, Any]) -> set[str]:
+def _counted_articles(
+    po_article: str, invoice_article: str, invoice: dict[str, Any]
+) -> set[str]:
     """The FOLDED article set whose received lines count toward the match.
 
     Always the PO's own article. Plus the invoice's article when — and only
@@ -1049,7 +1051,9 @@ async def _fully_received_quantity(
     already uses — rather than restating either, so "received" cannot mean
     two different things in this one module.
     """
-    return await _total_received_against_po(conn, ns_uuid, po_ref, {_fold_article(article_id)})
+    return await _total_received_against_po(
+        conn, ns_uuid, po_ref, {_fold_article(article_id)}
+    )
 
 
 async def do_advance_bom_line_to_delivered(
@@ -1232,7 +1236,12 @@ async def _invoke_evaluate_match(
         "invoice": invoice,
     }
     try:
-        res = await evaluator(po=po, goods_receipt=goods_receipt, invoice=invoice, namespace_id=namespace_id)
+        res = await evaluator(
+            po=po,
+            goods_receipt=goods_receipt,
+            invoice=invoice,
+            namespace_id=namespace_id,
+        )
     except TypeError:
         try:
             res = await evaluator(po=po, goods_receipt=goods_receipt, invoice=invoice)

@@ -122,7 +122,9 @@ def evaluate_regulatory_compliance(
         if not dnv_tac_number:
             violations.append("DNV TAC expiry specified without valid dnv_tac_number.")
         elif tac_expiry_date is None:
-            violations.append(f"DNV TAC '{dnv_tac_number}' has no valid expiration date specified.")
+            violations.append(
+                f"DNV TAC '{dnv_tac_number}' has no valid expiration date specified."
+            )
         else:
             tac_days_remaining = (tac_expiry_date - ref_date).days
             if tac_days_remaining < 0:
@@ -153,17 +155,23 @@ def evaluate_regulatory_compliance(
         try:
             atex_expiry_date = date.fromisoformat(raw_atex_expiry.strip()[:10])
         except ValueError:
-            violations.append(f"Invalid atex_cert_expiry date format: '{raw_atex_expiry}'")
+            violations.append(
+                f"Invalid atex_cert_expiry date format: '{raw_atex_expiry}'"
+            )
 
     atex_valid = False
     atex_is_expired = False
     if atex_marking or atex_cert_num or atex_expiry_date:
         if atex_marking:
             has_ex_concept = bool(
-                re.search(r"\b(Ex|I|II|1G|2G|3G|1D|2D|3D)\b", atex_marking, re.IGNORECASE)
+                re.search(
+                    r"\b(Ex|I|II|1G|2G|3G|1D|2D|3D)\b", atex_marking, re.IGNORECASE
+                )
             )
             if not has_ex_concept:
-                violations.append(f"Invalid or unrecognized ATEX marking string: '{atex_marking}'.")
+                violations.append(
+                    f"Invalid or unrecognized ATEX marking string: '{atex_marking}'."
+                )
             else:
                 atex_valid = True
 
@@ -251,11 +259,16 @@ async def do_check_warranty_eol(engine: Any, params: dict[str, Any]) -> dict[str
     ns_uuid = UUID(str(namespace_id))
 
     warranty_window = int(
-        params.get("warranty_window_days") or getattr(cfg, "NCE_ASSETS_WARRANTY_WARN_DAYS", 30)
+        params.get("warranty_window_days")
+        or getattr(cfg, "NCE_ASSETS_WARRANTY_WARN_DAYS", 30)
     )
-    eol_window = int(params.get("eol_window_days") or getattr(cfg, "NCE_ASSETS_EOL_WARN_DAYS", 90))
+    eol_window = int(
+        params.get("eol_window_days") or getattr(cfg, "NCE_ASSETS_EOL_WARN_DAYS", 90)
+    )
     lifespan_days = int(params.get("default_lifespan_days") or _DEFAULT_LIFESPAN_DAYS)
-    warranty_months = int(params.get("default_warranty_months") or _DEFAULT_WARRANTY_MONTHS)
+    warranty_months = int(
+        params.get("default_warranty_months") or _DEFAULT_WARRANTY_MONTHS
+    )
 
     now_dt = _parse_now(params.get("now"))
 
@@ -354,10 +367,14 @@ async def do_check_warranty_eol(engine: Any, params: dict[str, Any]) -> dict[str
                     matched_eol_entry.get("successor_sku"),
                     successor_mfr or matched_eol_entry.get("manufacturer"),
                 )
-            reasons.append(f"Manufacturer EOL: {matched_eol_entry.get('mfr_part_no', bom_line_id)}")
+            reasons.append(
+                f"Manufacturer EOL: {matched_eol_entry.get('mfr_part_no', bom_line_id)}"
+            )
 
         lifespan_exceeded = age_days >= lifespan_days
-        lifespan_warning = (not lifespan_exceeded) and (lifespan_remaining <= eol_window)
+        lifespan_warning = (not lifespan_exceeded) and (
+            lifespan_remaining <= eol_window
+        )
 
         if lifespan_exceeded:
             is_eol = True
@@ -426,8 +443,15 @@ async def do_check_warranty_eol(engine: Any, params: dict[str, Any]) -> dict[str
     }
 
     # Wave E-2: Include regulatory_compliance ONLY when regulatory compliance params are supplied
-    regulatory_keys = ("dnv_tac_number", "dnv_tac_expiry", "atex_marking", "iso12944_class")
+    regulatory_keys = (
+        "dnv_tac_number",
+        "dnv_tac_expiry",
+        "atex_marking",
+        "iso12944_class",
+    )
     if any(k in params for k in regulatory_keys):
-        res_dict["regulatory_compliance"] = evaluate_regulatory_compliance(params, now_dt.date())
+        res_dict["regulatory_compliance"] = evaluate_regulatory_compliance(
+            params, now_dt.date()
+        )
 
     return res_dict

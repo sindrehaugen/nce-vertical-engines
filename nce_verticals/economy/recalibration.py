@@ -151,7 +151,11 @@ import asyncpg  # type: ignore[import-untyped]
 
 from nce.db_utils import POOL_ACQUIRE_TIMEOUT, scoped_pg_session
 from nce.decision_feedback import record_decision_feedback
-from nce_verticals.economy.matching import _MIN_GREEN, _coerce_cutoff, _resolve_thresholds
+from nce_verticals.economy.matching import (
+    _MIN_GREEN,
+    _coerce_cutoff,
+    _resolve_thresholds,
+)
 
 log = logging.getLogger("nce_verticals.economy.recalibration")
 
@@ -180,7 +184,7 @@ _MAX_POINT_DELTA: float = 10.0
 _DELTA_SCALE: float = _MAX_POINT_DELTA / (1.0 - _PRECISION_MIDPOINT)
 
 # Config-as-IP path — mirrors matching.py's own _CONFIG_DATA_DIR calculation exactly.
-_CONFIG_DATA_DIR = Path(__file__).parents[3] / "nce" / "config_data"
+_CONFIG_DATA_DIR = Path(__file__).resolve().parents[1] / "config_data"
 _THRESHOLDS_PATH = _CONFIG_DATA_DIR / "economy-match-thresholds.json"
 
 
@@ -308,7 +312,11 @@ def _overrides_without(overrides: dict[str, Any], key: str) -> dict[str, Any]:
     ``matching._normalised_keys`` would then refuse ALL lookups the next time
     ``do_match_invoice`` runs for ANY supplier, not just this one.
     """
-    return {raw_key: entry for raw_key, entry in overrides.items() if str(raw_key).strip() != key}
+    return {
+        raw_key: entry
+        for raw_key, entry in overrides.items()
+        if str(raw_key).strip() != key
+    }
 
 
 def _find_override_entry(overrides: dict[str, Any], key: str) -> Any:
@@ -639,7 +647,9 @@ async def do_recalibrate_supplier(
         1
         for r in rows
         if (
-            json.loads(r["tlx_scores"]) if isinstance(r["tlx_scores"], str) else r["tlx_scores"]
+            json.loads(r["tlx_scores"])
+            if isinstance(r["tlx_scores"], str)
+            else r["tlx_scores"]
         ).get("decision")
         == "accept"
     )
@@ -675,7 +685,9 @@ async def do_recalibrate_supplier(
 
         existing_entry = None
         if namespace_scoped:
-            existing_entry = resolve_tenant_supplier_override(current_config, namespace_id, key)
+            existing_entry = resolve_tenant_supplier_override(
+                current_config, namespace_id, key
+            )
         if existing_entry is None:
             existing_entry = _find_override_entry(raw_overrides, key)
         if existing_entry is not None and not isinstance(existing_entry, dict):

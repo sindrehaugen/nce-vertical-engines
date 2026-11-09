@@ -74,8 +74,13 @@ def _creds() -> tuple[str, str, str, str] | None:
     site_id = resolve_secret("NCE_SYSTEM_DESIGN_SHAREPOINT_SITE_ID")
     if not site_id:
         return None  # Phase 1b not configured — clean no-op
-    drive_id = resolve_secret("NCE_SYSTEM_DESIGN_SHAREPOINT_DRIVE_ID") or _DEFAULT_DRIVE_ID
-    folder_path = resolve_secret("NCE_SYSTEM_DESIGN_SHAREPOINT_FOLDER_PATH") or _DEFAULT_FOLDER_PATH
+    drive_id = (
+        resolve_secret("NCE_SYSTEM_DESIGN_SHAREPOINT_DRIVE_ID") or _DEFAULT_DRIVE_ID
+    )
+    folder_path = (
+        resolve_secret("NCE_SYSTEM_DESIGN_SHAREPOINT_FOLDER_PATH")
+        or _DEFAULT_FOLDER_PATH
+    )
     access_token = resolve_secret("NCE_SYSTEM_DESIGN_SHAREPOINT_ACCESS_TOKEN") or ""
     return site_id, drive_id, folder_path, access_token
 
@@ -92,9 +97,7 @@ def _upload_url(site_id: str, drive_id: str, folder_path: str, filename: str) ->
     """Construct the Graph upload URL for a named file inside the configured folder."""
     if drive_id == "root":
         return f"{_GRAPH_ROOT}/sites/{site_id}/drive/root:/{folder_path}/{filename}:/content"
-    return (
-        f"{_GRAPH_ROOT}/sites/{site_id}/drives/{drive_id}/root:/{folder_path}/{filename}:/content"
-    )
+    return f"{_GRAPH_ROOT}/sites/{site_id}/drives/{drive_id}/root:/{folder_path}/{filename}:/content"
 
 
 def _download_url(site_id: str, drive_id: str, ref: str) -> str:

@@ -17,7 +17,7 @@ from nce.db_utils import scoped_pg_session
 
 log = logging.getLogger("nce_verticals.vendors.scorecard")
 
-_CONFIG_DATA_DIR = Path(__file__).parents[3] / "nce" / "config_data"
+_CONFIG_DATA_DIR = Path(__file__).resolve().parents[1] / "config_data"
 
 
 def load_scorecard_weights() -> dict[str, float]:
@@ -72,12 +72,16 @@ async def do_compute_scorecard(
             "ytd_progress": params.get("ytd_progress"),
         }
     else:
-        on_time_count = sum(1 for e in events if e.get("on_time") is True or e.get("on_time") == 1)
+        on_time_count = sum(
+            1 for e in events if e.get("on_time") is True or e.get("on_time") == 1
+        )
         defect_count = sum(
             1 for e in events if e.get("defect_rma") is True or e.get("defect_rma") == 1
         )
         sub_count = sum(
-            1 for e in events if e.get("substituted") is True or e.get("substituted") == 1
+            1
+            for e in events
+            if e.get("substituted") is True or e.get("substituted") == 1
         )
 
         on_time_pct = (on_time_count / sample_n) * 100.0

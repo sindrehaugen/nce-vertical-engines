@@ -102,10 +102,16 @@ def validate_contractor_regulatory_compliance(
             parsed_certs.append(c)
 
     def _has_active_cert(cert_keys: list[str]) -> bool:
-        normalized_keys = {k.strip().upper().replace("-", "_").replace(" ", "_") for k in cert_keys}
+        normalized_keys = {
+            k.strip().upper().replace("-", "_").replace(" ", "_") for k in cert_keys
+        }
         for pc in parsed_certs:
             nm = str(
-                pc.get("name") or pc.get("cert_name") or pc.get("code") or pc.get("cert_id") or ""
+                pc.get("name")
+                or pc.get("cert_name")
+                or pc.get("code")
+                or pc.get("cert_id")
+                or ""
             )
             norm_nm = nm.strip().upper().replace("-", "_").replace(" ", "_")
             if any(k in norm_nm or norm_nm in k for k in normalized_keys):
@@ -128,7 +134,9 @@ def validate_contractor_regulatory_compliance(
             verified_requirements.append(f"Faglig Ansvarlig ({fa})")
         else:
             missing_requirements.append("Faglig Ansvarlig")
-            reasons.append("Contractor lacks designated Faglig Ansvarlig (FEK § 5 / § 7)")
+            reasons.append(
+                "Contractor lacks designated Faglig Ansvarlig (FEK § 5 / § 7)"
+            )
 
     # 2. Ekom scope: NKOM ENA registered or active cert
     elif norm_scope == "ekom":
@@ -163,7 +171,10 @@ def validate_contractor_regulatory_compliance(
                 contractor_meta.get(iso_key.lower()) is True
                 or contractor_meta.get(iso_key) is True
                 or iso_key
-                in [str(x).upper().replace("-", "_") for x in contractor_meta.get("iso_certs", [])]
+                in [
+                    str(x).upper().replace("-", "_")
+                    for x in contractor_meta.get("iso_certs", [])
+                ]
                 or iso_key
                 in [
                     str(x).upper().replace("-", "_")
@@ -175,7 +186,9 @@ def validate_contractor_regulatory_compliance(
                 verified_requirements.append(iso_str)
             else:
                 missing_requirements.append(iso_str)
-                reasons.append(f"Missing or expired management system certification: {iso_str}")
+                reasons.append(
+                    f"Missing or expired management system certification: {iso_str}"
+                )
 
     return {
         "compliant": len(reasons) == 0,
@@ -220,7 +233,9 @@ async def do_upsert_cert(
 
     # Parse and normalise expiry_date
     if isinstance(expiry_raw, (date, datetime)):
-        expiry_date_val = expiry_raw.date() if isinstance(expiry_raw, datetime) else expiry_raw
+        expiry_date_val = (
+            expiry_raw.date() if isinstance(expiry_raw, datetime) else expiry_raw
+        )
     else:
         # Support both full ISO timestamps and plain dates
         expiry_str = str(expiry_raw).strip()
@@ -264,7 +279,10 @@ async def do_upsert_cert(
     if engine.mongo_client:
         try:
             async with scoped_mongo_session(engine.mongo_client, ns_uuid) as db:
-                if existing_payload_ref and existing_payload_ref != "000000000000000000000000":
+                if (
+                    existing_payload_ref
+                    and existing_payload_ref != "000000000000000000000000"
+                ):
                     await db.episodes.replace_one(
                         {"_id": ObjectId(existing_payload_ref)},
                         mongo_doc,
@@ -347,7 +365,11 @@ async def do_check_cert_expiry(
     ref_date_raw = params.get("reference_date")
     if ref_date_raw:
         if isinstance(ref_date_raw, (date, datetime)):
-            ref_date = ref_date_raw.date() if isinstance(ref_date_raw, datetime) else ref_date_raw
+            ref_date = (
+                ref_date_raw.date()
+                if isinstance(ref_date_raw, datetime)
+                else ref_date_raw
+            )
         else:
             ref_date = date.fromisoformat(str(ref_date_raw))
     else:
@@ -382,7 +404,9 @@ async def do_check_cert_expiry(
     if payload_refs and engine.mongo_client:
         try:
             async with scoped_mongo_session(engine.mongo_client, ns_uuid) as db:
-                cursor = db.episodes.find({"_id": {"$in": [ObjectId(r) for r in payload_refs]}})
+                cursor = db.episodes.find(
+                    {"_id": {"$in": [ObjectId(r) for r in payload_refs]}}
+                )
                 docs = await cursor.to_list(length=None)
                 docs_by_ref = {str(d["_id"]): d for d in docs}
         except Exception as e:
@@ -417,7 +441,11 @@ async def do_check_cert_expiry(
             else:
                 expiry_date = date.fromisoformat(expiry_date_str)
         except Exception:
-            log.warning("Invalid expiry_date format '%s' for cert %s", expiry_date_str, cert_label)
+            log.warning(
+                "Invalid expiry_date format '%s' for cert %s",
+                expiry_date_str,
+                cert_label,
+            )
             continue
 
         checked += 1
@@ -452,7 +480,8 @@ async def do_check_cert_expiry(
                             "contractor_id": contractor_label or "",
                             "employee_id": contractor_label or "",
                             "resource_id": contractor_label or "",
-                            "cert_name": doc.get("cert_name") or cert_label.split(":")[-1],
+                            "cert_name": doc.get("cert_name")
+                            or cert_label.split(":")[-1],
                             "status": "expired",
                             "valid_to": expiry_date.isoformat(),
                             "expiry_date": expiry_date.isoformat(),

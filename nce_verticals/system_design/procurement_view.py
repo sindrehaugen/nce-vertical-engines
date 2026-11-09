@@ -375,7 +375,9 @@ async def do_get_procurement_view(
     """
     ns_raw = params.get("namespace_id")
     if not ns_raw:
-        raise ValueError("do_get_procurement_view: 'namespace_id' is required in params")
+        raise ValueError(
+            "do_get_procurement_view: 'namespace_id' is required in params"
+        )
     ns_uuid = UUID(str(ns_raw)) if not isinstance(ns_raw, UUID) else ns_raw
 
     design_id_raw = params.get("design_id", "")
@@ -414,7 +416,9 @@ async def do_get_procurement_view(
         geom_version = await fetch_design_version(conn, ns_uuid, design_lbl)
         derived_version = _derive_version_number(design_lbl, meta)
         version = (
-            int(caller_version) if caller_version is not None else (geom_version or derived_version)
+            int(caller_version)
+            if caller_version is not None
+            else (geom_version or derived_version)
         )
 
         is_frozen = bool(caller_version is not None or has_becomes_edge)
@@ -430,7 +434,9 @@ async def do_get_procurement_view(
         # Resolve candidates and rank suppliers for each item
         ranked_items: list[dict[str, Any]] = []
         for it in raw_items:
-            candidates = await _resolve_item_candidates(conn, ns_uuid, it, caller_candidates)
+            candidates = await _resolve_item_candidates(
+                conn, ns_uuid, it, caller_candidates
+            )
             bom_line_input: dict[str, Any] = {
                 "quantity": it["quantity"],
                 "unit_price": it["unit_price"],
@@ -468,7 +474,9 @@ async def do_get_procurement_view(
                     "winning_supplier_id": winner_sup,
                     "winning_supplier_name": winner.get("supplier_name", winner_sup),
                     "ranking_summary": {
-                        "composite_score": round(float(winner.get("composite_score", 0.0)), 4),
+                        "composite_score": round(
+                            float(winner.get("composite_score", 0.0)), 4
+                        ),
                         "score_breakdown": breakdown,
                         "rebate_override": ranking_res.get("rebate_override", False),
                         "rebate_rationale": ranking_res.get("rebate_rationale", ""),
@@ -476,7 +484,9 @@ async def do_get_procurement_view(
                     "winner_candidate": {
                         "supplier_id": winner_sup,
                         "unit_price": winner_unit_price,
-                        "delivery_reliability": float(winner.get("delivery_reliability", 0.8)),
+                        "delivery_reliability": float(
+                            winner.get("delivery_reliability", 0.8)
+                        ),
                         "supplier_tier": int(winner.get("supplier_tier", 1)),
                         "own_stock": bool(winner.get("own_stock", True)),
                     },
@@ -532,7 +542,9 @@ async def do_get_procurement_view(
             "source_id": f"system_design:{design_id}",
             "bom_line": {
                 "quantity": grp["item_count"],
-                "unit_price": round(grp["total_estimated_spend"] / max(1, grp["item_count"]), 2),
+                "unit_price": round(
+                    grp["total_estimated_spend"] / max(1, grp["item_count"]), 2
+                ),
             },
             "line_items": [
                 {
@@ -544,7 +556,9 @@ async def do_get_procurement_view(
                 }
                 for li in grp["line_items"]
             ],
-            "artnrs": [li["model_number"] or li["item_ref"] for li in grp["line_items"]],
+            "artnrs": [
+                li["model_number"] or li["item_ref"] for li in grp["line_items"]
+            ],
             "candidates": [
                 {
                     "supplier_id": sup_id,

@@ -38,8 +38,12 @@ async def upsert_agreement_node(
 
     Label format: Agreement:<agreement_id>
     """
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
-    ag_uuid = UUID(str(agreement_id)) if not isinstance(agreement_id, UUID) else agreement_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
+    ag_uuid = (
+        UUID(str(agreement_id)) if not isinstance(agreement_id, UUID) else agreement_id
+    )
 
     await assert_owner(conn, ns_uuid, "AGREEMENT", _AGREEMENTS_ENGINE)
 
@@ -111,8 +115,12 @@ async def upsert_agreement_term_node(
 
     Label format: AgreementTerm:<agreement_id>:<term_type>
     """
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
-    ag_uuid = UUID(str(agreement_id)) if not isinstance(agreement_id, UUID) else agreement_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
+    ag_uuid = (
+        UUID(str(agreement_id)) if not isinstance(agreement_id, UUID) else agreement_id
+    )
 
     await assert_owner(conn, ns_uuid, "AGREEMENT_TERM", _AGREEMENTS_ENGINE)
 
@@ -166,7 +174,9 @@ async def upsert_agreement_edge(
     agreements_source_id: str | None = None,
 ) -> None:
     """Upsert a kg_edges row under the agreements engine."""
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
 
     await conn.execute(
         """
@@ -196,11 +206,17 @@ async def store_agreement_text_memory(
     trigger: str = "agent",
 ) -> dict[str, Any]:
     """Store raw agreement text in memories and log to v3_cognitive_ledger."""
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
-    ag_uuid = UUID(str(agreement_id)) if not isinstance(agreement_id, UUID) else agreement_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
+    ag_uuid = (
+        UUID(str(agreement_id)) if not isinstance(agreement_id, UUID) else agreement_id
+    )
 
     if not text or not text.strip():
-        log.warning("[AGREEMENT-MEM] skipped empty text for agreement_id=%s", agreement_id)
+        log.warning(
+            "[AGREEMENT-MEM] skipped empty text for agreement_id=%s", agreement_id
+        )
         return {"skipped": "empty text"}
 
     # 1. Compute embedding batch
@@ -282,8 +298,12 @@ async def write_agreement_to_graph_and_memories(
     extracted_data: dict[str, Any],
 ) -> None:
     """Write the agreement nodes, terms nodes, edges, and text memories to the DB."""
-    ns_uuid = UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
-    ag_uuid = UUID(str(agreement_id)) if not isinstance(agreement_id, UUID) else agreement_id
+    ns_uuid = (
+        UUID(str(namespace_id)) if not isinstance(namespace_id, UUID) else namespace_id
+    )
+    ag_uuid = (
+        UUID(str(agreement_id)) if not isinstance(agreement_id, UUID) else agreement_id
+    )
 
     # Helper to get value and confidence from extracted fields
     def get_val_conf(field: str) -> tuple[Any, float]:

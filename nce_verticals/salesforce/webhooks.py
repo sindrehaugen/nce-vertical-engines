@@ -17,7 +17,10 @@ import time
 import uuid
 from typing import Any
 
-from nce_verticals.salesforce.operations import SalesforceOperations, get_global_salesforce_ops
+from nce_verticals.salesforce.operations import (
+    SalesforceOperations,
+    get_global_salesforce_ops,
+)
 
 log = logging.getLogger("nce_verticals.salesforce.webhooks")
 
@@ -49,7 +52,9 @@ class SalesforceWebhookReceiver:
             sig_clean.lower(), expected_hex.lower()
         )
 
-    def parse_payload(self, raw_body: bytes, content_type: str = "application/json") -> list[dict[str, Any]]:
+    def parse_payload(
+        self, raw_body: bytes, content_type: str = "application/json"
+    ) -> list[dict[str, Any]]:
         """
         Normalize either JSON (Platform Event / Change Data Capture / Custom Webhook)
         or SOAP XML (Salesforce Outbound Message) into canonical event dicts.
@@ -83,8 +88,14 @@ class SalesforceWebhookReceiver:
                 or (item.get("ChangeEventHeader") or {}).get("changeType")
                 or "UPSERT"
             ).upper()
-            event_id = str(item.get("event_id") or item.get("replayId") or f"{sobj}:{sf_id}:{change_type}")
-            record_data = item.get("record") if isinstance(item.get("record"), dict) else item
+            event_id = str(
+                item.get("event_id")
+                or item.get("replayId")
+                or f"{sobj}:{sf_id}:{change_type}"
+            )
+            record_data = (
+                item.get("record") if isinstance(item.get("record"), dict) else item
+            )
             normalized.append(
                 {
                     "event_id": event_id,

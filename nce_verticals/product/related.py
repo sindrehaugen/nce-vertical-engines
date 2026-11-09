@@ -89,7 +89,9 @@ _WEIGHTS: dict[str, Any] = _load_relation_weights()
 # ---------------------------------------------------------------------------
 
 #: Predicates this engine is authorised to write.
-_PREDICATES: frozenset[str] = frozenset({"accessory_of", "warranty_for", "mounts", "replaced_by"})
+_PREDICATES: frozenset[str] = frozenset(
+    {"accessory_of", "warranty_for", "mounts", "replaced_by"}
+)
 
 #: Part-number token splitter — splits on dash, slash, space, underscore, dot.
 _TOKEN_SPLIT_RE: re.Pattern[str] = re.compile(r"[-/\s_.]")
@@ -232,7 +234,9 @@ def _find_replacements(
             continue
         shared = len(set(subject_tokens[1:]) & set(cand_tokens[1:]))
         if shared >= _MIN_SHARED_TOKENS:
-            results.append((cand["manufacturer"], cand["mfr_part_no"], _CONF_REPLACEMENT))
+            results.append(
+                (cand["manufacturer"], cand["mfr_part_no"], _CONF_REPLACEMENT)
+            )
     return results
 
 
@@ -241,7 +245,9 @@ def _find_replacements(
 # ---------------------------------------------------------------------------
 
 
-async def do_related_products(engine: NCEEngine, params: dict[str, Any]) -> dict[str, Any]:
+async def do_related_products(
+    engine: NCEEngine, params: dict[str, Any]
+) -> dict[str, Any]:
     """Derive and persist related-product graph edges for a given product.
 
     Derives ``accessory_of``, ``warranty_for``, ``mounts``, and

@@ -68,7 +68,9 @@ log = logging.getLogger("nce_verticals.product.golden_record")
 def load_manufacturer_sources() -> dict[str, Any]:
     """Load source trust weights and manufacturer adapter mapping (config-as-IP)."""
     config_path = (
-        Path(__file__).resolve().parent.parent.parent / "config_data" / "manufacturer-sources.json"
+        Path(__file__).resolve().parent.parent.parent
+        / "config_data"
+        / "manufacturer-sources.json"
     )
     with config_path.open("r", encoding="utf-8") as fh:
         return json.load(fh)
@@ -137,7 +139,9 @@ def resolve_source_trust(source: str | None, manufacturer: str | None = None) ->
 def _load_trusted_min_grade() -> str:
     """Load TRUSTED_MIN_GRADE from config_data/product-quality.json (config-as-IP)."""
     config_path = (
-        Path(__file__).resolve().parent.parent.parent / "config_data" / "product-quality.json"
+        Path(__file__).resolve().parent.parent.parent
+        / "config_data"
+        / "product-quality.json"
     )
     with config_path.open("r", encoding="utf-8") as fh:
         data = json.load(fh)
@@ -303,7 +307,9 @@ def _build_field_candidates(
         else:
             source_trust = resolve_source_trust(source, manufacturer)
 
-        as_of = str(raw.get("as_of") or prov.get("as_of") or "1970-01-01T00:00:00+00:00")
+        as_of = str(
+            raw.get("as_of") or prov.get("as_of") or "1970-01-01T00:00:00+00:00"
+        )
         confidence = float(raw.get("confidence", prov.get("confidence", 0.5)))
 
         return {
@@ -450,7 +456,10 @@ async def do_golden_record(
 
     pool = (
         engine.pg_pool
-        if ("pg_pool" in getattr(engine, "__dict__", {}) or hasattr(type(engine), "pg_pool"))
+        if (
+            "pg_pool" in getattr(engine, "__dict__", {})
+            or hasattr(type(engine), "pg_pool")
+        )
         else engine
     )
 

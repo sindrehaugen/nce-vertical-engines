@@ -273,7 +273,9 @@ def _event_type_of(event: dict[str, Any]) -> str:
     """
     event_type = event.get("type")
     if not isinstance(event_type, str) or not event_type.strip():
-        raise ValueError(f"financial event: 'type' must be a non-empty string, got {event_type!r}")
+        raise ValueError(
+            f"financial event: 'type' must be a non-empty string, got {event_type!r}"
+        )
     return event_type
 
 
@@ -312,7 +314,9 @@ def _assert_account(raw: dict[str, Any], index: int) -> None:
 def _normalise_posting(raw: Any, index: int) -> dict[str, Any]:
     """Copy one posting, replacing ``amount`` with its exact ``Decimal``. Never mutates *raw*."""
     if not isinstance(raw, dict):
-        raise ValueError(f"postings[{index}]: expected an object, got {type(raw).__name__}")
+        raise ValueError(
+            f"postings[{index}]: expected an object, got {type(raw).__name__}"
+        )
     _assert_account(raw, index)
     if "amount" not in raw:
         raise ValueError(f"postings[{index}]: missing 'amount'")
@@ -332,7 +336,9 @@ def _normalise_postings(raw: Any) -> list[dict[str, Any]] | None:
     if not isinstance(raw, (list, tuple)):
         # Explicit: a str would be walked character by character and a dict would yield its
         # keys, both of which "succeed" at producing nonsense.
-        raise ValueError(f"financial event: 'postings' must be a list, got {type(raw).__name__}")
+        raise ValueError(
+            f"financial event: 'postings' must be a list, got {type(raw).__name__}"
+        )
     return [_normalise_posting(posting, index) for index, posting in enumerate(raw)]
 
 
@@ -370,7 +376,9 @@ def _sum_amounts(postings: list[dict[str, Any]]) -> Decimal:
     return total
 
 
-def _assert_balanced(event_type: str, tolerance: Decimal, postings: list[dict[str, Any]]) -> None:
+def _assert_balanced(
+    event_type: str, tolerance: Decimal, postings: list[dict[str, Any]]
+) -> None:
     """Raise ``UnbalancedPostingsError`` unless the postings sum to zero within *tolerance*.
 
     Ported 1:1 from ``assertBalanced``: the comparison is ``> tolerance``, so a difference of
@@ -410,7 +418,9 @@ def _canonicalise(value: Any, path: str) -> Any:
         # A calendar day, not an instant — no offset to normalise away.
         return _TIME_TAG + value.isoformat()
     if isinstance(value, (list, tuple)):
-        return [_canonicalise(item, f"{path}[{index}]") for index, item in enumerate(value)]
+        return [
+            _canonicalise(item, f"{path}[{index}]") for index, item in enumerate(value)
+        ]
     if isinstance(value, dict):
         canonical: dict[str, Any] = {}
         for key, item in value.items():
@@ -420,7 +430,9 @@ def _canonicalise(value: Any, path: str) -> Any:
                 )
             canonical[key] = _canonicalise(item, f"{path}.{key}")
         return canonical
-    raise ValueError(f"{path}: value of type {type(value).__name__} cannot be canonically hashed")
+    raise ValueError(
+        f"{path}: value of type {type(value).__name__} cannot be canonically hashed"
+    )
 
 
 def _content_hash(event: dict[str, Any]) -> str:
@@ -481,7 +493,9 @@ def do_emit_financial_event(epsilon: float, event: dict[str, Any]) -> dict[str, 
     """
     tolerance = _as_tolerance(epsilon)
     if not isinstance(event, dict):
-        raise ValueError(f"financial event: expected an object, got {type(event).__name__}")
+        raise ValueError(
+            f"financial event: expected an object, got {type(event).__name__}"
+        )
 
     event_type = _event_type_of(event)
     postings = _normalise_postings(event.get("postings"))

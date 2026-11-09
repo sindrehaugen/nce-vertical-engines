@@ -105,7 +105,9 @@ async def do_record_failure_pattern(
 
     failure_mode = str(params.get("failure_mode") or "").strip()
     severity = str(params.get("severity") or "major").strip().lower()
-    pattern_notes = str(params.get("pattern_notes") or params.get("notes") or "").strip()
+    pattern_notes = str(
+        params.get("pattern_notes") or params.get("notes") or ""
+    ).strip()
 
     now_dt = datetime.datetime.now(datetime.timezone.utc)
     asset_subject = f"ASSET:{asset_uuid}"
