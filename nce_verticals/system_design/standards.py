@@ -92,6 +92,11 @@ AV_STANDARDS_CATEGORIES: list[dict[str, Any]] = [
         "label": "ECSS / ISO 26262 Derating, RoHS 3 & IPC/ESD",
         "description": "ECSS-Q-ST-30-11C / IEC 61508 / ISO 26262 component derating, EU RoHS 3 / REACH, J-STD-033 MSL, and EN 61340-5-1 ESD.",
     },
+    {
+        "key": "lighting_dali2_en12464",
+        "label": "EN 12464-1 Lighting, Relux & IEC 62386 DALI-2 / Glamox",
+        "description": "EN 12464-1 indoor lighting (Lux, U0, UGR, Ra), IEC 62386 DALI-2 bus sizing (64 ECG/64 ECD, 250mA, <=2V drop), and Glamox DT6/DT8/D4i luminaire integration.",
+    },
 ]
 
 AV_STANDARDS_ITEMS: list[dict[str, Any]] = [
@@ -378,6 +383,38 @@ AV_STANDARDS_ITEMS: list[dict[str, Any]] = [
         "footwear_max_resistance_ohm": 1.0e8,
         "min_relative_humidity_pct": 30.0,
         "usage_rule": "Personnel grounding wrist straps in EPA must measure between 0.75 MΩ and 35.0 MΩ. Worksurface mats must measure < 1.0 GΩ to ground, and ambient relative humidity should remain >= 30%.",
+    },
+    {
+        "id": "IEC-62386-DALI2",
+        "category": "lighting_dali2_en12464",
+        "name": "IEC 62386 DALI-2 Digital Addressable Lighting Interface",
+        "standard": "IEC 62386-101 / 102 / 103 / 202 / 207 / 209 / 301-304",
+        "max_ecg_addresses_per_line": 64,
+        "max_ecd_addresses_per_line": 64,
+        "max_bus_current_ma": 250.0,
+        "max_voltage_drop_v": 2.0,
+        "max_cable_length_1_5mm2_m": 300.0,
+        "usage_rule": "Each DALI-2 line supports up to 64 ECG control gear addresses (0..63, 16 groups, 16 scenes) and 64 ECD control device addresses (sensors/switches, Parts 301-304). Bus current must not exceed PSU rating (max 250 mA) and loop voltage drop must remain <= 2.0 V (max 300 m @ 1.5 mm² Cu). Closed ring topologies are prohibited.",
+    },
+    {
+        "id": "EN-12464-1-2021",
+        "category": "lighting_dali2_en12464",
+        "name": "EN 12464-1:2021 Indoor Workplace Photometric & Glare Compliance",
+        "standard": "EN 12464-1:2021 / EN 1838 / EN 15193-1",
+        "office_em_lux": 500.0,
+        "office_u0_min": 0.60,
+        "office_ugr_max": 19.0,
+        "office_ra_min": 80,
+        "usage_rule": "Office writing/reading/CAD zones require maintained illuminance Em >= 500 lx (750 lx for CAD), uniformity U0 >= 0.60, glare rating UGR <= 19 (<= 16 for CAD/control rooms), and CRI Ra >= 80.",
+    },
+    {
+        "id": "GLAMOX-DALI2-TWH",
+        "category": "lighting_dali2_en12464",
+        "name": "Glamox DALI-2 / DT8 Tunable White & Ethernet2DALI Integration",
+        "standard": "IEC 62386-207 (DT6) / 209 (DT8) / 202 (DT1) / D4i (Parts 251-253)",
+        "models_covered": ["C95-R/S/P", "C80-PR/SR", "C77-R/P", "D70-R", "C90-R", "i80", "i40", "MAX-EX"],
+        "controller": "Glamox Ethernet2DALI (3x DALI-2 lines, 240 mA/line, BACnet/IP & MQTT)",
+        "usage_rule": "Glamox luminaires with MP/SI optics satisfy UGR <= 19/16. DALI-2 DT8 Tunable White (TWH 827-865) uses single short address for both intensity and Mirek color temperature (154..370 Mirek). Account for LED driver capacitive inrush current when sizing B16/C16 MCBs per NEK 400.",
     },
 ]
 

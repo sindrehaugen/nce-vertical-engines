@@ -33,6 +33,33 @@ dev = [
 
 [project.entry-points."nce.plugins"]
 nce_verticals = "nce_verticals.plugin:VerticalEnginesPlugin"
+agreements = "nce_verticals.plugin:AgreementsPlugin"
+assets = "nce_verticals.plugin:AssetsPlugin"
+business_insights = "nce_verticals.plugin:BusinessInsightsPlugin"
+customer_portal = "nce_verticals.plugin:CustomerPortalPlugin"
+diagnostics = "nce_verticals.plugin:DiagnosticsPlugin"
+dynamics365 = "nce_verticals.plugin:Dynamics365Plugin"
+economy = "nce_verticals.plugin:EconomyPlugin"
+field_tech = "nce_verticals.plugin:FieldTechPlugin"
+geodata = "nce_verticals.plugin:GeodataPlugin"
+hr = "nce_verticals.plugin:HRPlugin"
+inventory = "nce_verticals.plugin:InventoryPlugin"
+legal_entities = "nce_verticals.plugin:LegalEntitiesPlugin"
+marketing = "nce_verticals.plugin:MarketingPlugin"
+netbox = "nce_verticals.plugin:NetboxPlugin"
+notifications = "nce_verticals.plugin:NotificationsPlugin"
+procurement = "nce_verticals.plugin:ProcurementPlugin"
+product = "nce_verticals.plugin:ProductPlugin"
+project = "nce_verticals.plugin:ProjectPlugin"
+resources = "nce_verticals.plugin:ResourcesPlugin"
+sales = "nce_verticals.plugin:SalesPlugin"
+sites = "nce_verticals.plugin:SitesPlugin"
+support = "nce_verticals.plugin:SupportPlugin"
+system_design = "nce_verticals.plugin:SystemDesignPlugin"
+vendors = "nce_verticals.plugin:VendorsPlugin"
+entra_id = "nce_verticals.plugin:EntraIDPlugin"
+salesforce = "nce_verticals.plugin:SalesforcePlugin"
+lighting_dali = "nce_verticals.plugin:LightingDaliPlugin"
 
 [tool.hatch.build.targets.wheel]
 packages = ["nce_verticals"]
