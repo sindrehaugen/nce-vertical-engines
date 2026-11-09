@@ -1,0 +1,38 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "nce-vertical-engines"
+version = "0.1.0"
+description = "20 operational business engines, NetBox/D365 integrations, and regulatory modules built on the Neuro-Cognitive Engine (NCE) substrate"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "AGPL-3.0-only" }
+authors = [
+    { name = "Sindre Løvlie Haugen", email = "sindre.haugen@gmail.com" },
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU Affero General Public License v3",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "neuro-cognitive-engine",
+    "pydantic>=2.0.0",
+    "asyncpg>=0.29.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "ruff>=0.1.0",
+    "mypy>=1.5.0",
+]
+
+[project.entry-points."nce.plugins"]
+nce_verticals = "nce_verticals.plugin:VerticalEnginesPlugin"
+
+[tool.hatch.build.targets.wheel]
+packages = ["nce_verticals"]
