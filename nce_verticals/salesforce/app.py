@@ -1,8 +1,7 @@
 """
 nce_verticals/salesforce/app.py
 ===============================
-Standalone ASGI Application for the Salesforce Vertical Engine, Relux / DALI-2 /
-Glamox Engine, and Microsoft Entra ID Identification Gate.
+Standalone ASGI Application for the Salesforce Vertical Engine and Microsoft Entra ID Identification Gate.
 Can run completely independently via `salesforce_server.py` or mounted into NCE.
 """
 
@@ -11,7 +10,6 @@ from __future__ import annotations
 from typing import Any
 
 from nce_verticals.admin_handlers import entra_id as entra_handlers
-from nce_verticals.admin_handlers import lighting_dali as ld_handlers
 from nce_verticals.admin_handlers import salesforce as sf_handlers
 from nce_verticals.admin_handlers.salesforce import JSONResponse
 from nce_verticals.plugin import Route
@@ -32,7 +30,7 @@ async def healthz(request: Any) -> JSONResponse:
     return JSONResponse(
         {
             "status": "ok",
-            "engines": ["entra_id", "salesforce", "lighting_dali"],
+            "engines": ["entra_id", "salesforce"],
             "entra_gate": "enabled",
         }
     )
@@ -104,31 +102,6 @@ def create_standalone_salesforce_app() -> Starlette:
         Route(
             "/api/webhooks/salesforce",
             endpoint=sf_handlers.api_salesforce_webhook_ingest,
-            methods=["POST"],
-        ),
-        Route(
-            "/api/admin/lighting-dali/catalog",
-            endpoint=ld_handlers.api_admin_lighting_catalog,
-            methods=["GET"],
-        ),
-        Route(
-            "/api/admin/lighting-dali/analyze-project",
-            endpoint=ld_handlers.api_admin_lighting_analyze_project,
-            methods=["POST"],
-        ),
-        Route(
-            "/api/admin/lighting-dali/analyze-bus",
-            endpoint=ld_handlers.api_admin_lighting_analyze_dali_bus,
-            methods=["POST"],
-        ),
-        Route(
-            "/api/admin/lighting-dali/parse-photometric",
-            endpoint=ld_handlers.api_admin_lighting_parse_photometric,
-            methods=["POST"],
-        ),
-        Route(
-            "/api/admin/lighting-dali/decode-glamox",
-            endpoint=ld_handlers.api_admin_lighting_decode_glamox,
             methods=["POST"],
         ),
     ]

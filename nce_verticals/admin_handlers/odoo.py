@@ -142,33 +142,10 @@ async def api_admin_odoo_crosstalk(request: Any) -> JSONResponse:
     action = str(body.get("action") or "prompt").strip().lower()
     ct = OdooLLMCrossTalker()
     try:
-        if action == "bridge_relux":
-            res = await ct.bridge_relux_lighting_to_odoo(
-                body.get("project")
-                or {
-                    "project_name": "Oslo HQ Glamox DALI-2 Upgrade",
-                    "source_tool": "relux",
-                    "rooms": [
-                        {
-                            "room_id": "RM-301",
-                            "name": "Executive Boardroom",
-                            "zone_code": "MEETING_ROOM",
-                            "length_m": 10.0,
-                            "width_m": 6.0,
-                            "height_m": 2.8,
-                            "luminaires": [
-                                {"code": "Glamox C95-R 600x600 4000 TWH 827-865 MP", "quantity": 12}
-                            ],
-                        }
-                    ],
-                }
-            )
-            return JSONResponse(res)
-
         if action == "bridge_salesforce":
             res = await ct.bridge_salesforce_to_odoo(
-                sf_account_name=str(body.get("sf_account_name") or "Glamox Marine Client AS"),
-                sf_opportunity_name=str(body.get("sf_opportunity_name") or "North Sea DALI-2 Package"),
+                sf_account_name=str(body.get("sf_account_name") or "Nordic Systems AS"),
+                sf_opportunity_name=str(body.get("sf_opportunity_name") or "Enterprise Server Infrastructure"),
                 expected_revenue=float(body.get("expected_revenue", 920000.0)),
             )
             return JSONResponse(res)

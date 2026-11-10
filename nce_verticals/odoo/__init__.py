@@ -13,7 +13,7 @@ Capabilities:
    - 360° Executive ERP Pulse (`executive_erp_pulse`)
 4. Full Bidirectional LLM Cross-Talker (`OdooLLMCrossTalker`):
    - Odoo Chatter (`mail.message`) & Discuss (`discuss.channel`) `@nce` / `@llm` conversational agent.
-   - Cross-Engine orchestration bridging Odoo <-> Salesforce <-> Relux/Glamox DALI-2 <-> NCE Graph.
+   - Cross-Engine orchestration bridging Odoo <-> Salesforce <-> NCE Graph.
 """
 
 from typing import Any

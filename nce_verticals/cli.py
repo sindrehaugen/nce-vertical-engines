@@ -1,4 +1,4 @@
-"""CLI for inspecting and filtering the 23 modular NCE Vertical Engines (`nce-verticals`)."""
+"""CLI for inspecting and filtering the 22 modular NCE Vertical Engines (`nce-verticals`)."""
 
 from __future__ import annotations
 
@@ -19,7 +19,7 @@ from nce_verticals.registry import (
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="nce-verticals",
-        description="Inspect and filter the 23 NCE Vertical Engines across Type and Business Category axes.",
+        description="Inspect and filter the 22 NCE Vertical Engines across Type and Business Category axes.",
     )
     subparsers = parser.add_subparsers(dest="command")
 

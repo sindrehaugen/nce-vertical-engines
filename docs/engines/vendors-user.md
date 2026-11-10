@@ -68,7 +68,7 @@ Retrieves the complete canonical profile of a vendor, including merged master da
 
 // Response
 {
-  "id": "7b8f9e2d-3c4a-4e5f-8a1b-2c3d4e5f6a7b",
+  "id": "7b8f9a1b-3c4a-4e5f-8a1b-2c3d4e5f6a7b",
   "label": "VENDOR:987654321",
   "vendors_source_id": "NETTAILER-SUPPLIER-4412",
   "name": "EET Group AS",

@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "nce-vertical-engines"
-version = "3.1.0"
-description = "23 modular business, ERP/CRM, and IoT vertical engines for the Neuro-Cognitive Engine (NCE) substrate — installable individually, by Type filter, by Business Category filter, or all together."
+version = "3.2.0"
+description = "22 modular business, ERP/CRM, and IoT vertical engines for the Neuro-Cognitive Engine (NCE) substrate — installable individually, by Type filter, by Business Category filter, or all together."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "AGPL-3.0-only" }
@@ -33,7 +33,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-# --- Per-Engine Extras (23 Engines) ---
+# --- Per-Engine Extras (22 Engines) ---
 product = []
 procurement = ["scipy>=1.11.0"]
 agreements = []
@@ -56,7 +56,6 @@ dynamics365 = ["msal>=1.28.0", "httpx>=0.27.0"]
 diagnostics = ["psutil>=5.9.0"]
 odoo = ["httpx>=0.27.0", "PyJWT[crypto]>=2.9.0"]
 salesforce = ["simple-salesforce>=1.12.0", "httpx>=0.27.0", "PyJWT[crypto]>=2.9.0"]
-lighting_dali = ["httpx>=0.27.0", "PyJWT[crypto]>=2.9.0"]
 
 # --- Axis 1: Type Filter Extras (5 Types) ---
 type-core-domain = ["numpy>=1.26.0", "scipy>=1.11.0"]
@@ -98,7 +97,6 @@ nce-verticals = "nce_verticals.cli:main"
 nce-portal-server = "nce_verticals.servers.portal:main"
 nce-odoo-server = "nce_verticals.servers.odoo:main"
 nce-salesforce-server = "nce_verticals.servers.salesforce:main"
-nce-lighting-dali-server = "nce_verticals.servers.lighting_dali:main"
 
 [project.entry-points."nce.plugins"]
 nce_verticals = "nce_verticals.plugin:VerticalEnginesPlugin"
@@ -131,7 +129,6 @@ system_design = "nce_verticals.plugin:SystemDesignPlugin"
 vendors = "nce_verticals.plugin:VendorsPlugin"
 entra_id = "nce_verticals.plugin:EntraIDPlugin"
 salesforce = "nce_verticals.plugin:SalesforcePlugin"
-lighting_dali = "nce_verticals.plugin:LightingDaliPlugin"
 odoo = "nce_verticals.plugin:OdooPlugin"
 
 [tool.hatch.metadata]

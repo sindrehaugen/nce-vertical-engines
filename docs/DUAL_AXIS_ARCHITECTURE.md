@@ -6,7 +6,7 @@
 
 ## 1. Executive Overview & Design Motivation
 
-`nce-vertical-engines` provides 23 specialized business engines, ERP/CRM bridges, and infrastructure adapters built upon the **Neuro-Cognitive Engine (NCE)** substrate. Historically, vertical plugins were registered as either an all-or-nothing monolithic package or via individual manual imports. 
+`nce-vertical-engines` provides 22 specialized business engines, ERP/CRM bridges, and infrastructure adapters built upon the **Neuro-Cognitive Engine (NCE)** substrate. Historically, vertical plugins were registered as either an all-or-nothing monolithic package or via individual manual imports. 
 
 As enterprise deployment environments diversify—ranging from lightweight IoT edge appliances and field-technician mobile sync gateways to heavy multi-tenant ERP/CRM cloud nodes—deployments require **fine-grained, orthogonal selection of vertical capabilities**.
 
@@ -69,7 +69,7 @@ Axis 1 classifies engines based on their runtime execution topology, dependencie
 |:---|:---|:---|:---|
 | `core-domain` | Core Domain Services | Core transactional and computational business engines that operate directly against NCE's Quad-DB substrate and knowledge graph. | `product`, `procurement`, `agreements`, `vendors`, `sales`, `system_design`, `project`, `economy`, `inventory`, `assets`, `support`, `resources`, `field_tech`, `hr`, `marketing`, `business_insights` |
 | `erp-crm` | ERP & CRM Connectors | Bidirectional enterprise sync engines connecting external system-of-record databases and APIs into NCE's graph and change-tracking ledgers. | `dynamics365`, `salesforce`, `odoo` |
-| `infra-iot` | Infrastructure & IoT | Network topology, hardware discovery, room sensors, DALI-2/lighting protocols, and physical infrastructure controllers. | `netbox`, `lighting_dali`, `assets`, `system_design`, `diagnostics` |
+| `infra-iot` | Infrastructure & IoT | Network topology, hardware discovery, room sensors, and physical infrastructure controllers. | `netbox`, `assets`, `system_design`, `diagnostics` |
 | `observability` | Observability & Diagnostics | Telemetry digestion, log anomaly detection, cross-engine risk radar, and executive analytics. | `diagnostics`, `business_insights`, `netbox` |
 | `portal` | Customer & Partner Portals | External-facing unprivileged ASGI application shells executing under strict C3 principal confinement. | `customer_portal` |
 
@@ -83,13 +83,13 @@ Axis 2 classifies engines based on operational responsibility, business units, a
 | `operations-delivery` | Operations & Delivery | Stage-gate project execution (G0–G6), multi-warehouse inventory algebra, resource capacity, and ISO competency matrices. | `procurement`, `vendors`, `project`, `inventory`, `assets`, `resources`, `field_tech`, `hr`, `netbox` |
 | `finance-governance` | Finance & Governance | NGAAP accounting cascades, PEPPOL e-invoicing, volume rebates (kickbacks), balance verification triggers, and contract audits. | `agreements`, `economy`, `hr`, `business_insights`, `odoo` |
 | `service-support` | Service & Support | Multi-tier ticketing, automated SLA countdown clocks, on-call rotation, hardware health profiling, and customer self-service. | `assets`, `support`, `customer_portal`, `diagnostics`, `dynamics365` |
-| `av-it-integrator` | AV/IT Integrator Specialist | Specialized AV/IT topology design, Functional Location trees, NetBox DCIM sync, DALI-2 lighting systems, and distributor BOM matching. | `product`, `system_design`, `inventory`, `assets`, `netbox`, `diagnostics`, `lighting_dali` |
+| `av-it-integrator` | AV/IT Integrator Specialist | Specialized AV/IT topology design, Functional Location trees, NetBox DCIM sync, and distributor BOM matching. | `product`, `system_design`, `inventory`, `assets`, `netbox`, `diagnostics` |
 | `enterprise-erp` | Enterprise ERP & CRM | Large-scale external enterprise platforms managing master accounts, contacts, field services, and ledger sync. | `dynamics365`, `salesforce`, `odoo` |
-| `field-service-ops` | Field Service Operations | Mobile work orders, offline synchronization, technician checklists, lightning/electrical commissioning, and site logistics. | `resources`, `field_tech`, `lighting_dali` |
+| `field-service-ops` | Field Service Operations | Mobile work orders, offline synchronization, technician checklists, and site logistics. | `resources`, `field_tech` |
 
 ---
 
-## 3. The 23-Engine Catalog & Metadata Matrix
+## 3. The 22-Engine Catalog & Metadata Matrix
 
 Every engine specifies its dual-axis classification, optional Python SDK dependencies, and required SQL schema migrations:
 
@@ -117,7 +117,6 @@ Every engine specifies its dual-axis classification, optional Python SDK depende
 | `diagnostics` | Diagnostics Profiler | `observability`, `infra-iot` | `service-support`, `av-it-integrator` | `diagnostics` | `004_diagnostics` |
 | `odoo` | Odoo ERP Connector | `erp-crm` | `enterprise-erp`, `commercial`, `finance-governance` | `odoo` | `081_odoo_vertical_engine` |
 | `salesforce` | Salesforce CRM | `erp-crm` | `commercial`, `enterprise-erp` | `salesforce`, `entra_id` | `075_entra_id_security_gate`, `076_salesforce_vertical_engine` |
-| `lighting_dali` | Lighting DALI-2 & Glamox | `infra-iot` | `av-it-integrator`, `field-service-ops` | `lighting_dali` | `077_lighting_dali_vertical_engine` |
 
 ---
 
@@ -127,7 +126,7 @@ The Dual-Axis Engine Resolver resolves the active engine set $E_{\text{active}}$
 
 ### Resolution Formalism
 
-Let $\mathcal{U}$ be the universe of all 23 vertical engines.
+Let $\mathcal{U}$ be the universe of all 22 vertical engines.
 Let $T(e) \subseteq \text{Types}$ be the set of types associated with engine $e \in \mathcal{U}$.
 Let $C(e) \subseteq \text{Categories}$ be the set of categories associated with engine $e \in \mathcal{U}$.
 
@@ -186,7 +185,6 @@ flowchart TD
     M031 --> M054["054_assets_shell_product"]
     
     M075["075_entra_id_security_gate"] --> M076["076_salesforce_vertical_engine"]
-    M077["077_lighting_dali_vertical_engine"]
     M081["081_odoo_vertical_engine"]
 ```
 
@@ -244,7 +242,7 @@ When `VerticalEnginesPlugin` boots within NCE Core's orchestrator (`NCEEngine`),
 
 ## 7. Standalone Server Architecture & Process Isolation
 
-To support micro-deployments, four engines ship with dedicated, standalone ASGI server entrypoints:
+To support micro-deployments, three engines ship with dedicated, standalone ASGI server entrypoints:
 
 ```mermaid
 flowchart LR
@@ -256,7 +254,6 @@ flowchart LR
         P[nce-portal-server · Port 8010]
         O[nce-odoo-server · Port 8011]
         S[nce-salesforce-server · Port 8012]
-        L[nce-lighting-dali-server · Port 8013]
     end
 
     subgraph Core [NCE Core Substrate]
@@ -266,12 +263,10 @@ flowchart LR
     CADDY -->|/api/portal/*| P
     CADDY -->|/api/admin/odoo/*| O
     CADDY -->|/api/admin/salesforce/*| S
-    CADDY -->|/api/lighting/*| L
 
     P --> QUAD
     O --> QUAD
     S --> QUAD
-    L --> QUAD
 ```
 
 1. **`nce-portal-server` (Port 8010)**:
@@ -284,9 +279,6 @@ flowchart LR
 3. **`nce-salesforce-server` (Port 8012)**:
    - Module: `nce_verticals.servers.salesforce:app`
    - Purpose: Salesforce REST/Bulk 2.0 sync gated by Microsoft Entra ID authentication.
-4. **`nce-lighting-dali-server` (Port 8013)**:
-   - Module: `nce_verticals.servers.lighting_dali:app`
-   - Purpose: IEC 62386 DALI-2 line inspection and Glamox/DIALux lighting analytics.
 
 ---
 
