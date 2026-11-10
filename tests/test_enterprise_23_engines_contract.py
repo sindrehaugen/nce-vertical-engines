@@ -13,6 +13,7 @@ import ast
 import base64
 import json
 import os
+import sys
 import time
 import uuid
 from pathlib import Path
@@ -23,7 +24,6 @@ import pytest
 from cryptography.hazmat.primitives.asymmetric import rsa
 
 from nce_verticals.plugin import VerticalEnginesPlugin
-from nce_verticals.project.baseline import _read_signed_baseline
 from nce_verticals.registry import (
     ENGINE_REGISTRY,
     VALID_CATEGORIES,
@@ -35,7 +35,6 @@ from nce_verticals.security.entra_id import (
     EntraVerificationError,
     verify_jwt_signature_with_jwks,
 )
-from nce_verticals.system_design.to_quote import _propose_quote_to_sales
 
 os.environ.setdefault(
     "NCE_MASTER_KEY",
@@ -226,6 +225,14 @@ async def test_entra_authenticator_with_jwks_rs256(rsa_keypair):
 @pytest.mark.asyncio
 async def test_sales_project_live_bridge_opt_in_seams():
     """Verify live bridge opt-in contracts for _propose_quote_to_sales and _read_signed_baseline."""
+    sys.modules.setdefault("mcp", MagicMock())
+    sys.modules.setdefault("mcp.types", MagicMock())
+    sys.modules.setdefault("redis", MagicMock())
+    sys.modules.setdefault("redis.asyncio", MagicMock())
+
+    from nce_verticals.project.baseline import _read_signed_baseline
+    from nce_verticals.system_design.to_quote import _propose_quote_to_sales
+
     ns_id = uuid.uuid4()
 
     # 1. System Design -> Sales Seam (_propose_quote_to_sales)
