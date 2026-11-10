@@ -35,9 +35,22 @@ def main() -> None:
     port = int(os.environ.get("NCE_ODOO_PORT", os.environ.get("ODOO_PORT", "8093")))
     workers = int(os.environ.get("NCE_ODOO_WORKERS", "1"))
     if workers > 1:
-        uvicorn.run("nce_verticals.servers.odoo:app", host=host, port=port, workers=workers)
+        uvicorn.run(
+            "nce_verticals.servers.odoo:app",
+            host=host,
+            port=port,
+            workers=workers,
+            timeout_keep_alive=30,
+            timeout_graceful_shutdown=15,
+        )
     else:
-        uvicorn.run(app, host=host, port=port)
+        uvicorn.run(
+            app,
+            host=host,
+            port=port,
+            timeout_keep_alive=30,
+            timeout_graceful_shutdown=15,
+        )
 
 
 if __name__ == "__main__":

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "nce-vertical-engines"
-version = "3.0.1"
+version = "3.1.0"
 description = "23 modular business, ERP/CRM, and IoT vertical engines for the Neuro-Cognitive Engine (NCE) substrate — installable individually, by Type filter, by Business Category filter, or all together."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -18,7 +18,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "nce @ git+https://github.com/sindrehaugen/neuro-cognitive-engine.git@v3.0.1",
+    "nce @ git+https://github.com/sindrehaugen/neuro-cognitive-engine.git@v3.1.0",
 
     "pydantic>=2.7.0",
     "asyncpg>=0.29.0",
@@ -155,4 +155,13 @@ ignore = ["E501"]
 
 [tool.mypy]
 ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"
+markers = [
+    "integration: integration tests requiring live backing services",
+    "live: live external service tests",
+    "perf: performance benchmark tests",
+    "doc_gate: documentation ratchet gate tests",
+]
 

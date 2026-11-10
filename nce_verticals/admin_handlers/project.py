@@ -197,12 +197,8 @@ async def api_project_get_bom_lines(request) -> JSONResponse:
 
     try:
         async with scoped_pg_session(admin_state.engine.pg_pool, namespace_id) as conn:
-            lines = await list_bom_lines_for_quote(
-                conn, namespace_id, quote_id=quote_id
-            )
-        return JSONResponse(
-            {"project_id": project_id, "quote_id": quote_id, "bom_lines": lines}
-        )
+            lines = await list_bom_lines_for_quote(conn, namespace_id, quote_id=quote_id)
+        return JSONResponse({"project_id": project_id, "quote_id": quote_id, "bom_lines": lines})
     except Exception as exc:
         return admin_error_response(
             "Project get-bom-lines error",
@@ -274,9 +270,7 @@ async def api_project_advance_phase(request) -> JSONResponse:
 
     # Mirror the MCP dispatch loop: invalidate this module's cacheable MCP
     # read tools now the phase advance has committed.
-    await bump_mcp_cache_generation(
-        admin_state.engine, route="api_project_advance_phase"
-    )
+    await bump_mcp_cache_generation(admin_state.engine, route="api_project_advance_phase")
 
     if result.get("ok"):
         return JSONResponse(result)
@@ -292,9 +286,7 @@ async def api_project_advance_phase(request) -> JSONResponse:
         )
 
     # Bad params / absent project → 400
-    return JSONResponse(
-        {"error": result.get("error", "advance_phase failed")}, status_code=400
-    )
+    return JSONResponse({"error": result.get("error", "advance_phase failed")}, status_code=400)
 
 
 # ---------------------------------------------------------------------------
@@ -333,9 +325,7 @@ async def api_admin_project_my_day(request) -> JSONResponse:
 
         result = await do_my_day(admin_state.engine, params)
         if not result.get("ok"):
-            return JSONResponse(
-                {"error": result.get("error", "do_my_day failed")}, status_code=400
-            )
+            return JSONResponse({"error": result.get("error", "do_my_day failed")}, status_code=400)
         return JSONResponse(result)
     except Exception as exc:
         return admin_error_response(
@@ -585,9 +575,7 @@ async def api_project_generate_case_study(request) -> JSONResponse:
             log_event="api_project_generate_case_study",
         )
 
-    await bump_mcp_cache_generation(
-        admin_state.engine, route="api_project_generate_case_study"
-    )
+    await bump_mcp_cache_generation(admin_state.engine, route="api_project_generate_case_study")
 
     if result.get("ok"):
         return JSONResponse(result)
@@ -643,12 +631,13 @@ async def api_project_recall_similar(request) -> JSONResponse:
         if request.method == "POST"
         else request.query_params.get("namespace_id")
     )
-    namespace_id, ns_err = _require_namespace_id(
-        raw_ns,
-        missing_error=_MISSING_NAMESPACE_QUERY_PARAM
-        if request.method != "POST"
-        else None,
-    )
+    if request.method == "POST":
+        namespace_id, ns_err = _require_namespace_id(raw_ns)
+    else:
+        namespace_id, ns_err = _require_namespace_id(
+            raw_ns,
+            missing_error=_MISSING_NAMESPACE_QUERY_PARAM,
+        )
     if ns_err is not None:
         return ns_err
 
@@ -667,16 +656,8 @@ async def api_project_recall_similar(request) -> JSONResponse:
         if request.method == "POST"
         else request.query_params.get("description")
     )
-    query = (
-        body.get("query")
-        if request.method == "POST"
-        else request.query_params.get("query")
-    )
-    raw_top_k = (
-        body.get("top_k")
-        if request.method == "POST"
-        else request.query_params.get("top_k")
-    )
+    query = body.get("query") if request.method == "POST" else request.query_params.get("query")
+    raw_top_k = body.get("top_k") if request.method == "POST" else request.query_params.get("top_k")
 
     params: dict[str, Any] = {
         "namespace_id": namespace_id,
@@ -703,4 +684,108 @@ async def api_project_recall_similar(request) -> JSONResponse:
             exc,
             status_code=500,
             log_event="api_project_recall_similar",
+        )
+
+
+# ---------------------------------------------------------------------------
+# MCP-delegating REST Handlers
+# ---------------------------------------------------------------------------
+
+
+async def api_project_suggest_pl(request, ctx=None) -> JSONResponse:
+    """REST endpoint delegating to handle_project_suggest_pl."""
+    if not admin_state.engine:
+        return JSONResponse({"error": "Engine not connected"}, status_code=503)
+
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+
+    arguments = dict(body)
+    if hasattr(request, "query_params"):
+        arguments.update(dict(request.query_params))
+
+    try:
+        from nce_verticals.project.mcp_handlers import handle_project_suggest_pl
+
+        raw_result = await handle_project_suggest_pl(admin_state.engine, arguments)
+        import json
+
+        data = json.loads(raw_result) if isinstance(raw_result, str) else raw_result
+        return JSONResponse(data)
+    except ValueError as exc:
+        return JSONResponse({"error": str(exc)}, status_code=422)
+    except Exception as exc:
+        return admin_error_response(
+            "Project suggest-pl error",
+            exc,
+            status_code=500,
+            log_event="api_project_suggest_pl",
+        )
+
+
+async def api_project_record_outcome(request, ctx=None) -> JSONResponse:
+    """REST endpoint delegating to handle_project_record_outcome."""
+    if not admin_state.engine:
+        return JSONResponse({"error": "Engine not connected"}, status_code=503)
+
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+
+    arguments = dict(body)
+    if hasattr(request, "query_params"):
+        arguments.update(dict(request.query_params))
+
+    try:
+        from nce_verticals.project.mcp_handlers import handle_project_record_outcome
+
+        raw_result = await handle_project_record_outcome(admin_state.engine, arguments)
+        import json
+
+        data = json.loads(raw_result) if isinstance(raw_result, str) else raw_result
+        return JSONResponse(data)
+    except ValueError as exc:
+        return JSONResponse({"error": str(exc)}, status_code=422)
+    except Exception as exc:
+        return admin_error_response(
+            "Project record-outcome error",
+            exc,
+            status_code=500,
+            log_event="api_project_record_outcome",
+        )
+
+
+async def api_project_can_enter_phase(request, ctx=None) -> JSONResponse:
+    """REST endpoint delegating to handle_project_can_enter_phase."""
+    if not admin_state.engine:
+        return JSONResponse({"error": "Engine not connected"}, status_code=503)
+
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+
+    arguments = dict(body)
+    if hasattr(request, "query_params"):
+        arguments.update(dict(request.query_params))
+
+    try:
+        from nce_verticals.project.mcp_handlers import handle_project_can_enter_phase
+
+        raw_result = await handle_project_can_enter_phase(admin_state.engine, arguments)
+        import json
+
+        data = json.loads(raw_result) if isinstance(raw_result, str) else raw_result
+        return JSONResponse(data)
+    except ValueError as exc:
+        return JSONResponse({"error": str(exc)}, status_code=422)
+    except Exception as exc:
+        return admin_error_response(
+            "Project can-enter-phase error",
+            exc,
+            status_code=500,
+            log_event="api_project_can_enter_phase",
         )

@@ -4512,7 +4512,7 @@ class VerticalEnginesPlugin:
                     "name": getattr(spec, "name", None) or spec.title,
                     "description": getattr(spec, "description", None) or spec.title,
                     "title": spec.title,
-                    "version": "3.0.1",
+                    "version": "3.1.0",
                     "types": list(spec.types),
                     "categories": list(spec.categories),
                     "requires_schemas": list(spec.requires_schemas),
