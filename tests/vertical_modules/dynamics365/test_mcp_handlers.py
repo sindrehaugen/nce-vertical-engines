@@ -64,6 +64,37 @@ async def test_handle_d365_query_case_closes_redis_client_on_success() -> None:
 
 
 @pytest.mark.asyncio
+async def test_handle_d365_query_case_rejects_unowned_case_before_dataverse_fetch() -> None:
+    """SEC-D365-CASE: Do not call Dataverse get_entity when case_id does not belong to namespace."""
+    mock_client = MagicMock()
+    mock_client.get_entity = AsyncMock()
+
+    mock_conn = AsyncMock()
+    mock_conn.fetchval = AsyncMock(return_value=False)
+    engine = SimpleNamespace(pg_pool=MagicMock())
+
+    with (
+        patch(
+            "nce_verticals.dynamics365.client.DataverseClient",
+            return_value=mock_client,
+        ),
+        patch("nce.db_utils.scoped_pg_session") as mock_scoped,
+    ):
+        mock_scoped.return_value.__aenter__.return_value = mock_conn
+        raw = await handle_d365_query_case(
+            engine,  # type: ignore[arg-type]
+            {
+                "namespace_id": _NS,
+                "case_id": "cross-tenant-case-999",
+            },
+        )
+
+    payload = json.loads(raw)
+    assert "not found in namespace" in payload["error"]
+    mock_client.get_entity.assert_not_called()
+
+
+@pytest.mark.asyncio
 async def test_handle_d365_sync_now_closes_redis_client_on_error() -> None:
     redis_mock = MagicMock()
     redis_mock.aclose = AsyncMock()

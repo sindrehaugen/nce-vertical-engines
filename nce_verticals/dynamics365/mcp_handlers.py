@@ -38,66 +38,95 @@ async def handle_d365_query_case(engine: NCEEngine, arguments: dict[str, Any]) -
     include_notes = bool(arguments.get("include_notes", True))
     include_activities = bool(arguments.get("include_activities", False))
 
+    if not namespace_id:
+        return json.dumps({"error": "namespace_id is required"})
     if not case_id:
         return json.dumps({"error": "case_id is required"})
 
     from nce.config import cfg
+    from nce.db_utils import scoped_pg_session
+
     from nce_verticals.dynamics365.auth import DataverseTokenManager
     from nce_verticals.dynamics365.client import DataverseClient
 
     redis_client: Any = None
     try:
-        import redis.asyncio as aioredis
-
-        redis_client = aioredis.from_url(cfg.REDIS_URL)
-        token_mgr = DataverseTokenManager(redis_client)
-        token = await token_mgr.get_access_token()
-        client = DataverseClient(cfg.NCE_D365_ORG_URL, token)
-
-        case = await client.get_entity(
-            "incidents",
-            case_id,
-            select=[
-                "incidentid",
-                "ticketnumber",
-                "title",
-                "description",
-                "prioritycode",
-                "statuscode",
-                "_customerid_value",
-                "_ownerid_value",
-            ],
-        )
-
-        result: dict[str, Any] = {"case": case}
-
-        if include_notes:
-            notes = []
-            async for annotation in client.paginate(
-                "annotations",
-                filter_expr=f"_objectid_value eq {case_id}",
-                select=["annotationid", "notetext", "subject", "createdon"],
-                page_size=50,
-            ):
-                notes.append(annotation)
-            result["notes"] = notes
-
-        if include_activities:
-            activities = []
-            async for act in client.paginate(
-                "activitypointers",
-                filter_expr=f"_regardingobjectid_value eq {case_id}",
-                select=["activityid", "activitytypecode", "subject", "createdon"],
-                page_size=50,
-            ):
-                activities.append(act)
-            result["activities"] = activities
-
-        # Enrich with NCE graph context
-        ticket = case.get("ticketnumber") or case_id
-        from nce.db_utils import scoped_pg_session
-
         async with scoped_pg_session(engine.pg_pool, namespace_id) as conn:
+            # SEC-D365-CASE: Verify case_id belongs to namespace_id in tenant-scoped
+            # graph/mappings before fetching from external Dataverse org.
+            owns_case = await conn.fetchval(
+                """
+                SELECT EXISTS (
+                    SELECT 1 FROM kg_edges
+                    WHERE namespace_id = $1::uuid
+                      AND (
+                          d365_source_id = $2
+                          OR subject_label LIKE $3
+                          OR object_label LIKE $3
+                      )
+                    UNION ALL
+                    SELECT 1 FROM d365_netbox_mappings
+                    WHERE namespace_id = $1::uuid
+                      AND d365_entity_id = $2
+                )
+                """,
+                namespace_id,
+                case_id,
+                f"Incident:%{case_id}%",
+            )
+            if not owns_case:
+                return json.dumps(
+                    {"error": f"Case {case_id} not found in namespace {namespace_id}"}
+                )
+
+            import redis.asyncio as aioredis
+
+            redis_client = aioredis.from_url(cfg.REDIS_URL)
+            token_mgr = DataverseTokenManager(redis_client)
+            token = await token_mgr.get_access_token()
+            client = DataverseClient(cfg.NCE_D365_ORG_URL, token)
+
+            case = await client.get_entity(
+                "incidents",
+                case_id,
+                select=[
+                    "incidentid",
+                    "ticketnumber",
+                    "title",
+                    "description",
+                    "prioritycode",
+                    "statuscode",
+                    "_customerid_value",
+                    "_ownerid_value",
+                ],
+            )
+
+            result: dict[str, Any] = {"case": case}
+
+            if include_notes:
+                notes = []
+                async for annotation in client.paginate(
+                    "annotations",
+                    filter_expr=f"_objectid_value eq {case_id}",
+                    select=["annotationid", "notetext", "subject", "createdon"],
+                    page_size=50,
+                ):
+                    notes.append(annotation)
+                result["notes"] = notes
+
+            if include_activities:
+                activities = []
+                async for act in client.paginate(
+                    "activitypointers",
+                    filter_expr=f"_regardingobjectid_value eq {case_id}",
+                    select=["activityid", "activitytypecode", "subject", "createdon"],
+                    page_size=50,
+                ):
+                    activities.append(act)
+                result["activities"] = activities
+
+            # Enrich with NCE graph context
+            ticket = case.get("ticketnumber") or case_id
             edges = await conn.fetch(
                 """
                 SELECT subject_label, predicate, object_label, confidence
@@ -142,6 +171,7 @@ async def handle_d365_sync_now(engine: NCEEngine, arguments: dict[str, Any]) -> 
 
     from nce.config import cfg
     from nce.db_utils import scoped_pg_session
+
     from nce_verticals.dynamics365.auth import DataverseTokenManager
     from nce_verticals.dynamics365.client import DataverseClient
     from nce_verticals.dynamics365.sync import DataverseSyncEngine
@@ -176,9 +206,7 @@ async def handle_d365_sync_now(engine: NCEEngine, arguments: dict[str, Any]) -> 
             await redis_client.aclose()
 
 
-async def handle_d365_case_stress_report(
-    engine: NCEEngine, arguments: dict[str, Any]
-) -> str:
+async def handle_d365_case_stress_report(engine: NCEEngine, arguments: dict[str, Any]) -> str:
     """
     Empathic Tensor frustration/stress report for cases linked to an account.
 
@@ -262,9 +290,7 @@ async def handle_d365_case_stress_report(
         burnout_alert = len(recent) >= 3 and all(f > burnout_threshold for f in recent)
 
         avg_frustration = (
-            round(sum(frustration_trend) / len(frustration_trend), 2)
-            if frustration_trend
-            else 0.0
+            round(sum(frustration_trend) / len(frustration_trend), 2) if frustration_trend else 0.0
         )
 
         return json.dumps(
@@ -289,9 +315,7 @@ async def handle_d365_case_stress_report(
         return json.dumps({"error": str(exc)})
 
 
-async def handle_d365_list_sla_breaches(
-    engine: NCEEngine, arguments: dict[str, Any]
-) -> str:
+async def handle_d365_list_sla_breaches(engine: NCEEngine, arguments: dict[str, Any]) -> str:
     """
     List SLA breach events from the WORM ``event_log``.
 
@@ -338,9 +362,7 @@ async def handle_d365_list_sla_breaches(
                     "event_id": str(r["id"]),
                     "agent_id": r["agent_id"],
                     "params": params,
-                    "created_at": r["created_at"].isoformat()
-                    if r["created_at"]
-                    else None,
+                    "created_at": r["created_at"].isoformat() if r["created_at"] else None,
                 }
             )
 
@@ -358,9 +380,7 @@ async def handle_d365_list_sla_breaches(
         return json.dumps({"error": str(exc)})
 
 
-async def handle_d365_netbox_mappings(
-    engine: NCEEngine, arguments: dict[str, Any]
-) -> str:
+async def handle_d365_netbox_mappings(engine: NCEEngine, arguments: dict[str, Any]) -> str:
     """
     Query the D365 ↔ NetBox cross-reference mapping table.
 
