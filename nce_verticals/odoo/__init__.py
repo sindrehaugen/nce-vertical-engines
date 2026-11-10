@@ -16,11 +16,21 @@ Capabilities:
    - Cross-Engine orchestration bridging Odoo <-> Salesforce <-> Relux/Glamox DALI-2 <-> NCE Graph.
 """
 
+from typing import Any
+
 from nce_verticals.odoo.auth import OdooAuthConfig
 from nce_verticals.odoo.client import OdooAPIError, OdooClient
 from nce_verticals.odoo.crosstalk import OdooLLMCrossTalker
 from nce_verticals.odoo.intelligence import OdooSuperIntelligence
 from nce_verticals.odoo.operations import OdooOperations, get_global_odoo_ops
+
+
+def __getattr__(name: str) -> Any:
+    if name == "OdooPlugin":
+        from nce_verticals.plugin import OdooPlugin
+        return OdooPlugin
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
 
 __all__ = [
     "OdooAPIError",
@@ -28,6 +38,7 @@ __all__ = [
     "OdooClient",
     "OdooLLMCrossTalker",
     "OdooOperations",
+    "OdooPlugin",
     "OdooSuperIntelligence",
     "get_global_odoo_ops",
 ]

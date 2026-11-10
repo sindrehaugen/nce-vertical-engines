@@ -57,7 +57,7 @@ if TYPE_CHECKING:
 def _load_quality_config() -> dict[str, Any]:
     """Load quality grade thresholds from config_data (config-as-IP)."""
     config_path = (
-        Path(__file__).resolve().parent.parent.parent
+        Path(__file__).resolve().parent.parent
         / "config_data"
         / "product-quality.json"
     )

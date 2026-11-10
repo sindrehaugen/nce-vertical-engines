@@ -160,8 +160,15 @@ _TIER_FAILCLOSED_VALUE: float = 3_000_000.0
 def _load_tiers() -> list[dict[str, Any]]:
     """Load the ``automation-tiers.json`` value bands at import time."""
     try:
-        pkg = importlib.resources.files("nce.config_data")
-        data = json.loads((pkg / "automation-tiers.json").read_text(encoding="utf-8"))
+        try:
+            pkg = importlib.resources.files("nce_verticals.config_data")
+            content = (pkg / "automation-tiers.json").read_text(encoding="utf-8")
+        except Exception:
+            from pathlib import Path
+
+            fb_path = Path(__file__).resolve().parents[1] / "config_data" / "automation-tiers.json"
+            content = fb_path.read_text(encoding="utf-8")
+        data = json.loads(content)
         return data["tiers"]
     except Exception as exc:  # pragma: no cover — config file must always exist
         log.error("[automation] Failed to load automation-tiers.json: %s", exc)

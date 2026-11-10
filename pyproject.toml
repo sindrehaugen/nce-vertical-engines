@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "nce-vertical-engines"
-version = "0.1.0"
-description = "20 operational business engines, NetBox/D365 integrations, and regulatory modules built on the Neuro-Cognitive Engine (NCE) substrate"
+version = "3.0.0"
+description = "23 modular business, ERP/CRM, and IoT vertical engines for the Neuro-Cognitive Engine (NCE) substrate — installable individually, by Type filter, by Business Category filter, or all together."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "AGPL-3.0-only" }
@@ -18,21 +18,90 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "neuro-cognitive-engine",
-    "pydantic>=2.0.0",
+    "nce @ git+https://github.com/sindrehaugen/neuro-cognitive-engine.git@v3.0.0",
+    "pydantic>=2.7.0",
     "asyncpg>=0.29.0",
+    "fastapi>=0.115.0",
+    "httpx>=0.27.0",
+    "PyJWT[crypto]>=2.9.0",
+    "cryptography>=43.0.0",
+    "uvicorn>=0.30.0",
+    "python-dotenv>=1.0.0",
+    "cachetools>=5.3.0",
+    "tenacity>=8.2.0",
 ]
 
 [project.optional-dependencies]
-dev = [
-    "pytest>=7.0.0",
-    "pytest-asyncio>=0.21.0",
-    "ruff>=0.1.0",
-    "mypy>=1.5.0",
+# --- Per-Engine Extras (23 Engines) ---
+product = []
+procurement = ["scipy>=1.11.0"]
+agreements = []
+vendors = ["numpy>=1.26.0"]
+sales = []
+system_design = []
+project = []
+economy = ["scipy>=1.11.0"]
+inventory = ["numpy>=1.26.0"]
+assets = ["scipy>=1.11.0"]
+support = []
+resources = ["scipy>=1.11.0"]
+field_tech = []
+hr = []
+marketing = []
+business_insights = ["numpy>=1.26.0", "scipy>=1.11.0"]
+customer_portal = ["PyJWT[crypto]>=2.9.0", "httpx>=0.27.0"]
+netbox = ["pynetbox>=7.3.0", "httpx>=0.27.0"]
+dynamics365 = ["msal>=1.28.0", "httpx>=0.27.0"]
+diagnostics = ["psutil>=5.9.0"]
+odoo = ["httpx>=0.27.0", "PyJWT[crypto]>=2.9.0"]
+salesforce = ["simple-salesforce>=1.12.0", "httpx>=0.27.0", "PyJWT[crypto]>=2.9.0"]
+lighting_dali = ["httpx>=0.27.0", "PyJWT[crypto]>=2.9.0"]
+
+# --- Axis 1: Type Filter Extras (5 Types) ---
+type-core-domain = ["numpy>=1.26.0", "scipy>=1.11.0"]
+type-erp-crm = ["msal>=1.28.0", "simple-salesforce>=1.12.0", "httpx>=0.27.0", "PyJWT[crypto]>=2.9.0"]
+type-infra-iot = ["pynetbox>=7.3.0", "scipy>=1.11.0", "httpx>=0.27.0", "PyJWT[crypto]>=2.9.0"]
+type-observability = ["psutil>=5.9.0", "numpy>=1.26.0", "scipy>=1.11.0"]
+type-portal = ["PyJWT[crypto]>=2.9.0", "httpx>=0.27.0"]
+
+# --- Axis 2: Business Category Filter Extras (7 Categories) ---
+cat-commercial = ["numpy>=1.26.0", "scipy>=1.11.0", "msal>=1.28.0", "simple-salesforce>=1.12.0", "httpx>=0.27.0", "PyJWT[crypto]>=2.9.0"]
+cat-operations-delivery = ["numpy>=1.26.0", "scipy>=1.11.0", "httpx>=0.27.0", "PyJWT[crypto]>=2.9.0"]
+cat-finance-governance = ["numpy>=1.26.0", "scipy>=1.11.0"]
+cat-service-support = ["scipy>=1.11.0", "psutil>=5.9.0", "PyJWT[crypto]>=2.9.0", "httpx>=0.27.0"]
+cat-av-it-integrator = ["numpy>=1.26.0", "scipy>=1.11.0", "pynetbox>=7.3.0", "psutil>=5.9.0", "PyJWT[crypto]>=2.9.0", "httpx>=0.27.0"]
+cat-enterprise-erp = ["numpy>=1.26.0", "scipy>=1.11.0", "msal>=1.28.0", "simple-salesforce>=1.12.0", "httpx>=0.27.0", "PyJWT[crypto]>=2.9.0"]
+cat-field-service-ops = ["numpy>=1.26.0", "scipy>=1.11.0", "httpx>=0.27.0", "PyJWT[crypto]>=2.9.0"]
+
+# --- All Engines & Dev Extras ---
+all = [
+    "numpy>=1.26.0",
+    "scipy>=1.11.0",
+    "pynetbox>=7.3.0",
+    "msal>=1.28.0",
+    "simple-salesforce>=1.12.0",
+    "psutil>=5.9.0",
+    "PyJWT[crypto]>=2.9.0",
+    "httpx>=0.27.0",
 ]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "ruff>=0.6.0",
+    "mypy>=1.11.0",
+    "build>=1.2.0",
+]
+
+[project.scripts]
+nce-verticals = "nce_verticals.cli:main"
+nce-portal-server = "nce_verticals.servers.portal:main"
+nce-odoo-server = "nce_verticals.servers.odoo:main"
+nce-salesforce-server = "nce_verticals.servers.salesforce:main"
+nce-lighting-dali-server = "nce_verticals.servers.lighting_dali:main"
 
 [project.entry-points."nce.plugins"]
 nce_verticals = "nce_verticals.plugin:VerticalEnginesPlugin"
+verticals = "nce_verticals.plugin:VerticalEnginesPlugin"
 agreements = "nce_verticals.plugin:AgreementsPlugin"
 assets = "nce_verticals.plugin:AssetsPlugin"
 business_insights = "nce_verticals.plugin:BusinessInsightsPlugin"
@@ -64,9 +133,11 @@ salesforce = "nce_verticals.plugin:SalesforcePlugin"
 lighting_dali = "nce_verticals.plugin:LightingDaliPlugin"
 odoo = "nce_verticals.plugin:OdooPlugin"
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
 [tool.hatch.build.targets.wheel]
 packages = ["nce_verticals"]
-
 
 [tool.ruff]
 target-version = "py310"
@@ -80,5 +151,7 @@ ignore = ["E501"]
 "nce_verticals/admin_handlers/*.py" = ["F405"]
 "nce_verticals/warehouse/__init__.py" = ["F403"]
 "nce_verticals/staff/__init__.py" = ["F403"]
-"tests/conftest.py" = ["E402"]
-"tests/unit/test_entra_salesforce_lighting_dali.py" = ["E402"]
+
+[tool.mypy]
+ignore_missing_imports = true
+

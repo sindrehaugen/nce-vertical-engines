@@ -68,7 +68,7 @@ log = logging.getLogger("nce_verticals.product.golden_record")
 def load_manufacturer_sources() -> dict[str, Any]:
     """Load source trust weights and manufacturer adapter mapping (config-as-IP)."""
     config_path = (
-        Path(__file__).resolve().parent.parent.parent
+        Path(__file__).resolve().parent.parent
         / "config_data"
         / "manufacturer-sources.json"
     )
@@ -139,7 +139,7 @@ def resolve_source_trust(source: str | None, manufacturer: str | None = None) ->
 def _load_trusted_min_grade() -> str:
     """Load TRUSTED_MIN_GRADE from config_data/product-quality.json (config-as-IP)."""
     config_path = (
-        Path(__file__).resolve().parent.parent.parent
+        Path(__file__).resolve().parent.parent
         / "config_data"
         / "product-quality.json"
     )

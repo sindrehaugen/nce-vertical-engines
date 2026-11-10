@@ -33,7 +33,7 @@ from nce_verticals.vendors.certs import validate_contractor_regulatory_complianc
 log = logging.getLogger("nce_verticals.field_tech.dispatch")
 
 _WEIGHTS_PATH = (
-    Path(__file__).resolve().parents[2]
+    Path(__file__).resolve().parents[1]
     / "config_data"
     / "field-tech-dispatch-weights.json"
 )

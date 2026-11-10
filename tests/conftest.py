@@ -1,22 +1,15 @@
-from __future__ import annotations
-
-import sys
-from pathlib import Path
-
-_this_repo = Path(__file__).resolve().parent.parent
-if str(_this_repo) not in sys.path:
-    sys.path.insert(0, str(_this_repo))
-_core_repo = _this_repo.parent / "NCE-Public"
-if _core_repo.exists() and str(_core_repo) not in sys.path:
-    sys.path.insert(1, str(_core_repo))
-
 """Pytest bootstrap — per-test signing cache isolation for parallel-safe execution."""
 
+from __future__ import annotations
 
 import asyncio
 import os
 import uuid
 from collections.abc import AsyncGenerator, Generator
+
+import asyncpg
+import pytest
+import pytest_asyncio
 
 # `nce.config` fails fast on import if unset; tests often import the package
 # without a local .env — provide deterministic dev keys for collection only.
@@ -37,10 +30,6 @@ for _key, _default in {
     "NCE_MTLS_STRICT": "false",
 }.items():
     os.environ.setdefault(_key, _default)
-
-import asyncpg
-import pytest
-import pytest_asyncio
 
 
 def pytest_collection_modifyitems(items: list[pytest.Item]) -> None:
@@ -66,14 +55,12 @@ def _inject_mcp_tenant_api_key_for_tool_calls(request, monkeypatch):
     """
     if request.node.get_closest_marker("real_mcp_auth"):
         return
-    from nce.auth import MCP_ADMIN_TOOL_NAMES, enforce_mcp_tool_auth
-
-    # live_*_api_key(), not os.environ: these keys may be mounted as
-    # NCE_*_API_KEY_FILE, which a direct env read resolves to "". The harness
-    # carried the same defect as the production path it stands in for, so a
-    # file-mounted key was invisible to every test that goes through here.
-    from nce.config import live_admin_api_key, live_mcp_api_key
-    from nce.tool_registry import TOOL_REGISTRY
+    try:
+        from nce.auth import MCP_ADMIN_TOOL_NAMES, enforce_mcp_tool_auth
+        from nce.config import live_admin_api_key, live_mcp_api_key
+        from nce.tool_registry import TOOL_REGISTRY
+    except Exception:
+        return
 
     _real = enforce_mcp_tool_auth
 
@@ -87,9 +74,10 @@ def _inject_mcp_tenant_api_key_for_tool_calls(request, monkeypatch):
         return _real(tool_name, args)
 
     monkeypatch.setattr("nce.auth.enforce_mcp_tool_auth", _enforce_with_test_keys)
-    monkeypatch.setattr(
-        "nce.mcp_stdio_dispatch.enforce_mcp_tool_auth", _enforce_with_test_keys
-    )
+    try:
+        monkeypatch.setattr("nce.mcp_stdio_dispatch.enforce_mcp_tool_auth", _enforce_with_test_keys)
+    except Exception:
+        pass
 
 
 def _env_bool(name: str, *, default: bool) -> bool:
@@ -138,35 +126,23 @@ def _restore_nce_cfg_from_env() -> None:
     cfg.IS_DEV = not cfg.IS_PROD and not cfg.IS_TEST
     cfg.REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
     cfg.NCE_API_KEY = os.environ.get("NCE_API_KEY", getattr(cfg, "NCE_API_KEY", ""))
-    cfg.NCE_MCP_API_KEY = os.environ.get(
-        "NCE_MCP_API_KEY", "test-mcp-api-key-for-unit-tests"
-    )
+    cfg.NCE_MCP_API_KEY = os.environ.get("NCE_MCP_API_KEY", "test-mcp-api-key-for-unit-tests")
     cfg.NCE_MCP_NAMESPACE_ID = os.environ.get("NCE_MCP_NAMESPACE_ID", "")
-    cfg.NCE_ADMIN_API_KEY = os.environ.get(
-        "NCE_ADMIN_API_KEY", "test-admin-api-key-for-unit-tests"
-    )
+    cfg.NCE_ADMIN_API_KEY = os.environ.get("NCE_ADMIN_API_KEY", "test-admin-api-key-for-unit-tests")
     cfg.NCE_ADMIN_OVERRIDE = _env_bool("NCE_ADMIN_OVERRIDE", default=False)
     cfg.NCE_QUOTAS_ENABLED = _env_bool("NCE_QUOTAS_ENABLED", default=True)
     cfg.NCE_QUOTA_REDIS_COUNTERS = _env_bool("NCE_QUOTA_REDIS_COUNTERS", default=True)
     cfg.NCE_OBSERVABILITY_ENABLED = _env_bool("NCE_OBSERVABILITY_ENABLED", default=True)
-    cfg.NCE_MAX_TEMPORAL_LOOKBACK_DAYS = int(
-        os.environ.get("NCE_MAX_TEMPORAL_LOOKBACK_DAYS", "90")
-    )
+    cfg.NCE_MAX_TEMPORAL_LOOKBACK_DAYS = int(os.environ.get("NCE_MAX_TEMPORAL_LOOKBACK_DAYS", "90"))
     cfg.NCE_JWT_SECRET = os.environ.get("NCE_JWT_SECRET", "")
     cfg.NCE_JWT_PUBLIC_KEY = os.environ.get("NCE_JWT_PUBLIC_KEY", "")
-    cfg.NCE_JWT_ALGORITHM = (
-        (os.environ.get("NCE_JWT_ALGORITHM") or "HS256").upper().strip()
-    )
+    cfg.NCE_JWT_ALGORITHM = (os.environ.get("NCE_JWT_ALGORITHM") or "HS256").upper().strip()
     cfg.NCE_JWT_ISSUER = os.environ.get("NCE_JWT_ISSUER", "")
     cfg.NCE_JWT_AUDIENCE = os.environ.get("NCE_JWT_AUDIENCE", "")
     cfg.NCE_JWT_LEEWAY_SECONDS = int(os.environ.get("NCE_JWT_LEEWAY_SECONDS", "30"))
-    cfg.NCE_DISABLE_MIGRATION_MCP = _env_bool(
-        "NCE_DISABLE_MIGRATION_MCP", default=cfg.IS_PROD
-    )
+    cfg.NCE_DISABLE_MIGRATION_MCP = _env_bool("NCE_DISABLE_MIGRATION_MCP", default=cfg.IS_PROD)
     cfg.NCE_MINIO_REQUIRED = _env_bool("NCE_MINIO_REQUIRED", default=True)
-    cfg.NCE_EMBEDDING_MODEL_REVISION = os.environ.get(
-        "NCE_EMBEDDING_MODEL_REVISION", ""
-    )
+    cfg.NCE_EMBEDDING_MODEL_REVISION = os.environ.get("NCE_EMBEDDING_MODEL_REVISION", "")
     cfg.AZURE_CLIENT_ID = os.environ.get("AZURE_CLIENT_ID", "")
     cfg.AZURE_CLIENT_SECRET = os.environ.get("AZURE_CLIENT_SECRET", "")
     cfg.GDRIVE_OAUTH_CLIENT_ID = os.environ.get("GDRIVE_OAUTH_CLIENT_ID", "")
@@ -181,19 +157,11 @@ def _restore_nce_cfg_from_env() -> None:
     )
     cfg.WEBHOOK_RATE_PERIOD_SECONDS = max(
         1,
-        int(
-            os.environ.get(
-                "WEBHOOK_RATE_PERIOD_SECONDS", str(cfg.WEBHOOK_RATE_PERIOD_SECONDS)
-            )
-        ),
+        int(os.environ.get("WEBHOOK_RATE_PERIOD_SECONDS", str(cfg.WEBHOOK_RATE_PERIOD_SECONDS))),
     )
     cfg.WEBHOOK_DEDUP_TTL_SECONDS = max(
         60,
-        int(
-            os.environ.get(
-                "WEBHOOK_DEDUP_TTL_SECONDS", str(cfg.WEBHOOK_DEDUP_TTL_SECONDS)
-            )
-        ),
+        int(os.environ.get("WEBHOOK_DEDUP_TTL_SECONDS", str(cfg.WEBHOOK_DEDUP_TTL_SECONDS))),
     )
     cfg.WEBHOOK_DEDUP_FAIL_OPEN = _env_bool("WEBHOOK_DEDUP_FAIL_OPEN", default=False)
     cfg.DROPBOX_APP_SECRET = os.environ.get(
@@ -286,9 +254,12 @@ def pytest_runtest_teardown(item: pytest.Item) -> None:
 @pytest.fixture(autouse=True)
 def _reset_admin_state_engine_after_test() -> None:
     """Handlers read ``nce.admin_state.engine``; do not leak mocks across tests."""
-    import nce.admin_state as admin_state
+    try:
+        import nce.admin_state as admin_state
 
-    admin_state.engine = None
+        admin_state.engine = None
+    except Exception:
+        admin_state = None  # type: ignore[assignment]
     try:
         import admin_server as adm
 
@@ -296,7 +267,8 @@ def _reset_admin_state_engine_after_test() -> None:
     except Exception:
         pass
     yield
-    admin_state.engine = None
+    if admin_state is not None:
+        admin_state.engine = None
     try:
         import admin_server as adm
 
@@ -381,9 +353,7 @@ def _reset_signing_key_cache_after_test() -> None:
 def _refresh_signing_when_decrypt_fails() -> bool:
     """When true, rotate signing keys if ``NCE_MASTER_KEY`` cannot decrypt the active blob."""
 
-    return os.getenv(
-        "NCE_INTEGRATION_REFRESH_SIGNING_ON_DECRYPT_FAIL", ""
-    ).strip().lower() in {
+    return os.getenv("NCE_INTEGRATION_REFRESH_SIGNING_ON_DECRYPT_FAIL", "").strip().lower() in {
         "1",
         "true",
         "yes",
@@ -634,9 +604,7 @@ def _sweep_leaked_test_namespaces() -> Generator[None, None, None]:
         conn = None
         try:
             conn = await asyncpg.connect(dsn, timeout=10)
-            rows = await conn.fetch(
-                "SELECT slug FROM namespaces WHERE slug LIKE 'pytest-%'"
-            )
+            rows = await conn.fetch("SELECT slug FROM namespaces WHERE slug LIKE 'pytest-%'")
             return {r["slug"] for r in rows}
         except (asyncpg.PostgresError, OSError):
             return set()
@@ -648,16 +616,12 @@ def _sweep_leaked_test_namespaces() -> Generator[None, None, None]:
         conn = None
         try:
             conn = await asyncpg.connect(dsn, timeout=10)
-            rows = await conn.fetch(
-                "SELECT id, slug FROM namespaces WHERE slug LIKE 'pytest-%'"
-            )
+            rows = await conn.fetch("SELECT id, slug FROM namespaces WHERE slug LIKE 'pytest-%'")
             for row in rows:
                 if row["slug"] in preexisting:
                     continue
                 try:
-                    await conn.execute(
-                        "DELETE FROM namespaces WHERE id = $1", row["id"]
-                    )
+                    await conn.execute("DELETE FROM namespaces WHERE id = $1", row["id"])
                 except (asyncpg.PostgresError, OSError):
                     continue
         except (asyncpg.PostgresError, OSError):
@@ -683,10 +647,17 @@ def _sweep_leaked_test_namespaces() -> Generator[None, None, None]:
 @pytest.fixture(autouse=True)
 def _mock_embeddings_globally():
     """Mock the embedding model load to return None, forcing fallback vectors and avoiding slow imports/downloads."""
+    import importlib.util
     from unittest.mock import patch
 
-    with patch("nce.embeddings._load_sentence_transformer", return_value=None):
-        yield
+    try:
+        if importlib.util.find_spec("numpy") is not None:
+            with patch("nce.embeddings._load_sentence_transformer", return_value=None):
+                yield
+            return
+    except Exception:
+        pass
+    yield
 
 
 # ---------------------------------------------------------------------------
@@ -717,10 +688,15 @@ os.environ.setdefault("NCE_SUPPLIER_NAME", "Test Supplier AS")
 # ---------------------------------------------------------------------------
 os.environ.setdefault("NCE_D365_PUBLISHER_PREFIX", "zzq")
 
-from nce.config import cfg as _d35_cfg  # noqa: E402
 
-if not _d35_cfg.NCE_SUPPLIER_NAME:
-    _d35_cfg.NCE_SUPPLIER_NAME = os.environ["NCE_SUPPLIER_NAME"]
+def _init_vertical_test_defaults() -> None:
+    from nce.config import cfg as _d35_cfg
 
-if not _d35_cfg.NCE_D365_PUBLISHER_PREFIX:
-    _d35_cfg.NCE_D365_PUBLISHER_PREFIX = os.environ["NCE_D365_PUBLISHER_PREFIX"]
+    if not getattr(_d35_cfg, "NCE_SUPPLIER_NAME", ""):
+        _d35_cfg.NCE_SUPPLIER_NAME = os.environ["NCE_SUPPLIER_NAME"]
+
+    if not getattr(_d35_cfg, "NCE_D365_PUBLISHER_PREFIX", ""):
+        _d35_cfg.NCE_D365_PUBLISHER_PREFIX = os.environ["NCE_D365_PUBLISHER_PREFIX"]
+
+
+_init_vertical_test_defaults()

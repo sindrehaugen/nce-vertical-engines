@@ -27,7 +27,7 @@ log = logging.getLogger("nce_verticals.sales.commission")
 
 def load_commission_config() -> dict[str, Any]:
     """Load the versioned commission configuration from config_data."""
-    config_path = Path(__file__).parents[2] / "config_data" / "sales-commission.json"
+    config_path = Path(__file__).parents[1] / "config_data" / "sales-commission.json"
     with open(config_path, encoding="utf-8") as f:
         return cast(dict[str, Any], json.load(f))
 

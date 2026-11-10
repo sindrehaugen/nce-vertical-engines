@@ -1,11 +1,11 @@
 """
-portal_server.py
-================
+nce_verticals/servers/portal.py
+===============================
 Dedicated Standalone ASGI Entry Point for Customer Portal (Charter Layer 3).
 
 Features:
   - Connects/disconnects NCEEngine during ASGI lifespan.
-  - Exposes `app` for uvicorn (e.g. `uvicorn portal_server:app --port 8005`).
+  - Exposes `app` for uvicorn (e.g. `uvicorn nce_verticals.servers.portal:app --port 8005`).
   - No internal admin endpoints or tool surfaces mounted.
   - Zero-trust customer principal isolation.
 """
@@ -36,9 +36,7 @@ async def portal_lifespan(app: Starlette):
         app.state.engine = engine
         log.info("Customer Portal server: NCEEngine connected.")
     except Exception as exc:
-        log.warning(
-            "Customer Portal server: NCEEngine connect failed or offline: %s", exc
-        )
+        log.warning("Customer Portal server: NCEEngine connect failed or offline: %s", exc)
         app.state.engine = engine
     yield
     if engine is not None:
@@ -52,13 +50,19 @@ async def portal_lifespan(app: Starlette):
 
 app = build_customer_portal_app(engine=None, lifespan=portal_lifespan)
 
-if __name__ == "__main__":
+
+def main() -> None:
+    """CLI / [project.scripts] entrypoint for nce-portal-server."""
     import uvicorn
 
     port = int(os.environ.get("PORTAL_PORT", "8005"))
     host = os.environ.get("PORTAL_HOST", "0.0.0.0")
     workers = int(os.environ.get("PORTAL_WORKERS", "1"))
     if workers > 1:
-        uvicorn.run("portal_server:app", host=host, port=port, workers=workers)
+        uvicorn.run("nce_verticals.servers.portal:app", host=host, port=port, workers=workers)
     else:
         uvicorn.run(app, host=host, port=port)
+
+
+if __name__ == "__main__":
+    main()

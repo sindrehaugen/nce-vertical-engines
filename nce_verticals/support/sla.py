@@ -27,7 +27,7 @@ from nce_verticals.support.tickets import (
 
 log = logging.getLogger("nce_verticals.support.sla")
 
-_CONFIG_DATA_DIR = Path(__file__).parents[2] / "config_data"
+_CONFIG_DATA_DIR = Path(__file__).parents[1] / "config_data"
 
 _FALLBACK_PROFILES: dict[str, dict[str, dict[str, float]]] = {
     "mission_critical": {

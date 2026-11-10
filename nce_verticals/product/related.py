@@ -75,7 +75,7 @@ log = logging.getLogger("nce_verticals.product.related")
 def _load_relation_weights() -> dict[str, Any]:
     """Load relation confidence weights from config_data (config-as-IP)."""
     config_path = (
-        Path(__file__).resolve().parent.parent.parent
+        Path(__file__).resolve().parent.parent
         / "config_data"
         / "product-relation-weights.json"
     )

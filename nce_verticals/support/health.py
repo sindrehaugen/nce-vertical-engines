@@ -30,7 +30,7 @@ from nce_verticals.support.tickets import (
 
 log = logging.getLogger("nce_verticals.support.health")
 
-_CONFIG_DATA_DIR = Path(__file__).parents[2] / "config_data"
+_CONFIG_DATA_DIR = Path(__file__).parents[1] / "config_data"
 
 _FALLBACK_WEIGHTS: dict[str, float] = {
     "ticket_cadence_weight": 0.25,
