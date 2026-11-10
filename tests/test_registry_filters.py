@@ -256,6 +256,20 @@ def test_lazy_plugin_instantiation_and_descriptors(
         assert "erp-crm" in d["types"]
         assert d["enabled"] is True
 
+    all_descriptors = p_erp.get_engine_descriptors()
+    assert len(all_descriptors) == 23
+    for d in all_descriptors:
+        assert d["tool_count"] > 0
+        assert d["route_count"] > 0
+        assert d["install_extra"] == f"nce-vertical-engines[{d['slug']}]"
+    by_slug = {d["slug"]: d for d in all_descriptors}
+    assert by_slug["agreements"]["tool_count"] == 14
+    assert by_slug["agreements"]["route_count"] == 14
+    assert by_slug["sales"]["tool_count"] == 28
+    assert by_slug["sales"]["route_count"] == 29
+    assert by_slug["economy"]["tool_count"] == 19
+    assert by_slug["economy"]["route_count"] == 22
+
 
 def test_packaged_config_data_and_sql_migrations_chain() -> None:
     cfg_root = importlib.resources.files("nce_verticals").joinpath("config_data")

@@ -4490,6 +4490,7 @@ class VerticalEnginesPlugin:
         """Return metadata descriptors for engines, optionally filtered by type and/or category."""
         from nce_verticals.registry import is_engine_installed, resolve_enabled_engines
 
+        active_set = self._enabled_slugs
         specs = resolve_enabled_engines(
             enabled_raw="all",
             type_filter=type_filter,
@@ -4497,20 +4498,38 @@ class VerticalEnginesPlugin:
         )
         descriptors: list[dict[str, Any]] = []
         for spec in specs:
+            installed = is_engine_installed(spec.slug)
+            optional_deps = list(
+                getattr(spec, "optional_dependencies", None)
+                or getattr(spec, "optional_deps", ())
+                or ()
+            )
             descriptors.append(
                 {
-                    "name": spec.slug,
                     "slug": spec.slug,
+                    "id": spec.slug,
+                    "plugin_id": self.plugin_id,
+                    "name": getattr(spec, "name", None) or spec.title,
+                    "description": getattr(spec, "description", None) or spec.title,
                     "title": spec.title,
-                    "version": self.version,
-                    "types": sorted(spec.types),
-                    "categories": sorted(spec.categories),
-                    "installed": is_engine_installed(spec.slug),
-                    "enabled": spec.slug in self._enabled_slugs,
+                    "version": "3.0.1",
+                    "types": list(spec.types),
+                    "categories": list(spec.categories),
                     "requires_schemas": list(spec.requires_schemas),
+                    "optional_dependencies": optional_deps,
+                    "optional_deps": optional_deps,
+                    "installed": installed,
+                    "enabled_by_env": spec.slug in active_set,
+                    "enabled": spec.slug in active_set,
+                    "tool_count": spec.tool_count,
+                    "route_count": spec.route_count,
+                    "install_extra": f"nce-vertical-engines[{spec.slug}]",
                 }
             )
+
         return descriptors
+
+    get_engine_descriptors = get_plugin_descriptors
 
     def register_tools(self, registry: Any) -> None:
         for p in self.sub_plugins:
