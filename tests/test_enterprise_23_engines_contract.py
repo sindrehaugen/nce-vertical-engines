@@ -225,10 +225,17 @@ async def test_entra_authenticator_with_jwks_rs256(rsa_keypair):
 @pytest.mark.asyncio
 async def test_sales_project_live_bridge_opt_in_seams():
     """Verify live bridge opt-in contracts for _propose_quote_to_sales and _read_signed_baseline."""
-    sys.modules.setdefault("mcp", MagicMock())
-    sys.modules.setdefault("mcp.types", MagicMock())
-    sys.modules.setdefault("redis", MagicMock())
-    sys.modules.setdefault("redis.asyncio", MagicMock())
+    for mod_name in (
+        "mcp",
+        "mcp.types",
+        "redis",
+        "redis.asyncio",
+        "minio",
+        "motor",
+        "motor.motor_asyncio",
+        "nce.orchestrator",
+    ):
+        sys.modules.setdefault(mod_name, MagicMock())
 
     from nce_verticals.project.baseline import _read_signed_baseline
     from nce_verticals.system_design.to_quote import _propose_quote_to_sales
@@ -244,12 +251,11 @@ async def test_sales_project_live_bridge_opt_in_seams():
     # Configured engine with sales_bridge_enabled = True succeeds
     bridge_engine = MagicMock()
     bridge_engine.sales_bridge_enabled = True
-    with patch(
-        "nce_verticals.sales.mcp_handlers.handle_sales_propose_quote",
-        new_callable=AsyncMock,
-        create=True,
-    ) as mock_handle:
-        mock_handle.return_value = json.dumps({"accepted": True, "quote_id": "Q-100"})
+    fake_quote_propose = MagicMock()
+    fake_quote_propose.do_propose_quote = AsyncMock(
+        return_value={"accepted": True, "quote_id": "Q-100"}
+    )
+    with patch.dict(sys.modules, {"nce_verticals.sales.quote_propose": fake_quote_propose}):
         res = await _propose_quote_to_sales(bridge_engine, ns_id, {"quote_id": "Q-100"})
         assert res["accepted"] is True
         assert res["quote_id"] == "Q-100"
@@ -269,14 +275,14 @@ async def test_sales_project_live_bridge_opt_in_seams():
         "signed_total_nok": 150000.0,
         "signed_at": "2026-11-10T00:00:00+00:00",
     }
-    with patch(
-        "nce_verticals.sales.baseline.get_signed_baseline",
-        new_callable=AsyncMock,
-    ) as mock_get_base:
-        mock_get_base.return_value = fake_baseline
-        with patch("nce.db_utils.scoped_pg_session"):
-            res_baseline = await _read_signed_baseline(bridge_engine_proj, ns_id, "Q-100")
-            assert res_baseline == fake_baseline
+    fake_sales_baseline = MagicMock()
+    fake_sales_baseline.read_signed_baseline = AsyncMock(return_value=fake_baseline)
+    with patch.dict(
+        sys.modules,
+        {"nce_verticals.sales.signed_baseline": fake_sales_baseline},
+    ):
+        res_baseline = await _read_signed_baseline(bridge_engine_proj, ns_id, "Q-100")
+        assert res_baseline == fake_baseline
 
     # 3. Project Admin Handlers exist as async handlers in nce_verticals/admin_handlers/project.py
     proj_handlers_path = (
