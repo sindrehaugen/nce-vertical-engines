@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import uuid
 from typing import Any
 
@@ -19,6 +20,15 @@ import httpx
 from nce.signing import MasterKey, decrypt_signing_key, encrypt_signing_key
 
 log = logging.getLogger("nce_verticals.netbox.contacts")
+
+
+def is_workplace_telemetry_enabled() -> bool:
+    return os.environ.get("NCE_ENABLE_WORKPLACE_TELEMETRY", "false").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
 
 
 class NetBoxClient:
@@ -131,6 +141,9 @@ class NetBoxContactSync:
         """
         Retrieve raw empathic records for a specific contact linked to memories.
         """
+        if not is_workplace_telemetry_enabled():
+            return []
+
         rows = await conn.fetch(
             """
             SELECT l.empathic_tensor, l.created_at, l.tlx_scores, l.vad_scores
@@ -182,6 +195,17 @@ class NetBoxContactSync:
         Build, encrypt, and decrypt a contact's stress report to verify the data
         payload alignment and field parsing against NCE cryptoprimitives.
         """
+        contact_name = operator_id
+        if not is_workplace_telemetry_enabled():
+            return {
+                "status": "telemetry_disabled",
+                "telemetry_enabled": False,
+                "operator": contact_name,
+                "records_analyzed": 0,
+                "average_frustration": 0.0,
+                "cognitive_load": "normal",
+            }
+
         records = await self.fetch_stress_records_for_operator(
             conn, namespace_id, operator_id, email
         )
@@ -243,6 +267,7 @@ class NetBoxContactSync:
             return []
 
         contact_details = []
+        telemetry_enabled = is_workplace_telemetry_enabled()
 
         async with conn.transaction():
             # 1. Evaluate individual stress and update database
@@ -251,6 +276,44 @@ class NetBoxContactSync:
                     "name", ""
                 ).lower().replace(" ", "_")
                 email = contact.get("email") or f"{username}@example.com"
+
+                if not telemetry_enabled:
+                    is_active = True
+                    status = "active"
+                    weight = 1.0
+                    last_frustration = 0.0
+
+                    await conn.execute(
+                        """
+                        INSERT INTO on_call_routing (
+                            namespace_id, contact_email, username, is_active_on_call, routing_weight, status, updated_at
+                        ) VALUES ($1::uuid, $2, $3, $4, $5, $6, NOW())
+                        ON CONFLICT (namespace_id, contact_email) DO UPDATE
+                        SET is_active_on_call = EXCLUDED.is_active_on_call,
+                            routing_weight = EXCLUDED.routing_weight,
+                            status = EXCLUDED.status,
+                            updated_at = NOW()
+                        """,
+                        namespace_id,
+                        email,
+                        username,
+                        is_active,
+                        weight,
+                        status,
+                    )
+
+                    contact_details.append(
+                        {
+                            "username": username,
+                            "email": email,
+                            "is_active": is_active,
+                            "status": status,
+                            "frustration": last_frustration,
+                            "weight": weight,
+                            "telemetry_enabled": False,
+                        }
+                    )
+                    continue
 
                 # Parse frustration metric from encrypted tensor pipeline
                 report = await self.evaluate_contact_stress_report(
@@ -298,33 +361,35 @@ class NetBoxContactSync:
                     }
                 )
 
-            # 2. Redistribute load weights among active contacts
-            active_contacts = [c for c in contact_details if c["is_active"]]
-            standby_contacts = [c for c in contact_details if not c["is_active"]]
+            if telemetry_enabled:
+                # 2. Redistribute load weights among active contacts
+                active_contacts = [c for c in contact_details if c["is_active"]]
+                standby_contacts = [c for c in contact_details if not c["is_active"]]
 
-            if active_contacts and standby_contacts:
-                # Distribute lost standby weights (each standby had baseline weight of 1.0)
-                lost_weight = len(standby_contacts) * 1.0
-                weight_bonus = lost_weight / len(active_contacts)
+                if active_contacts and standby_contacts:
+                    # Distribute lost standby weights (each standby had baseline weight of 1.0)
+                    lost_weight = len(standby_contacts) * 1.0
+                    weight_bonus = lost_weight / len(active_contacts)
 
-                for c in active_contacts:
-                    c["weight"] += weight_bonus
+                    for c in active_contacts:
+                        c["weight"] += weight_bonus
 
-                    # Update redistributed weights in DB
-                    await conn.execute(
-                        """
-                        UPDATE on_call_routing
-                        SET routing_weight = $1::real, updated_at = NOW()
-                        WHERE namespace_id = $2::uuid AND contact_email = $3
-                        """,
-                        c["weight"],
-                        namespace_id,
-                        c["email"],
+                        # Update redistributed weights in DB
+                        await conn.execute(
+                            """
+                            UPDATE on_call_routing
+                            SET routing_weight = $1::real, updated_at = NOW()
+                            WHERE namespace_id = $2::uuid AND contact_email = $3
+                            """,
+                            c["weight"],
+                            namespace_id,
+                            c["email"],
+                        )
+                    log.info(
+                        "[NETBOX-CONTACTS] Redistributed %f load weight among %d active operators.",
+                        lost_weight,
+                        len(active_contacts),
                     )
-                log.info(
-                    "[NETBOX-CONTACTS] Redistributed %f load weight among %d active operators.",
-                    lost_weight,
-                    len(active_contacts),
-                )
 
         return contact_details
+

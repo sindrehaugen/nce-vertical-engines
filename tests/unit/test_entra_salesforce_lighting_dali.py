@@ -11,14 +11,8 @@ import base64
 import hashlib
 import hmac
 import json
-import sys
 import time
 import unittest
-from pathlib import Path
-
-ROOT = Path(__file__).resolve().parents[2]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
 
 from nce_verticals.entra_id.auth import (
     EntraConfig,
@@ -56,16 +50,8 @@ from nce_verticals.salesforce.webhooks import SalesforceWebhookReceiver
 
 
 def _make_mock_jwt(claims: dict) -> str:
-    hdr = (
-        base64.urlsafe_b64encode(b'{"alg":"RS256","typ":"JWT"}')
-        .rstrip(b"=")
-        .decode("ascii")
-    )
-    body = (
-        base64.urlsafe_b64encode(json.dumps(claims).encode("utf-8"))
-        .rstrip(b"=")
-        .decode("ascii")
-    )
+    hdr = base64.urlsafe_b64encode(b'{"alg":"RS256","typ":"JWT"}').rstrip(b"=").decode("ascii")
+    body = base64.urlsafe_b64encode(json.dumps(claims).encode("utf-8")).rstrip(b"=").decode("ascii")
     sig = base64.urlsafe_b64encode(b"mock-signature").rstrip(b"=").decode("ascii")
     return f"{hdr}.{body}.{sig}"
 
@@ -98,9 +84,7 @@ class TestEntraIDGate(unittest.IsolatedAsyncioTestCase):
             }
         )
 
-        principal = await gate.verify_request(
-            "sf_query_soql", {"entra_token": valid_token}
-        )
+        principal = await gate.verify_request("sf_query_soql", {"entra_token": valid_token})
         self.assertIsNotNone(principal)
         assert principal is not None
         self.assertEqual(principal.upn, "engineer@company.no")
@@ -119,9 +103,7 @@ class TestEntraIDGate(unittest.IsolatedAsyncioTestCase):
             }
         )
         with self.assertRaises(EntraVerificationError) as ctx:
-            await gate.verify_request(
-                "sf_create_record", {"entra_token": unauthorized_token}
-            )
+            await gate.verify_request("sf_create_record", {"entra_token": unauthorized_token})
         self.assertEqual(ctx.exception.code, "NOT_IN_COMPANY_ALLOWLIST")
 
         # Wrong Tenant ID must be denied
@@ -136,9 +118,7 @@ class TestEntraIDGate(unittest.IsolatedAsyncioTestCase):
             }
         )
         with self.assertRaises(EntraVerificationError) as ctx2:
-            await gate.verify_request(
-                "sf_query_soql", {"entra_token": wrong_tenant_token}
-            )
+            await gate.verify_request("sf_query_soql", {"entra_token": wrong_tenant_token})
         self.assertEqual(ctx2.exception.code, "TENANT_MISMATCH")
 
 
@@ -226,9 +206,7 @@ class TestSalesforceVerticalEngine(unittest.IsolatedAsyncioTestCase):
 
 class TestLightingDaliAndGlamoxEngine(unittest.TestCase):
     def test_glamox_decoder_and_recommendations(self) -> None:
-        c95 = decode_glamox_code(
-            "Glamox C95-R 600x600 4000 TWH 827-865 MP DA-EM 3H SEN"
-        )
+        c95 = decode_glamox_code("Glamox C95-R 600x600 4000 TWH 827-865 MP DA-EM 3H SEN")
         self.assertTrue(c95["is_glamox"])
         self.assertEqual(c95["model"], "C95-R")
         self.assertEqual(c95["dimensions_mm"], "600x600")
@@ -238,9 +216,7 @@ class TestLightingDaliAndGlamoxEngine(unittest.TestCase):
         self.assertTrue(c95["has_emergency"])
         self.assertEqual(c95["emergency_duration_h"], 3)
         self.assertTrue(c95["has_integrated_sensor"])
-        self.assertEqual(
-            c95["dali_ecg_addresses_per_unit"], 2
-        )  # 1 DT8 + 1 DT1 Emergency
+        self.assertEqual(c95["dali_ecg_addresses_per_unit"], 2)  # 1 DT8 + 1 DT1 Emergency
         self.assertEqual(c95["dali_ecd_addresses_per_unit"], 1)  # 1 integrated sensor
 
         rec = recommend_glamox_luminaires("CAD_WORKSTATION", require_tunable_white=True)
@@ -450,7 +426,11 @@ class TestOdooSuperEngineAndCrossTalker(unittest.IsolatedAsyncioTestCase):
         from nce_verticals.odoo.webhooks import OdooWebhookReceiver
         from nce_verticals.plugin import OdooPlugin
 
-        ops = OdooOperations(config=OdooAuthConfig(url="", webhook_secret="odoo-secret-123", require_entra_gate=False))
+        ops = OdooOperations(
+            config=OdooAuthConfig(
+                url="", webhook_secret="odoo-secret-123", require_entra_gate=False
+            )
+        )
         ct = OdooLLMCrossTalker(ops=ops)
 
         # 1. Bidirectional Chatter @nce prompt
@@ -523,7 +503,6 @@ class TestOdooSuperEngineAndCrossTalker(unittest.IsolatedAsyncioTestCase):
         self.assertIn("odoo_llm_crosstalk", reg)
 
 
-
 class TestAuditFixesAndContracts(unittest.IsolatedAsyncioTestCase):
     async def test_entra_issuer_validation_and_route_mounting(self) -> None:
         from nce_verticals.mcp_tool_defs import TOOLS
@@ -577,14 +556,19 @@ class TestAuditFixesAndContracts(unittest.IsolatedAsyncioTestCase):
         SalesforcePlugin().register_routes(routes_list)
         LightingDaliPlugin().register_routes(routes_list)
         OdooPlugin().register_routes(routes_list)
-        odoo_cfg_routes = [r for r in routes_list if getattr(r, "path", None) == "/api/admin/odoo/config"]
+        odoo_cfg_routes = [
+            r for r in routes_list if getattr(r, "path", None) == "/api/admin/odoo/config"
+        ]
         self.assertEqual(len(odoo_cfg_routes), 2)
 
         # Verify late-binding _h wrapper sets __qualname__
         reg: dict = {}
         OdooPlugin().register_tools(reg)
         self.assertIn("odoo_sync_now", reg)
-        self.assertIn("nce_verticals.odoo.mcp_handlers.handle_odoo_sync_now", reg["odoo_sync_now"].handler.__qualname__)
+        self.assertIn(
+            "nce_verticals.odoo.mcp_handlers.handle_odoo_sync_now",
+            reg["odoo_sync_now"].handler.__qualname__,
+        )
 
         # Verify all 29 new tools are advertised in mcp_tool_defs.TOOLS
         tool_names = {t.name for t in TOOLS}

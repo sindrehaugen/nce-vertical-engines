@@ -1,9 +1,9 @@
-# Docker Compose overlay for NCE Vertical Engines (Customer Portal)
+# Docker Compose overlay for NCE Vertical Engines (Portal & Standalone Servers)
 # Usage:
-#   docker compose -f docker-compose.yml -f docker-compose.verticals.yml up -d customer-portal
+#   docker compose -f docker-compose.yml -f docker-compose.verticals.yml up -d portal odoo salesforce lighting-dali
 
 services:
-  customer-portal:
+  portal:
     build:
       context: .
       dockerfile: deploy/multiuser/Dockerfile
@@ -16,15 +16,15 @@ services:
     command:
       [
         "uvicorn",
-        "portal_server:app",
+        "nce_verticals.servers.portal:app",
         "--host",
         "0.0.0.0",
         "--port",
-        "8005",
+        "8010",
         "--workers",
         "${PORTAL_WORKERS:-2}",
       ]
-    container_name: nce-customer-portal
+    container_name: nce-portal
     env_file:
       - deploy/compose.stack.env
       - deploy/compose.stack.env.generated
@@ -44,9 +44,14 @@ services:
       NCE_APP_PASSWORD: nce_app_secret
       # File-based secrets (out of /proc/<pid>/environ); see secret_env.
       NCE_MASTER_KEY_FILE: /run/secrets/nce_master_key
-      # Confinement: customer-portal has 0 admin credentials and no broad keys in environ.
+      # Confinement: portal has 0 admin credentials and no broad keys in environ.
       NCE_MASTER_KEY: ""
       NCE_ADMIN_API_KEY: ""
+      # Dual-axis engine filter & workplace telemetry governance
+      NCE_ENABLED_ENGINES: ${NCE_ENABLED_ENGINES:-all}
+      NCE_ENGINE_TYPE_FILTER: ${NCE_ENGINE_TYPE_FILTER:-}
+      NCE_ENGINE_CATEGORY_FILTER: ${NCE_ENGINE_CATEGORY_FILTER:-}
+      NCE_ENABLE_WORKPLACE_TELEMETRY: ${NCE_ENABLE_WORKPLACE_TELEMETRY:-false}
     tmpfs:
       - /dev/shm/nce-staging
     secrets:
@@ -56,7 +61,7 @@ services:
     security_opt:
       - "no-new-privileges:true"
     ports:
-      - "${PORTAL_PORT:-8005}:8005"
+      - "${PORTAL_PORT:-8010}:8010"
     depends_on:
       postgres:
         condition: service_healthy
@@ -70,7 +75,247 @@ services:
           "CMD",
           "python",
           "-c",
-          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8005/health')",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8010/health')",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  odoo:
+    build:
+      context: .
+      dockerfile: deploy/multiuser/Dockerfile
+      args:
+        NCE_GIT_SHA: ${NCE_GIT_SHA:-}
+        NCE_BUILD_TIME: ${NCE_BUILD_TIME:-}
+    command:
+      [
+        "uvicorn",
+        "nce_verticals.servers.odoo:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8011",
+        "--workers",
+        "${ODOO_WORKERS:-2}",
+      ]
+    container_name: nce-odoo
+    env_file:
+      - deploy/compose.stack.env
+      - deploy/compose.stack.env.generated
+    environment:
+      REDIS_URL: redis://:${REDIS_PASSWORD:?REDIS_PASSWORD must be set}@redis:6379/0
+      PG_DSN: postgresql://mcp_user:${POSTGRES_PASSWORD:-mcp_password}@postgres:5432/memory_meta
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-mcp_admin}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-super_secure_minio_password}
+      OMP_NUM_THREADS: ${OMP_NUM_THREADS:-2}
+      MKL_NUM_THREADS: ${MKL_NUM_THREADS:-2}
+      TOKENIZERS_PARALLELISM: ${TOKENIZERS_PARALLELISM:-false}
+      NCE_ARTIFACT_STAGING_DIR: ${NCE_ARTIFACT_STAGING_DIR:-/dev/shm/nce-staging}
+      TMPDIR: /dev/shm/nce-staging
+      NCE_APP_PASSWORD: nce_app_secret
+      NCE_MASTER_KEY_FILE: /run/secrets/nce_master_key
+      NCE_MASTER_KEY: ""
+      NCE_ADMIN_API_KEY: ""
+      # Dual-axis engine filter & workplace telemetry governance
+      NCE_ENABLED_ENGINES: ${NCE_ENABLED_ENGINES:-all}
+      NCE_ENGINE_TYPE_FILTER: ${NCE_ENGINE_TYPE_FILTER:-}
+      NCE_ENGINE_CATEGORY_FILTER: ${NCE_ENGINE_CATEGORY_FILTER:-}
+      NCE_ENABLE_WORKPLACE_TELEMETRY: ${NCE_ENABLE_WORKPLACE_TELEMETRY:-false}
+    tmpfs:
+      - /dev/shm/nce-staging
+    secrets:
+      - nce_master_key
+    user: "10001:10001"
+    security_opt:
+      - "no-new-privileges:true"
+    ports:
+      - "${ODOO_PORT:-8011}:8011"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8011/health')",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  salesforce:
+    build:
+      context: .
+      dockerfile: deploy/multiuser/Dockerfile
+      args:
+        NCE_GIT_SHA: ${NCE_GIT_SHA:-}
+        NCE_BUILD_TIME: ${NCE_BUILD_TIME:-}
+    command:
+      [
+        "uvicorn",
+        "nce_verticals.servers.salesforce:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8012",
+        "--workers",
+        "${SALESFORCE_WORKERS:-2}",
+      ]
+    container_name: nce-salesforce
+    env_file:
+      - deploy/compose.stack.env
+      - deploy/compose.stack.env.generated
+    environment:
+      REDIS_URL: redis://:${REDIS_PASSWORD:?REDIS_PASSWORD must be set}@redis:6379/0
+      PG_DSN: postgresql://mcp_user:${POSTGRES_PASSWORD:-mcp_password}@postgres:5432/memory_meta
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-mcp_admin}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-super_secure_minio_password}
+      OMP_NUM_THREADS: ${OMP_NUM_THREADS:-2}
+      MKL_NUM_THREADS: ${MKL_NUM_THREADS:-2}
+      TOKENIZERS_PARALLELISM: ${TOKENIZERS_PARALLELISM:-false}
+      NCE_ARTIFACT_STAGING_DIR: ${NCE_ARTIFACT_STAGING_DIR:-/dev/shm/nce-staging}
+      TMPDIR: /dev/shm/nce-staging
+      NCE_APP_PASSWORD: nce_app_secret
+      NCE_MASTER_KEY_FILE: /run/secrets/nce_master_key
+      NCE_MASTER_KEY: ""
+      NCE_ADMIN_API_KEY: ""
+      # Dual-axis engine filter & workplace telemetry governance
+      NCE_ENABLED_ENGINES: ${NCE_ENABLED_ENGINES:-all}
+      NCE_ENGINE_TYPE_FILTER: ${NCE_ENGINE_TYPE_FILTER:-}
+      NCE_ENGINE_CATEGORY_FILTER: ${NCE_ENGINE_CATEGORY_FILTER:-}
+      NCE_ENABLE_WORKPLACE_TELEMETRY: ${NCE_ENABLE_WORKPLACE_TELEMETRY:-false}
+    tmpfs:
+      - /dev/shm/nce-staging
+    secrets:
+      - nce_master_key
+    user: "10001:10001"
+    security_opt:
+      - "no-new-privileges:true"
+    ports:
+      - "${SALESFORCE_PORT:-8012}:8012"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8012/health')",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  lighting-dali:
+    build:
+      context: .
+      dockerfile: deploy/multiuser/Dockerfile
+      args:
+        NCE_GIT_SHA: ${NCE_GIT_SHA:-}
+        NCE_BUILD_TIME: ${NCE_BUILD_TIME:-}
+    command:
+      [
+        "uvicorn",
+        "nce_verticals.servers.lighting_dali:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8013",
+        "--workers",
+        "${LIGHTING_DALI_WORKERS:-2}",
+      ]
+    container_name: nce-lighting-dali
+    env_file:
+      - deploy/compose.stack.env
+      - deploy/compose.stack.env.generated
+    environment:
+      REDIS_URL: redis://:${REDIS_PASSWORD:?REDIS_PASSWORD must be set}@redis:6379/0
+      PG_DSN: postgresql://mcp_user:${POSTGRES_PASSWORD:-mcp_password}@postgres:5432/memory_meta
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-mcp_admin}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-super_secure_minio_password}
+      OMP_NUM_THREADS: ${OMP_NUM_THREADS:-2}
+      MKL_NUM_THREADS: ${MKL_NUM_THREADS:-2}
+      TOKENIZERS_PARALLELISM: ${TOKENIZERS_PARALLELISM:-false}
+      NCE_ARTIFACT_STAGING_DIR: ${NCE_ARTIFACT_STAGING_DIR:-/dev/shm/nce-staging}
+      TMPDIR: /dev/shm/nce-staging
+      NCE_APP_PASSWORD: nce_app_secret
+      NCE_MASTER_KEY_FILE: /run/secrets/nce_master_key
+      NCE_MASTER_KEY: ""
+      NCE_ADMIN_API_KEY: ""
+      # Dual-axis engine filter & workplace telemetry governance
+      NCE_ENABLED_ENGINES: ${NCE_ENABLED_ENGINES:-all}
+      NCE_ENGINE_TYPE_FILTER: ${NCE_ENGINE_TYPE_FILTER:-}
+      NCE_ENGINE_CATEGORY_FILTER: ${NCE_ENGINE_CATEGORY_FILTER:-}
+      NCE_ENABLE_WORKPLACE_TELEMETRY: ${NCE_ENABLE_WORKPLACE_TELEMETRY:-false}
+    tmpfs:
+      - /dev/shm/nce-staging
+    secrets:
+      - nce_master_key
+    user: "10001:10001"
+    security_opt:
+      - "no-new-privileges:true"
+    ports:
+      - "${LIGHTING_DALI_PORT:-8013}:8013"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8013/health')",
         ]
       interval: 10s
       timeout: 5s

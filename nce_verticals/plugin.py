@@ -16,9 +16,7 @@ try:
 except ImportError:
 
     class Route:  # type: ignore[no-redef]
-        def __init__(
-            self, path: str, endpoint: Any, methods: list[str] | None = None
-        ) -> None:
+        def __init__(self, path: str, endpoint: Any, methods: list[str] | None = None) -> None:
             self.path = path
             self.endpoint = endpoint
             self.methods = methods or ["GET"]
@@ -576,7 +574,6 @@ class AssetsPlugin:
 
     def register_cognitive_hooks(self, cognitive_engine: Any) -> None:
         try:
-
             log.debug("Registered assets cognitive hooks")
         except Exception as exc:
             log.warning("Failed registering assets cognitive hooks: %s", exc)
@@ -761,9 +758,7 @@ class CustomerPortalPlugin:
                 admin_only=True,
             ),
             "customer_portal_room_overview": ToolSpec(
-                _h(
-                    customer_portal_mcp_handlers, "handle_customer_portal_room_overview"
-                ),
+                _h(customer_portal_mcp_handlers, "handle_customer_portal_room_overview"),
                 cacheable=True,
                 engine="customer_portal",
                 engine_dependencies=(
@@ -801,9 +796,7 @@ class CustomerPortalPlugin:
                 admin_only=True,
             ),
             "customer_portal_list_invoices": ToolSpec(
-                _h(
-                    customer_portal_mcp_handlers, "handle_customer_portal_list_invoices"
-                ),
+                _h(customer_portal_mcp_handlers, "handle_customer_portal_list_invoices"),
                 cacheable=True,
                 engine="customer_portal",
                 engine_dependencies=("customer_portal", "economy"),
@@ -1307,7 +1300,6 @@ class FieldTechPlugin:
 
     def register_cognitive_hooks(self, cognitive_engine: Any) -> None:
         try:
-
             log.debug("Registered field_tech cognitive hooks")
         except Exception as exc:
             log.warning("Failed registering field_tech cognitive hooks: %s", exc)
@@ -2161,7 +2153,6 @@ class ProcurementPlugin:
 
     def register_cognitive_hooks(self, cognitive_engine: Any) -> None:
         try:
-
             log.debug("Registered procurement cognitive hooks")
         except Exception as exc:
             log.warning("Failed registering procurement cognitive hooks: %s", exc)
@@ -2476,9 +2467,7 @@ class ResourcesPlugin:
                 mutation=True,
             ),
             "resources_record_allocation_outcome": ToolSpec(
-                _h(
-                    resources_mcp_handlers, "handle_resources_record_allocation_outcome"
-                ),
+                _h(resources_mcp_handlers, "handle_resources_record_allocation_outcome"),
                 cacheable=False,
                 admin_only=True,
                 mutation=True,
@@ -3354,9 +3343,7 @@ class SystemDesignPlugin:
                 mutation=False,
             ),
             "system_design_get_room_category": ToolSpec(
-                _h(
-                    system_design_mcp_handlers, "handle_system_design_get_room_category"
-                ),
+                _h(system_design_mcp_handlers, "handle_system_design_get_room_category"),
                 cacheable=True,
                 admin_only=False,
                 mutation=False,
@@ -3440,17 +3427,13 @@ class SystemDesignPlugin:
                 mutation=True,
             ),
             "system_design_set_active_design": ToolSpec(
-                _h(
-                    system_design_mcp_handlers, "handle_system_design_set_active_design"
-                ),
+                _h(system_design_mcp_handlers, "handle_system_design_set_active_design"),
                 cacheable=False,
                 admin_only=False,
                 mutation=True,
             ),
             "system_design_get_active_design": ToolSpec(
-                _h(
-                    system_design_mcp_handlers, "handle_system_design_get_active_design"
-                ),
+                _h(system_design_mcp_handlers, "handle_system_design_get_active_design"),
                 cacheable=True,
                 admin_only=False,
                 mutation=False,
@@ -3793,7 +3776,6 @@ class SystemDesignPlugin:
 
     def register_cognitive_hooks(self, cognitive_engine: Any) -> None:
         try:
-
             log.debug("Registered system_design cognitive hooks")
         except Exception as exc:
             log.warning("Failed registering system_design cognitive hooks: %s", exc)
@@ -4312,7 +4294,6 @@ class LightingDaliPlugin:
         return mdir if mdir.is_dir() else None
 
 
-
 class OdooPlugin:
     """Standalone & Integrated Super-Intelligent Odoo Vertical Engine + LLM Cross-Talker Plugin."""
 
@@ -4320,6 +4301,7 @@ class OdooPlugin:
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.odoo import mcp_handlers as odoo_mcp_handlers
+
         tools = {
             "odoo_execute_kw": ToolSpec(
                 _h(odoo_mcp_handlers, "handle_odoo_execute_kw"),
@@ -4370,16 +4352,53 @@ class OdooPlugin:
 
     def register_routes(self, app: Any) -> None:
         from nce_verticals.admin_handlers import odoo as odoo_handlers
+
         routes = [
-            Route("/api/admin/odoo/config", endpoint=odoo_handlers.api_admin_odoo_config, methods=["GET"]),
-            Route("/api/admin/odoo/config", endpoint=odoo_handlers.api_admin_odoo_config_save, methods=["POST"]),
-            Route("/api/admin/odoo/records", endpoint=odoo_handlers.api_admin_odoo_records, methods=["GET"]),
-            Route("/api/admin/odoo/execute", endpoint=odoo_handlers.api_admin_odoo_execute, methods=["POST"]),
-            Route("/api/admin/odoo/intelligence", endpoint=odoo_handlers.api_admin_odoo_intelligence, methods=["GET"]),
-            Route("/api/admin/odoo/crosstalk", endpoint=odoo_handlers.api_admin_odoo_crosstalk_history, methods=["GET"]),
-            Route("/api/admin/odoo/crosstalk", endpoint=odoo_handlers.api_admin_odoo_crosstalk, methods=["POST"]),
-            Route("/api/admin/odoo/sync", endpoint=odoo_handlers.api_admin_odoo_sync_now, methods=["POST"]),
-            Route("/api/webhooks/odoo", endpoint=odoo_handlers.api_odoo_webhook_ingest, methods=["POST"]),
+            Route(
+                "/api/admin/odoo/config",
+                endpoint=odoo_handlers.api_admin_odoo_config,
+                methods=["GET"],
+            ),
+            Route(
+                "/api/admin/odoo/config",
+                endpoint=odoo_handlers.api_admin_odoo_config_save,
+                methods=["POST"],
+            ),
+            Route(
+                "/api/admin/odoo/records",
+                endpoint=odoo_handlers.api_admin_odoo_records,
+                methods=["GET"],
+            ),
+            Route(
+                "/api/admin/odoo/execute",
+                endpoint=odoo_handlers.api_admin_odoo_execute,
+                methods=["POST"],
+            ),
+            Route(
+                "/api/admin/odoo/intelligence",
+                endpoint=odoo_handlers.api_admin_odoo_intelligence,
+                methods=["GET"],
+            ),
+            Route(
+                "/api/admin/odoo/crosstalk",
+                endpoint=odoo_handlers.api_admin_odoo_crosstalk_history,
+                methods=["GET"],
+            ),
+            Route(
+                "/api/admin/odoo/crosstalk",
+                endpoint=odoo_handlers.api_admin_odoo_crosstalk,
+                methods=["POST"],
+            ),
+            Route(
+                "/api/admin/odoo/sync",
+                endpoint=odoo_handlers.api_admin_odoo_sync_now,
+                methods=["POST"],
+            ),
+            Route(
+                "/api/webhooks/odoo",
+                endpoint=odoo_handlers.api_odoo_webhook_ingest,
+                methods=["POST"],
+            ),
         ]
         _mount_routes(app, routes)
 
@@ -4395,58 +4414,129 @@ class OdooPlugin:
 
 
 class VerticalEnginesPlugin:
-    """Unified NCE Plugin aggregating all 20+ vertical engines."""
+    """Unified NCE Plugin aggregating the 23 modular vertical engines with Dual-Axis filtering."""
 
     plugin_id: str = "nce_verticals"
+    name: str = "nce_verticals"
+    version: str = "3.0.0"
 
-    def __init__(self) -> None:
-        self.plugins = [
-            AgreementsPlugin(),
-            AssetsPlugin(),
-            BusinessInsightsPlugin(),
-            CustomerPortalPlugin(),
-            DiagnosticsPlugin(),
-            Dynamics365Plugin(),
-            EconomyPlugin(),
-            FieldTechPlugin(),
-            GeodataPlugin(),
-            HRPlugin(),
-            InventoryPlugin(),
-            LegalEntitiesPlugin(),
-            MarketingPlugin(),
-            NetboxPlugin(),
-            NotificationsPlugin(),
-            ProcurementPlugin(),
-            ProductPlugin(),
-            ProjectPlugin(),
-            ResourcesPlugin(),
-            SalesPlugin(),
-            SitesPlugin(),
-            SupportPlugin(),
-            SystemDesignPlugin(),
-            VendorsPlugin(),
-            EntraIDPlugin(),
-            SalesforcePlugin(),
-            LightingDaliPlugin(),
-            OdooPlugin(),
-        ]
+    def __init__(
+        self,
+        enabled_engines: str | None = None,
+        type_filter: str | None = None,
+        category_filter: str | None = None,
+    ) -> None:
+        import importlib
+
+        from nce_verticals.registry import (
+            ENGINE_REGISTRY,
+            is_engine_installed,
+            resolve_enabled_engines,
+            resolve_schema_dependencies,
+        )
+
+        self._enabled_raw = enabled_engines
+        self._type_filter = type_filter
+        self._category_filter = category_filter
+        self._resolved_specs = resolve_enabled_engines(
+            enabled_raw=enabled_engines,
+            type_filter=type_filter,
+            category_filter=category_filter,
+        )
+        self._enabled_slugs = {spec.slug for spec in self._resolved_specs}
+
+        sub_plugins: list[Any] = []
+        g = globals()
+        for spec in self._resolved_specs:
+            cls = g.get(spec.plugin_class)
+            if cls is None:
+                pkg_mod = importlib.import_module(spec.package)
+                cls = getattr(pkg_mod, spec.plugin_class)
+            inst = cls()
+            inst.name = spec.slug
+            inst.plugin_id = spec.slug
+            inst.version = self.version
+            inst.types = sorted(spec.types)
+            inst.categories = sorted(spec.categories)
+            inst.installed = is_engine_installed(spec.slug)
+            inst.enabled = True
+            inst.requires_schemas = list(spec.requires_schemas)
+            sub_plugins.append(inst)
+
+        self.sub_plugins: list[Any] = sub_plugins
+        self.plugins: list[Any] = sub_plugins
+        self.types: list[str] = sorted({t for spec in self._resolved_specs for t in spec.types})
+        self.categories: list[str] = sorted(
+            {c for spec in self._resolved_specs for c in spec.categories}
+        )
+        self.installed: bool = True
+        self.enabled: bool = bool(self.sub_plugins)
+        self._schema_Order = resolve_schema_dependencies(
+            [spec.slug for spec in self._resolved_specs]
+        )
+        self._all_specs = ENGINE_REGISTRY
+
+    def get_required_schema_engines(self) -> list[str]:
+        """Return topologically ordered engine slugs including prerequisite SQL schemas."""
+        from nce_verticals.registry import resolve_schema_dependencies
+
+        return resolve_schema_dependencies([spec.slug for spec in self._resolved_specs])
+
+    def get_plugin_descriptors(
+        self,
+        type_filter: str | None = None,
+        category_filter: str | None = None,
+    ) -> list[dict[str, Any]]:
+        """Return metadata descriptors for engines, optionally filtered by type and/or category."""
+        from nce_verticals.registry import is_engine_installed, resolve_enabled_engines
+
+        specs = resolve_enabled_engines(
+            enabled_raw="all",
+            type_filter=type_filter,
+            category_filter=category_filter,
+        )
+        descriptors: list[dict[str, Any]] = []
+        for spec in specs:
+            descriptors.append(
+                {
+                    "name": spec.slug,
+                    "slug": spec.slug,
+                    "title": spec.title,
+                    "version": self.version,
+                    "types": sorted(spec.types),
+                    "categories": sorted(spec.categories),
+                    "installed": is_engine_installed(spec.slug),
+                    "enabled": spec.slug in self._enabled_slugs,
+                    "requires_schemas": list(spec.requires_schemas),
+                }
+            )
+        return descriptors
 
     def register_tools(self, registry: Any) -> None:
-        for p in self.plugins:
+        for p in self.sub_plugins:
             p.register_tools(registry)
 
     def register_routes(self, app: Any) -> None:
-        for p in self.plugins:
+        for p in self.sub_plugins:
             p.register_routes(app)
 
     def register_workers(self, worker_registry: Any) -> None:
-        for p in self.plugins:
+        for p in self.sub_plugins:
             p.register_workers(worker_registry)
 
     def register_cognitive_hooks(self, cognitive_engine: Any) -> None:
-        for p in self.plugins:
+        for p in self.sub_plugins:
             p.register_cognitive_hooks(cognitive_engine)
 
+    def get_migrations_dir(self) -> Path:
+        import importlib.resources
+
+        res = importlib.resources.files("nce_verticals").joinpath("migrations")
+        p = Path(str(res))
+        if p.is_dir():
+            return p
+        return Path(__file__).resolve().parent / "migrations"
+
     def get_migration_dir(self) -> Path | None:
-        mdir = Path(__file__).parent / "migrations"
+        mdir = self.get_migrations_dir()
         return mdir if mdir.is_dir() else None

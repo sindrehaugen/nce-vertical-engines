@@ -226,6 +226,23 @@ async def handle_d365_case_stress_report(engine: NCEEngine, arguments: dict[str,
     if not namespace_id or not account_name:
         return json.dumps({"error": "namespace_id and account_name are required"})
 
+    from nce_verticals.dynamics365.ingestion import is_workplace_telemetry_enabled
+
+    if not is_workplace_telemetry_enabled():
+        return json.dumps(
+            {
+                "account_name": account_name,
+                "telemetry_enabled": False,
+                "cases_analyzed": 0,
+                "average_frustration": 0.0,
+                "burnout_risk": False,
+                "burnout_alert": False,
+                "frustration_trend": [],
+                "status": "telemetry_disabled",
+                "message": "Workplace telemetry is disabled by default. Set NCE_ENABLE_WORKPLACE_TELEMETRY=true to enable.",
+            }
+        )
+
     try:
         from nce.db_utils import scoped_pg_session
 

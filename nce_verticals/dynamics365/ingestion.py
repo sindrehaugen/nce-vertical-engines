@@ -17,6 +17,7 @@ LLM required) so latency stays low inside the background worker.
 from __future__ import annotations
 
 import logging
+import os
 import uuid
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any
@@ -29,6 +30,15 @@ if TYPE_CHECKING:
     from motor.motor_asyncio import AsyncIOMotorClient
 
 log = logging.getLogger("nce_verticals.dynamics365.ingestion")
+
+
+def is_workplace_telemetry_enabled() -> bool:
+    return os.environ.get("NCE_ENABLE_WORKPLACE_TELEMETRY", "false").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
 
 
 # Keywords for heuristic Empathic Tensor extraction.
@@ -158,10 +168,11 @@ class DataverseIngestionWorker:
         )
 
         # 4. Empathic Tensor
-        tensor = self._extract_empathic_tensor(sanitized_text)
-        await self._insert_cognitive_ledger(
-            memory_id, tensor, {"incident_id": incident_id}
-        )
+        tensor = self._compute_empathic_tensor(sanitized_text)
+        if is_workplace_telemetry_enabled():
+            await self._insert_cognitive_ledger(
+                memory_id, tensor, {"incident_id": incident_id}
+            )
 
         # 5. kg_edge: Incident HAS_NOTE Annotation
         await self._upsert_kg_edge(
@@ -176,11 +187,14 @@ class DataverseIngestionWorker:
             incident_id,
             memory_id,
         )
-        return {
+        res: dict[str, Any] = {
             "memory_id": str(memory_id),
             "mongo_id": mongo_id,
             "empathic_tensor": tensor,
         }
+        if not is_workplace_telemetry_enabled():
+            res["telemetry_enabled"] = False
+        return res
 
     async def ingest_activity(
         self,
@@ -244,10 +258,11 @@ class DataverseIngestionWorker:
             vault=combined_vault,
         )
 
-        tensor = self._extract_empathic_tensor(combined_sanitized)
-        await self._insert_cognitive_ledger(
-            memory_id, tensor, {"activity_type": activity_type}
-        )
+        tensor = self._compute_empathic_tensor(combined_sanitized)
+        if is_workplace_telemetry_enabled():
+            await self._insert_cognitive_ledger(
+                memory_id, tensor, {"activity_type": activity_type}
+            )
 
         # kg_edge: Activity LINKED_TO related entity
         entity_label = f"{related_entity_type.title()}:{related_entity_id}"
@@ -264,11 +279,14 @@ class DataverseIngestionWorker:
             related_entity_id,
             memory_id,
         )
-        return {
+        res = {
             "memory_id": str(memory_id),
             "mongo_id": mongo_id,
             "empathic_tensor": tensor,
         }
+        if not is_workplace_telemetry_enabled():
+            res["telemetry_enabled"] = False
+        return res
 
     async def ingest_sla_breach(
         self,
@@ -401,6 +419,12 @@ class DataverseIngestionWorker:
     # Empathic Tensor extraction
     # ------------------------------------------------------------------
 
+    def _compute_empathic_tensor(self, text: str) -> list[float]:
+        """Compute Empathic Tensor or return neutral baseline if telemetry is disabled."""
+        if not is_workplace_telemetry_enabled():
+            return [5.0, 0.0, 5.0, 0.0, 0.0, 0.0]
+        return self._extract_empathic_tensor(text)
+
     def _extract_empathic_tensor(self, text: str) -> list[float]:
         """
         Derive a 6-element Empathic Tensor from raw text using keyword heuristics.
@@ -415,6 +439,9 @@ class DataverseIngestionWorker:
 
         No external LLM needed — keeps worker latency low.
         """
+        if not is_workplace_telemetry_enabled():
+            return [5.0, 0.0, 5.0, 0.0, 0.0, 0.0]
+
         if not text:
             return [5.0, 0.0, 5.0, 0.0, 0.0, 0.0]
 
@@ -590,6 +617,9 @@ class DataverseIngestionWorker:
         metadata: dict[str, Any] | None = None,
     ) -> None:
         """Insert an Empathic Tensor row into ``v3_cognitive_ledger``."""
+        if not is_workplace_telemetry_enabled():
+            return None
+
         import json as _json
 
         from nce.db_utils import scoped_pg_session

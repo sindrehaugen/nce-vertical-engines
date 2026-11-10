@@ -5,6 +5,8 @@ Relux / DIALux Light Design & IEC 62386 DALI-2 / Glamox System Design
 Connector, Reader, and Engineering Analyser Engine.
 """
 
+from typing import Any
+
 from nce_verticals.lighting_dali.analyser import (
     EN12464_ZONES,
     analyze_dali2_bus,
@@ -27,10 +29,19 @@ from nce_verticals.lighting_dali.parsers import (
     parse_relux_or_dialux_project,
 )
 
+
+def __getattr__(name: str) -> Any:
+    if name == "LightingDaliPlugin":
+        from nce_verticals.plugin import LightingDaliPlugin
+        return LightingDaliPlugin
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+
 __all__ = [
     "EN12464_ZONES",
     "GLAMOX_CONTROL_DEVICES",
     "GLAMOX_LUMINAIRE_CATALOG",
+    "LightingDaliPlugin",
     "analyze_dali2_bus",
     "analyze_lighting_project",
     "analyze_room_en12464",

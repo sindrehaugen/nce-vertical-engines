@@ -13,6 +13,8 @@ Supports:
 - Real-time Webhook / Outbound Message / Platform Event receiver.
 """
 
+from typing import Any
+
 from nce_verticals.salesforce.auth import SalesforceAuthConfig, SalesforceTokenManager
 from nce_verticals.salesforce.client import SalesforceAPIError, SalesforceClient
 from nce_verticals.salesforce.operations import (
@@ -22,11 +24,20 @@ from nce_verticals.salesforce.operations import (
 from nce_verticals.salesforce.sync import SalesforceSyncEngine
 from nce_verticals.salesforce.webhooks import SalesforceWebhookReceiver
 
+
+def __getattr__(name: str) -> Any:
+    if name == "SalesforcePlugin":
+        from nce_verticals.plugin import SalesforcePlugin
+        return SalesforcePlugin
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+
 __all__ = [
     "SalesforceAPIError",
     "SalesforceAuthConfig",
     "SalesforceClient",
     "SalesforceOperations",
+    "SalesforcePlugin",
     "SalesforceSyncEngine",
     "SalesforceTokenManager",
     "SalesforceWebhookReceiver",

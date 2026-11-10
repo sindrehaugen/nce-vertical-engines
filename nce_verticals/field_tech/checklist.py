@@ -35,7 +35,7 @@ _NODE_TYPE_CHECKLIST = "FIELD_TECH_CHECKLIST"
 _OWNER_ENGINE = "field_tech"
 
 _TEMPLATES_PATH = (
-    Path(__file__).resolve().parents[2]
+    Path(__file__).resolve().parents[1]
     / "config_data"
     / "field-tech-checklist-templates.json"
 )
