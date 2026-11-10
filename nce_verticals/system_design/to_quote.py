@@ -139,6 +139,26 @@ async def _propose_quote_to_sales(
 
     A2A tool name (resolved at runtime): ``sales_propose_quote``
     """
+    if getattr(engine, "sales_bridge_enabled", False) is True:
+        try:
+            from nce_verticals.sales.quote_propose import (
+                do_propose_quote,  # type: ignore[import-not-found]
+            )
+
+            return await do_propose_quote(engine, proposal)
+        except ImportError:
+            import nce_verticals.sales.mcp_handlers as _sales_mcp
+
+            handler = getattr(_sales_mcp, "handle_sales_propose_quote", None) or getattr(
+                _sales_mcp, "handle_sales_draft_quote"
+            )
+            raw = await handler(engine, proposal)
+            if isinstance(raw, str):
+                import json
+
+                return json.loads(raw)
+            return raw
+
     raise NotImplementedError(
         "_propose_quote_to_sales: Sales engine (Module 5) is not built yet. "
         "Mock this function in integration tests: "

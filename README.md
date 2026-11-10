@@ -3,9 +3,9 @@
 > 23 operational business engines, enterprise IT/ERP integrations, and domain modules built on the Neuro-Cognitive Engine (NCE) substrate.
 
 <p>
-  <img alt="version" src="https://img.shields.io/badge/version-0.1.0-blue">
+  <img alt="version" src="https://img.shields.io/badge/version-3.1.0-blue">
   <img alt="python" src="https://img.shields.io/badge/python-3.10%2B-3776ab">
-  <img alt="substrate" src="https://img.shields.io/badge/substrate-NCE%20v3.0.0-6e40c9">
+  <img alt="substrate" src="https://img.shields.io/badge/substrate-NCE%20v3.1.0-6e40c9">
   <img alt="license" src="https://img.shields.io/badge/license-AGPL--3.0-blue">
 </p>
 
@@ -138,6 +138,10 @@ Each engine provides domain-specific data models, confirm-first autonomy boundar
 | 21 | **Odoo ERP Connector** | `odoo` | `erp-crm` | `enterprise-erp`, `commercial`, `finance-governance` | `odoo` | `081_odoo_vertical_engine` |
 | 22 | **Salesforce CRM** | `salesforce` | `erp-crm` | `commercial`, `enterprise-erp` | `salesforce`, `entra_id` | `075_entra_id_security_gate`, `076_salesforce_vertical_engine` |
 | 23 | **Lighting DALI-2 & Glamox** | `lighting_dali` | `infra-iot` | `av-it-integrator`, `field-service-ops` | `lighting_dali` | `077_lighting_dali_vertical_engine` |
+
+> [!NOTE]
+> **Installable Vertical Engines vs. Shared-Core Support Packages:**
+> The **23 installable vertical engines** listed above are dynamically controlled, filtered, and activated via `NCE_ENABLED_ENGINES`, `NCE_ENGINE_TYPE_FILTER`, and `NCE_ENGINE_CATEGORY_FILTER`. In contrast, the **shared-core support packages** (`documents`, `geodata`, `legal_entities`, `notifications`, `sites`, `shared`, `security`, `servers`) represent foundational shared infrastructure and are bundled automatically inside the `nce_verticals` distribution wheel, providing universal cross-engine capabilities (such as entity resolution, C3 external-scope confinement, document attachment registries, and Brønnøysundregistrene/Kartverket geocoding) across all deployments regardless of which vertical engines are active.
 
 ---
 

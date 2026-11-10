@@ -98,6 +98,21 @@ async def _read_signed_baseline(
     NotImplementedError
         Always (until Sales engine Module 5 ships).  Tests must patch this.
     """
+    if getattr(engine, "sales_bridge_enabled", False) is True:
+        try:
+            from nce_verticals.sales.signed_baseline import (
+                read_signed_baseline,  # type: ignore[import-not-found]
+            )
+
+            return await read_signed_baseline(engine, namespace_id, quote_id)
+        except ImportError:
+            from nce.db_utils import scoped_pg_session
+
+            from nce_verticals.sales.baseline import get_signed_baseline
+
+            async with scoped_pg_session(engine.pg_pool, namespace_id) as conn:
+                return await get_signed_baseline(conn, namespace_id, quote_id)
+
     raise NotImplementedError(
         "_read_signed_baseline: Sales engine (Module 5) is not built yet. "
         "Mock this function in integration tests: "

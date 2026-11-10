@@ -69,6 +69,8 @@ class EntraConfig:
     allow_device_code_flow: bool = True
     session_ttl_seconds: int = 28800
     jwks_cache_ttl_seconds: int = 3600
+    verify_jwt_signature: bool = False
+    jwks_keys: list[dict[str, Any]] | None = None
 
     @classmethod
     def from_env(cls) -> EntraConfig:
@@ -103,6 +105,8 @@ class EntraConfig:
                 300, min(86400, int(os.environ.get("NCE_ENTRA_SESSION_TTL", "28800")))
             ),
             jwks_cache_ttl_seconds=max(60, int(os.environ.get("NCE_ENTRA_JWKS_CACHE_TTL", "3600"))),
+            verify_jwt_signature=os.environ.get("NCE_ENTRA_VERIFY_JWT_SIGNATURE", "false").lower()
+            in ("1", "true", "yes"),
         )
 
     def to_safe_dict(self) -> dict[str, Any]:
@@ -121,6 +125,7 @@ class EntraConfig:
             "allow_device_code_flow": self.allow_device_code_flow,
             "session_ttl_seconds": self.session_ttl_seconds,
             "jwks_cache_ttl_seconds": self.jwks_cache_ttl_seconds,
+            "verify_jwt_signature": self.verify_jwt_signature,
         }
 
 
@@ -192,6 +197,68 @@ def _decode_jwt_payload_unverified(token: str) -> dict[str, Any]:
     except Exception as exc:
         raise EntraVerificationError(
             f"Failed to decode JWT claims: {exc}", code="INVALID_JWT_CLAIMS"
+        ) from exc
+
+
+def verify_jwt_signature_with_jwks(
+    token: str,
+    jwks: dict[str, Any] | list[dict[str, Any]],
+    *,
+    allowed_algorithms: frozenset[str] = ALLOWED_JWT_ALGORITHMS,
+) -> dict[str, Any]:
+    """Cryptographically verify a JWT signature against OpenID Connect JWKS keys."""
+    import jwt
+
+    header = _decode_jwt_header_unverified(token)
+    alg = str(header.get("alg") or "RS256")
+    if alg not in allowed_algorithms:
+        raise EntraVerificationError(
+            f"JWT algorithm '{alg}' is not permitted. Allowed algorithms: {sorted(allowed_algorithms)}",
+            code="DISALLOWED_JWT_ALGORITHM",
+        )
+    kid = header.get("kid")
+    keys_list: list[dict[str, Any]] = jwks.get("keys", []) if isinstance(jwks, dict) else list(jwks)
+    if not keys_list:
+        raise EntraVerificationError(
+            "No JWKS public keys available for JWT signature verification",
+            code="JWKS_KEYS_EMPTY",
+        )
+    matched_jwk: dict[str, Any] | None = None
+    if kid:
+        matched_jwk = next((k for k in keys_list if k.get("kid") == kid), None)
+    elif len(keys_list) == 1:
+        matched_jwk = keys_list[0]
+    if matched_jwk is None:
+        raise EntraVerificationError(
+            f"No matching JWKS key found for kid='{kid}'",
+            code="JWKS_KID_NOT_FOUND",
+        )
+    try:
+        jwk_json = json.dumps(matched_jwk)
+        if alg.startswith("RS"):
+            pub_key: Any = jwt.algorithms.RSAAlgorithm.from_jwk(jwk_json)
+        elif alg.startswith("ES"):
+            pub_key = jwt.algorithms.ECAlgorithm.from_jwk(jwk_json)
+        else:
+            raise EntraVerificationError(
+                f"Unsupported JWK algorithm '{alg}'",
+                code="DISALLOWED_JWT_ALGORITHM",
+            )
+        decoded = jwt.decode(
+            token,
+            pub_key,
+            algorithms=[alg],
+            options={"verify_aud": False, "verify_iss": False, "verify_exp": False},
+        )
+        if not isinstance(decoded, dict):
+            raise ValueError("Decoded JWT payload is not a mapping")
+        return decoded
+    except EntraVerificationError:
+        raise
+    except Exception as exc:
+        raise EntraVerificationError(
+            f"JWT cryptographic signature verification failed: {exc}",
+            code="INVALID_JWT_SIGNATURE",
         ) from exc
 
 
@@ -430,7 +497,15 @@ class EntraIDAuthenticator:
                 f"Failed to inspect JWT header: {exc}", code="INVALID_JWT_HEADER"
             ) from exc
 
-        claims = _decode_jwt_payload_unverified(token)
+        if self.config.verify_jwt_signature or self.config.jwks_keys:
+            jwks_source: dict[str, Any] | list[dict[str, Any]] = (
+                self.config.jwks_keys
+                if self.config.jwks_keys is not None
+                else await self.fetch_openid_jwks()
+            )
+            claims = verify_jwt_signature_with_jwks(token, jwks_source)
+        else:
+            claims = _decode_jwt_payload_unverified(token)
         now = time.time()
 
         exp = float(claims.get("exp", 0))

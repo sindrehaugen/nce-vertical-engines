@@ -33,7 +33,13 @@ def main() -> None:
 
     host = os.environ.get("NCE_LIGHTING_HOST", "127.0.0.1")
     port = int(os.environ.get("NCE_LIGHTING_PORT", "8093"))
-    uvicorn.run(app, host=host, port=port)
+    uvicorn.run(
+        app,
+        host=host,
+        port=port,
+        timeout_keep_alive=30,
+        timeout_graceful_shutdown=15,
+    )
 
 
 if __name__ == "__main__":

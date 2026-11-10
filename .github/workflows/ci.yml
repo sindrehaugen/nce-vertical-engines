@@ -132,8 +132,8 @@ jobs:
 
       - name: Ruff Format & Lint
         run: |
-          ruff format --check nce_verticals/registry.py nce_verticals/plugin.py nce_verticals/cli.py nce_verticals/security/ nce_verticals/servers/ tests/test_registry_filters.py tests/unit/test_entra_salesforce_lighting_dali.py
-          ruff check nce_verticals/ tests/test_registry_filters.py tests/unit/test_entra_salesforce_lighting_dali.py
+          ruff format --check nce_verticals/registry.py nce_verticals/plugin.py nce_verticals/cli.py nce_verticals/security/ nce_verticals/servers/ tests/test_registry_filters.py tests/unit/test_entra_salesforce_lighting_dali.py tests/test_enterprise_23_engines_contract.py
+          ruff check nce_verticals/ tests/test_registry_filters.py tests/unit/test_entra_salesforce_lighting_dali.py tests/test_enterprise_23_engines_contract.py
 
       - name: Mypy Typecheck
         run: |
@@ -141,7 +141,7 @@ jobs:
 
       - name: Run Modular & Vertical Unit Tests
         run: |
-          pytest tests/test_registry_filters.py tests/unit/test_entra_salesforce_lighting_dali.py -q
+          pytest tests/test_registry_filters.py tests/unit/test_entra_salesforce_lighting_dali.py tests/test_enterprise_23_engines_contract.py -q
 
       - name: Build & Verify Full Wheel in Clean Venv (/tmp/venv_all)
         run: |
