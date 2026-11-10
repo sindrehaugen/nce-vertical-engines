@@ -9,9 +9,9 @@ from typing import Any
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest
-
 from nce.auth import set_namespace_context
 from nce.orchestrator import NCEEngine
+
 from nce_verticals.sales.flip import (
     do_flip_function,
     do_morning_brief_slice,

@@ -18,11 +18,11 @@ from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from tests.tool_pins import FLAG_PINS
-
 from nce.admin_app import build_admin_routes
 from nce.mcp_errors import McpError
 from nce.tool_registry import TOOL_REGISTRY
+
+from tests.tool_pins import FLAG_PINS
 
 _NAMESPACE_ID = "00000000-0000-4000-8000-000000000001"
 _PARTNER_SCOPE_ID = "11111111-1111-4000-8000-000000000002"
@@ -223,6 +223,7 @@ def test_vendors_routes_mounted_in_admin_app() -> None:
 @pytest.mark.asyncio
 async def test_rest_routes_no_engine() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers.vendors import (
         api_vendors_get_contractor,
         api_vendors_get_vendor,
@@ -297,6 +298,7 @@ async def test_rest_routes_no_engine() -> None:
 @pytest.mark.asyncio
 async def test_rest_routes_missing_params() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers.vendors import (
         api_vendors_get_contractor,
         api_vendors_get_vendor,
@@ -372,6 +374,7 @@ async def test_rest_routes_missing_params() -> None:
 @pytest.mark.asyncio
 async def test_rest_routes_invalid_uuid() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers.vendors import (
         api_vendors_get_contractor,
         api_vendors_get_vendor,
@@ -448,6 +451,7 @@ async def test_rest_routes_invalid_uuid() -> None:
 @pytest.mark.asyncio
 async def test_rest_routes_success_flow() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers.vendors import (
         api_vendors_get_contractor,
         api_vendors_get_vendor,
@@ -551,6 +555,7 @@ async def test_rest_routes_success_flow() -> None:
 @pytest.mark.asyncio
 async def test_rest_api_vendors_get_contractor_not_found() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers.vendors import api_vendors_get_contractor
 
     engine = _make_engine()

@@ -40,10 +40,10 @@ import uuid
 
 import asyncpg
 import pytest
-
 from nce.auth import set_namespace_context
 from nce.db_utils import scoped_pg_session
 from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
+
 from nce_verticals.agreements.sla import do_set_sla_coverage, get_sla_coverage
 from nce_verticals.system_design.graph import _fl_label
 

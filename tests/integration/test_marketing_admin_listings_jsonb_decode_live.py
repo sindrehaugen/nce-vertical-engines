@@ -35,14 +35,14 @@ import uuid
 
 import asyncpg
 import pytest
+from nce import admin_state
+from nce.orchestrator import NCEEngine
 from starlette.datastructures import QueryParams
 
-from nce import admin_state
 from nce_verticals.admin_handlers.marketing import (
     api_marketing_assets,
     api_marketing_testimonials,
 )
-from nce.orchestrator import NCEEngine
 
 pytestmark = pytest.mark.integration
 

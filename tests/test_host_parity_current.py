@@ -226,9 +226,8 @@ def _check_F32_notifications_and_reminders() -> bool:
 
 
 def _check_F35_me_context_route() -> bool:
-    from starlette.routing import Route
-
     import nce.me_app
+    from starlette.routing import Route
 
     covered = {
         (r.path, m)

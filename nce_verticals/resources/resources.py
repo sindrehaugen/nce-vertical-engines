@@ -34,9 +34,9 @@ import logging
 from typing import Any
 
 from asyncpg.exceptions import DataError
-
 from nce.resource_surface import register_resource
 from nce.resource_surface.spec import ResourceSpec
+
 from nce_verticals.resources._guard import require_resources_enabled
 
 log = logging.getLogger("nce_verticals.resources.resources")

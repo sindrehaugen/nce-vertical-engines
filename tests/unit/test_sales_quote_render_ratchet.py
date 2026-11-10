@@ -16,8 +16,8 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pypdf
 import pytest
-
 from nce.mcp_errors import MCP_INVALID_PARAMS, McpError
+
 from nce_verticals.sales.mcp_handlers import handle_sales_request_signature
 from nce_verticals.sales.render import render_quote_document
 from nce_verticals.sales.signing import (

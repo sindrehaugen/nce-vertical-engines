@@ -22,9 +22,9 @@ from typing import Any
 from uuid import UUID
 
 import asyncpg  # type: ignore[import-untyped]
-
 from nce.auth import set_namespace_context
 from nce.events.bus import subscribe
+
 from nce_verticals.notifications.service import (
     create_notification,
     get_subscribed_principals,

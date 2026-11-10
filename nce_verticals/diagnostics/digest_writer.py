@@ -69,6 +69,7 @@ from nce.orchestrators.diagnostic_ingest import (
 
 if TYPE_CHECKING:
     from nce.orchestrators.memory import MemoryOrchestrator
+
     from nce_verticals.diagnostics.streaming import Digest
 
 log = logging.getLogger("nce_verticals.diagnostics.digest_writer")

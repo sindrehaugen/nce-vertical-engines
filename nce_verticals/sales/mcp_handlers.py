@@ -45,6 +45,7 @@ from uuid import UUID
 from nce.db_utils import scoped_pg_session
 from nce.mcp_args import require_namespace_id
 from nce.mcp_errors import mcp_handler
+
 from nce_verticals.sales.ai import do_draft_quote, do_score_lead
 from nce_verticals.sales.baseline import get_signed_baseline
 from nce_verticals.sales.commission import do_calculate_commission

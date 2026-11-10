@@ -11,8 +11,8 @@ from __future__ import annotations
 import uuid
 
 import pytest
-
 from nce.config import cfg
+
 from nce_verticals.dynamics365.sync import DataverseSyncEngine
 
 

@@ -15,8 +15,8 @@ from unittest.mock import AsyncMock, MagicMock
 from uuid import UUID, uuid4
 
 import pytest
-
 from nce.event_log import EventLogError, append_event
+
 from nce_verticals.business_insights.events import (
     EVENT_BUSINESS_INSIGHTS_BOARD_PACK_DRAFTED,
     EVENT_BUSINESS_INSIGHTS_BRIEFING_GENERATED,

@@ -22,9 +22,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 import pytest
-
 from nce.db_utils import UNMANAGED_PG_AUDITED_SITES
 from nce.events.catalogue import EVENT_CATALOGUE
+
 from nce_verticals.support import do_check_sla_breaches
 
 

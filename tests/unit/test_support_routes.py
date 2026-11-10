@@ -21,9 +21,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 import pytest
-
 from nce import admin_state
 from nce.admin_app import build_admin_routes
+
 from nce_verticals.admin_handlers import support as support_mod
 from nce_verticals.support._guard import SupportDisabledError
 from nce_verticals.support.tickets import (

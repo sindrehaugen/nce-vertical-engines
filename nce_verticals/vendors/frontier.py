@@ -13,6 +13,7 @@ from typing import Any
 from uuid import UUID
 
 from nce.db_utils import scoped_pg_session
+
 from nce_verticals.vendors.scorecard import load_scorecard_weights
 from nce_verticals.vendors.tiers import do_get_tier_status
 

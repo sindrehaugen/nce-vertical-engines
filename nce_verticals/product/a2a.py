@@ -25,9 +25,9 @@ import uuid
 from typing import Any
 
 import asyncpg  # type: ignore[import-untyped]
-
 from nce.background_task_manager import create_tracked_task
 from nce.db_utils import scoped_pg_session
+
 from nce_verticals.product.enrich import _derive_idempotency_key, do_enrich_product
 
 log = logging.getLogger("nce_verticals.product.a2a")

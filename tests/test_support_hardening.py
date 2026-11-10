@@ -29,10 +29,10 @@ from collections.abc import AsyncGenerator
 import asyncpg  # type: ignore[import-untyped]
 import pytest
 import pytest_asyncio
-
 from nce.auth import set_namespace_context
 from nce.entity_resolution.ownership import OwnershipError, assert_owner
 from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
+
 from nce_verticals.support.health import do_health_score, do_record_touchpoint
 from nce_verticals.support.sla import do_sla_clock
 from nce_verticals.support.tickets import (

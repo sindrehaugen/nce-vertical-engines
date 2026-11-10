@@ -26,7 +26,6 @@ import uuid
 
 import pytest
 import pytest_asyncio
-
 from nce.db_utils import scoped_pg_session
 from nce.orchestrators.diagnostic_ingest import (
     upsert_device_health,

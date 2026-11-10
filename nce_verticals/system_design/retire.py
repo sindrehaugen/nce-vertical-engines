@@ -170,7 +170,6 @@ from typing import Any
 from uuid import UUID
 
 import asyncpg
-
 from nce.entity_resolution.ownership import assert_owner
 from nce.events.emit import emit_graph_write
 from nce.mcp_errors import BusinessRefusalError

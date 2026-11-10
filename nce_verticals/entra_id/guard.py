@@ -12,7 +12,8 @@ import functools
 import json
 import logging
 import time
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from nce_verticals.entra_id.auth import (
     EntraConfig,

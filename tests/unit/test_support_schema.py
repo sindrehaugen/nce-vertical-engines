@@ -19,7 +19,6 @@ import os
 from pathlib import Path
 
 import pytest
-
 from nce.event_log import EXPECTED_TENANT_RLS_TABLES
 
 REPO_ROOT = Path(__file__).resolve().parents[2]

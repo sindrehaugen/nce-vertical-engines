@@ -11,9 +11,6 @@ import uuid
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from starlette.requests import Request
-from starlette.responses import JSONResponse
-
 from nce.admin_handlers.health import get_degradations
 from nce.degradation import (
     DegradationRecord,
@@ -21,6 +18,8 @@ from nce.degradation import (
     get_degradation_register,
     record_degradation,
 )
+from starlette.requests import Request
+from starlette.responses import JSONResponse
 
 
 @pytest.fixture(autouse=True)

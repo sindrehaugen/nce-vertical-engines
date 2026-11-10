@@ -7,10 +7,10 @@ from uuid import UUID
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest
-
 from nce.auth import set_namespace_context
 from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
 from nce.orchestrator import NCEEngine
+
 from nce_verticals.sales.write_routing import do_create_deal, do_edit_deal
 
 

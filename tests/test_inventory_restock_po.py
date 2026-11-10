@@ -45,10 +45,10 @@ from typing import Any
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest
-
 from nce.auth import set_namespace_context
 from nce.autonomy.governor import governed
 from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
+
 from nce_verticals.inventory.restock_po import (
     _derive_restock_idempotency_key,
     do_create_restock_po,

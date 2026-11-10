@@ -9,9 +9,9 @@ from urllib.parse import urlparse, urlunparse
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest
-
 from nce.config import cfg
 from nce.db_utils import scoped_pg_session
+
 from nce_verticals.vendors.contractors import do_get_contractor, do_upsert_contractor
 
 

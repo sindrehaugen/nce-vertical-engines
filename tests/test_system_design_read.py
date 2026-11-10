@@ -231,6 +231,7 @@ async def _seed_design(
     from nce.auth import set_namespace_context
     from nce.db_utils import scoped_pg_session
     from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
+
     from nce_verticals.system_design.devices import do_author_device_topology
     from nce_verticals.system_design.geometry import do_author_geometry
     from nce_verticals.system_design.graph import do_author_functional_location
@@ -630,6 +631,7 @@ class TestGetTopologyReadBack:
         monkeypatch.setattr("nce.quotas.cfg.NCE_QUOTAS_ENABLED", False)
 
         from nce.db_utils import scoped_pg_session
+
         from nce_verticals.system_design.geometry import bump_design_version
 
         ns_id: uuid.UUID = await make_namespace()

@@ -13,10 +13,10 @@ from __future__ import annotations
 from pathlib import Path
 from uuid import UUID
 
-from starlette.testclient import TestClient
-from tests.expected_tenant_rls_table_count import EXPECTED_TENANT_RLS_TABLE_COUNT
-
 from nce.event_log import EXPECTED_TENANT_RLS_TABLES
+from starlette.testclient import TestClient
+
+from tests.expected_tenant_rls_table_count import EXPECTED_TENANT_RLS_TABLE_COUNT
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 

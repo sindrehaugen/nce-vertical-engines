@@ -32,10 +32,10 @@ from unittest.mock import AsyncMock, MagicMock
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest
-
 from nce.auth import set_namespace_context
 from nce.autonomy.governor import KillSwitchError, governed
 from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
+
 from nce_verticals.procurement.po import (
     _derive_submit_idempotency_key,
     do_submit_po,

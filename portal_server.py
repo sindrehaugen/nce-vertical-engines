@@ -16,9 +16,9 @@ import logging
 import os
 from contextlib import asynccontextmanager
 
+from nce.orchestrator import NCEEngine
 from starlette.applications import Starlette
 
-from nce.orchestrator import NCEEngine
 from nce_verticals.customer_portal.app import build_customer_portal_app
 
 logging.basicConfig(level=logging.INFO)

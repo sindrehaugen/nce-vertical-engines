@@ -68,6 +68,7 @@ from uuid import UUID
 from nce.db_utils import scoped_pg_session
 from nce.mcp_args import require_namespace_id
 from nce.mcp_errors import mcp_handler
+
 from nce_verticals.assets.assignment import (
     do_assign_asset_person,
     do_get_asset_subcomponents,

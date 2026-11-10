@@ -34,6 +34,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 import pytest
+
 from tests.tool_pins import FLAG_PINS
 
 _NAMESPACE_ID = "00000000-0000-4000-8000-000000000001"
@@ -156,9 +157,9 @@ def test_assets_tools_registered_with_correct_flags(
 
 
 def test_tool_count_updated_for_assets_surface() -> None:
-    from tests.test_tool_registry import _EXPECTED_TOTAL
-
     from nce.tool_registry import TOOL_REGISTRY
+
+    from tests.test_tool_registry import _EXPECTED_TOTAL
 
     assert "assets_get" in TOOL_REGISTRY
     assert "assets_list" in TOOL_REGISTRY
@@ -504,6 +505,7 @@ async def test_handle_assets_get_returns_json_string() -> None:
 @pytest.mark.asyncio
 async def test_handle_assets_get_missing_namespace_id_raises_mcp_error() -> None:
     from nce.mcp_errors import McpError
+
     from nce_verticals.assets.mcp_handlers import handle_assets_get
 
     with pytest.raises(McpError) as exc_info:
@@ -530,6 +532,7 @@ async def test_handle_assets_list_returns_json_string() -> None:
 @pytest.mark.asyncio
 async def test_handle_assets_list_missing_namespace_id_raises_mcp_error() -> None:
     from nce.mcp_errors import McpError
+
     from nce_verticals.assets.mcp_handlers import handle_assets_list
 
     with pytest.raises(McpError) as exc_info:
@@ -571,6 +574,7 @@ async def test_handle_assets_advance_lifecycle_missing_namespace_id_raises_mcp_e
     None
 ):
     from nce.mcp_errors import McpError
+
     from nce_verticals.assets.mcp_handlers import handle_assets_advance_lifecycle
 
     with pytest.raises(McpError) as exc_info:
@@ -601,6 +605,7 @@ def test_assets_routes_mounted_in_admin_app() -> None:
 @pytest.mark.asyncio
 async def test_api_assets_get_returns_ok_shape() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers import assets as assets_mod
 
     with patch.object(admin_state, "engine", MagicMock()):
@@ -621,6 +626,7 @@ async def test_api_assets_get_returns_ok_shape() -> None:
 @pytest.mark.asyncio
 async def test_api_assets_list_returns_ok_shape() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers import assets as assets_mod
 
     with patch.object(admin_state, "engine", MagicMock()):
@@ -639,6 +645,7 @@ async def test_api_assets_list_returns_ok_shape() -> None:
 @pytest.mark.asyncio
 async def test_api_assets_advance_lifecycle_returns_200_on_success() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers import assets as assets_mod
 
     core_result = {
@@ -667,6 +674,7 @@ async def test_api_assets_advance_lifecycle_returns_200_on_success() -> None:
 @pytest.mark.asyncio
 async def test_api_assets_advance_lifecycle_returns_409_on_illegal_transition() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers import assets as assets_mod
 
     core_result = {
@@ -695,6 +703,7 @@ async def test_api_assets_advance_lifecycle_returns_409_on_illegal_transition() 
 @pytest.mark.asyncio
 async def test_api_assets_advance_lifecycle_returns_404_when_asset_absent() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers import assets as assets_mod
 
     core_result = {
@@ -718,6 +727,7 @@ async def test_api_assets_advance_lifecycle_returns_404_when_asset_absent() -> N
 @pytest.mark.asyncio
 async def test_api_assets_routes_missing_namespace_id_returns_422() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers.assets import (
         api_assets_advance_lifecycle,
         api_assets_get,
@@ -742,6 +752,7 @@ async def test_api_assets_routes_missing_namespace_id_returns_422() -> None:
 @pytest.mark.asyncio
 async def test_api_assets_get_missing_id_path_param_returns_422() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers.assets import api_assets_get
 
     with patch.object(admin_state, "engine", MagicMock()):
@@ -754,6 +765,7 @@ async def test_api_assets_get_missing_id_path_param_returns_422() -> None:
 @pytest.mark.asyncio
 async def test_api_assets_routes_no_engine_returns_503() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers.assets import (
         api_assets_advance_lifecycle,
         api_assets_get,

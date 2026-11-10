@@ -17,7 +17,6 @@ import uuid
 import asyncpg  # type: ignore[import-untyped]
 import pytest
 import pytest_asyncio
-
 from nce.auth import set_namespace_context
 from nce.config import cfg
 

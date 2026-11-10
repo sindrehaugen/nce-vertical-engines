@@ -41,8 +41,8 @@ from urllib.parse import urlparse, urlunparse
 import asyncpg  # type: ignore[import-untyped]
 import pytest
 import pytest_asyncio
-
 from nce.db_utils import scoped_pg_session
+
 from nce_verticals.inventory.watchers import do_flag_stock_alerts
 
 pytestmark = pytest.mark.integration

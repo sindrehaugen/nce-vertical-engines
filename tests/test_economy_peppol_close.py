@@ -26,9 +26,9 @@ from typing import Any
 from uuid import uuid4
 
 import pytest
-
 from nce.config import cfg
 from nce.db_utils import scoped_pg_session
+
 from nce_verticals.economy import close_narrative, peppol
 
 # ---------------------------------------------------------------------------

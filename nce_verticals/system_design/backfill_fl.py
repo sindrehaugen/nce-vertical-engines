@@ -54,6 +54,7 @@ from uuid import UUID
 from nce.config import DeploymentConfigurationError
 from nce.entity_resolution.merge_queue import enqueue as merge_enqueue
 from nce.entity_resolution.resolver import resolve as c1_resolve
+
 from nce_verticals.system_design.fold_rules import (
     DEFAULT_FOLD_RULES,
     FoldRules,

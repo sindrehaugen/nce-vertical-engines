@@ -8,8 +8,8 @@ from typing import Any
 
 import asyncpg
 import pytest
-
 from nce.auth import set_namespace_context
+
 from nce_verticals.vendors.scorecard import do_compute_scorecard, load_scorecard_weights
 
 

@@ -44,7 +44,6 @@ from pathlib import Path
 os.environ.setdefault("NCE_MASTER_KEY", "x" * 32)
 
 import pytest
-
 from nce.resource_surface import get_all_resource_specs, load_all_engine_resources
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))

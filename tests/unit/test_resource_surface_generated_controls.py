@@ -74,9 +74,6 @@ from __future__ import annotations
 import uuid
 
 import pytest
-from starlette.applications import Starlette
-from starlette.testclient import TestClient
-
 from nce import admin_state
 from nce.resource_surface import (
     RESOURCE_SURFACE_EXEMPTIONS,
@@ -85,6 +82,8 @@ from nce.resource_surface import (
     load_all_engine_resources,
 )
 from nce.resource_surface.rest import _clear_mem_store, make_resource_routes
+from starlette.applications import Starlette
+from starlette.testclient import TestClient
 
 _NS_A = str(uuid.UUID("33333333-3333-3333-3333-333333333333"))
 _NS_B = str(uuid.UUID("44444444-4444-4444-4444-444444444444"))

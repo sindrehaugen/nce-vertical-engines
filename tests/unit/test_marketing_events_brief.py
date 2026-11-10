@@ -15,9 +15,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import UUID, uuid4
 
 import pytest
-
 from nce.event_types import EVENT_FORBIDDEN_PARAM_KEYS, EventType
 from nce.replay import _additional_fork_provenance_types
+
 from nce_verticals.marketing._guard import MarketingDisabledError
 from nce_verticals.marketing.brief import (
     do_query_marketing_a2a,

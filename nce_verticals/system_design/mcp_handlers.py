@@ -56,6 +56,7 @@ from nce.db_utils import scoped_pg_session
 from nce.event_log import append_event
 from nce.mcp_args import require_namespace_id
 from nce.mcp_errors import McpError, mcp_handler
+
 from nce_verticals.system_design.capability_sync import do_sync_device_capabilities
 from nce_verticals.system_design.devices import do_author_device_topology
 from nce_verticals.system_design.enrichment import do_enrich_design_lines

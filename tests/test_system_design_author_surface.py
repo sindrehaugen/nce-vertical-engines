@@ -923,6 +923,7 @@ def test_version_conflict_mcp_code_is_distinct_from_invalid_params() -> None:
     a malformed argument on the wire.
     """
     from nce.mcp_errors import MCP_INTERNAL_ERROR, MCP_INVALID_PARAMS
+
     from nce_verticals.system_design.mcp_handlers import VERSION_CONFLICT_MCP_CODE
 
     assert VERSION_CONFLICT_MCP_CODE not in {MCP_INVALID_PARAMS, MCP_INTERNAL_ERROR}
@@ -969,6 +970,7 @@ async def test_malformed_expected_version_is_a_validation_error_not_a_conflict(
     monkeypatch.delenv("NCE_MCP_NAMESPACE_ID", raising=False)
 
     from nce.mcp_errors import MCP_INVALID_PARAMS
+
     from nce_verticals.system_design.geometry import VersionConflictError
 
     for bad in ("7", 1.5, True, -1, [], 2**63, 2**70):
@@ -1028,6 +1030,7 @@ async def test_expected_version_null_is_absence_not_a_token(
     monkeypatch.delenv("NCE_MCP_NAMESPACE_ID", raising=False)
 
     from nce.mcp_errors import MCP_INTERNAL_ERROR
+
     from nce_verticals.system_design.geometry import VersionConflictError
 
     ns_id = uuid.uuid4()
@@ -1211,6 +1214,7 @@ class TestExpectedVersionIsLive:
         monkeypatch.setattr("nce.quotas.cfg.NCE_QUOTAS_ENABLED", False)
 
         from nce import admin_state
+
         from nce_verticals.admin_handlers import system_design as routes
         from nce_verticals.system_design.geometry import VersionConflictError
 
@@ -2205,6 +2209,7 @@ class TestCacheInvalidation:
         monkeypatch.setattr("nce.quotas.cfg.NCE_QUOTAS_ENABLED", False)
 
         from nce import admin_state
+
         from nce_verticals.admin_handlers import system_design as routes
 
         ns_id: uuid.UUID = await make_namespace()
@@ -2253,6 +2258,7 @@ class TestRestSurface:
         monkeypatch.setattr("nce.quotas.cfg.NCE_QUOTAS_ENABLED", False)
 
         from nce import admin_state
+
         from nce_verticals.admin_handlers import system_design as routes
 
         ns_id: uuid.UUID = await make_namespace()
@@ -2299,6 +2305,7 @@ class TestRestSurface:
         monkeypatch.setattr("nce.quotas.cfg.NCE_QUOTAS_ENABLED", False)
 
         from nce import admin_state
+
         from nce_verticals.admin_handlers import system_design as routes
         from nce_verticals.system_design.geometry import VersionConflictError
 
@@ -2334,6 +2341,7 @@ class TestRestSurface:
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         from nce import admin_state
+
         from nce_verticals.admin_handlers import system_design as routes
 
         monkeypatch.setattr(admin_state, "engine", _EngineStub(pg_pool), raising=False)
@@ -2368,6 +2376,7 @@ class TestRestSurface:
         monkeypatch.setattr("nce.quotas.cfg.NCE_QUOTAS_ENABLED", False)
 
         from nce import admin_state
+
         from nce_verticals.admin_handlers import system_design as routes
 
         ns_id: uuid.UUID = await make_namespace()  # deliberately NOT seeded
@@ -2398,6 +2407,7 @@ class TestRestSurface:
         monkeypatch.setattr("nce.quotas.cfg.NCE_QUOTAS_ENABLED", False)
 
         from nce import admin_state
+
         from nce_verticals.admin_handlers import system_design as routes
 
         ns_id: uuid.UUID = await make_namespace()  # NOT seeded
@@ -2421,6 +2431,7 @@ class TestRestSurface:
     ) -> None:
         """A missing required core argument is a 422, not a 500."""
         from nce import admin_state
+
         from nce_verticals.admin_handlers import system_design as routes
 
         ns_id: uuid.UUID = await make_namespace()
@@ -2470,6 +2481,7 @@ class TestOutboxDelivery:
         defect that left the other bootstraps dead on main.
         """
         from nce.outbox_relay import restore_handlers, snapshot_handlers
+
         from nce_verticals.system_design.subscribers import (
             register_system_design_subscribers,
         )
@@ -2641,6 +2653,7 @@ def test_subscriber_is_a_module_level_coroutine_so_it_deduplicates() -> None:
     function has the identity needed to be deduplicated.
     """
     from nce.outbox_relay import OUTBOX_HANDLERS, restore_handlers, snapshot_handlers
+
     from nce_verticals.system_design.subscribers import (
         handle_system_design_node_upserted,
         register_system_design_subscribers,

@@ -62,7 +62,6 @@ from typing import Any
 
 import asyncpg  # type: ignore[import-untyped]
 import httpx
-
 from nce.config import DeploymentConfigurationError, cfg
 
 log = logging.getLogger("nce_verticals.system_design.netbox_bridge")

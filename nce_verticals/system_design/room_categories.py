@@ -22,6 +22,7 @@ from uuid import UUID
 from nce.db_utils import scoped_pg_session
 from nce.orchestrator import NCEEngine
 from nce.principal_bindings import PrincipalContext
+
 from nce_verticals.system_design.fl_tree import get_fl_node
 from nce_verticals.system_design.graph import (
     assign_fl_responsible_edge,

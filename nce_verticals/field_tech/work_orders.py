@@ -553,7 +553,6 @@ async def handle_ticket_dispatched(
         priority = "medium"
 
     import asyncpg
-
     from nce.auth import set_namespace_context
 
     if isinstance(conn, asyncpg.Connection):

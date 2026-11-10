@@ -76,9 +76,9 @@ from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from typing import Any
 
 import asyncpg  # type: ignore[import-untyped]
-
 from nce.db_utils import scoped_pg_session
 from nce.mcp_args import require_namespace_id
+
 from nce_verticals.agreements.coverage import (
     _parse_date_or_none,
     _read_economy_gl_rows,

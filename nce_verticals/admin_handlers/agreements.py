@@ -17,8 +17,6 @@ import uuid
 from typing import Any
 from uuid import UUID
 
-from starlette.responses import JSONResponse
-
 from nce.admin_handlers._shared import (
     _json_safe,
     admin_error_response,
@@ -28,6 +26,7 @@ from nce.admin_handlers._shared import (
 )
 from nce.auth import validate_agent_id
 from nce.db_utils import scoped_pg_session
+from starlette.responses import JSONResponse
 
 # Guard lives in the vertical (dependencies point inward — B43 product pattern);
 # re-exported here so existing importers of the web layer keep working.

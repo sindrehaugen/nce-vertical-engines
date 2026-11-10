@@ -25,6 +25,7 @@ from typing import Any
 
 from nce.db_utils import scoped_pg_session
 from nce.entity_resolution.ownership import assert_owner
+
 from nce_verticals.hr._guard import assert_ranking_prohibited
 from nce_verticals.hr.capacity import do_capacity
 from nce_verticals.hr.certs import do_cert_status

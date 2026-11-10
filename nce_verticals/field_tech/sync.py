@@ -20,6 +20,7 @@ from typing import Any
 from uuid import UUID
 
 from nce.db_utils import scoped_pg_session
+
 from nce_verticals.field_tech.checklist import do_complete_checklist
 from nce_verticals.field_tech.photo import do_attach_photo
 from nce_verticals.field_tech.scan import do_scan_serial

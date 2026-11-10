@@ -30,10 +30,10 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest
-
 from nce.auth import set_namespace_context
 from nce.config import DeploymentConfigurationError
 from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
+
 from nce_verticals.system_design.graph import do_author_functional_location
 from nce_verticals.system_design.netbox_bridge import (
     SystemDesignNetBoxBridge,

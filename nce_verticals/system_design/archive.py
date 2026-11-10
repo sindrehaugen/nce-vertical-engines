@@ -124,11 +124,11 @@ from typing import Any
 from uuid import UUID
 
 import asyncpg
-
 from nce import config as _config
 from nce.config import cfg
 from nce.event_log import append_event
 from nce.mcp_errors import BusinessRefusalError
+
 from nce_verticals.system_design.retire import (
     _delete_permanently,
     _port_labels_of,

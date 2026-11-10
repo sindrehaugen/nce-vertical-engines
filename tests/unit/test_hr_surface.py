@@ -15,7 +15,6 @@ import json
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
 from nce.mcp_errors import MCP_SCOPE_FORBIDDEN, McpError
 from nce.mcp_stdio_tools import TOOLS
 from nce.tool_registry import (
@@ -24,6 +23,7 @@ from nce.tool_registry import (
     MUTATION_TOOLS,
     TOOL_REGISTRY,
 )
+
 from nce_verticals.hr.mcp_handlers import (
     handle_hr_build_onboarding_quest,
     handle_hr_capacity,

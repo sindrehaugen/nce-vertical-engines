@@ -18,8 +18,8 @@ import zipfile
 from pathlib import Path
 
 import pytest
-
 from nce.config import cfg
+
 from nce_verticals.diagnostics.profiles import LogProfile, get_profile
 from nce_verticals.diagnostics.streaming import (
     Anomaly,

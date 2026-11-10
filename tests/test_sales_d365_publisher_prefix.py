@@ -13,8 +13,8 @@ import re
 from typing import Any
 
 import pytest
-
 from nce.config import DeploymentConfigurationError, cfg
+
 from nce_verticals.sales import read_model
 from nce_verticals.sales.source_adapters import d365
 

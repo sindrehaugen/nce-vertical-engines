@@ -506,6 +506,7 @@ async def test_handle_assets_ping_ok() -> None:
 @pytest.mark.asyncio
 async def test_handle_assets_ping_missing_namespace_id() -> None:
     from nce.mcp_errors import McpError
+
     from nce_verticals.assets.mcp_handlers import handle_assets_ping
 
     engine = _make_engine()

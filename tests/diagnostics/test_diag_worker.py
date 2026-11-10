@@ -25,7 +25,6 @@ import zipfile
 
 import pytest
 import pytest_asyncio
-
 from nce.config import cfg
 
 pytestmark = pytest.mark.integration

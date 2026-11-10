@@ -19,8 +19,8 @@ from typing import Any
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-
 from nce.config import cfg
+
 from nce_verticals.hr import coaching, privacy
 from nce_verticals.hr._guard import HrRankingProhibitedError
 

@@ -36,7 +36,6 @@ import importlib.util
 import pathlib
 
 import pytest
-
 from nce.tool_registry import TOOL_REGISTRY
 
 _ROOT = pathlib.Path(__file__).resolve().parent.parent

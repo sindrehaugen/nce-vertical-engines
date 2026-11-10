@@ -13,10 +13,10 @@ from unittest.mock import patch
 
 import asyncpg
 import pytest
-
 from nce.auth import set_namespace_context
 from nce.embeddings import _deterministic_hash_embedding
 from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
+
 from nce_verticals.vendors.contractors import do_upsert_contractor
 from nce_verticals.vendors.performance import (
     do_compute_performance,

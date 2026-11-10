@@ -29,7 +29,6 @@ from nce_verticals.entra_id.guard import EntraSecurityGate
 from nce_verticals.lighting_dali.analyser import (
     analyze_dali2_bus,
     analyze_lighting_project,
-    analyze_room_en12464,
     calculate_dali_dimming_level,
     calculate_dt8_mirek,
 )
@@ -38,7 +37,6 @@ from nce_verticals.lighting_dali.glamox_catalog import (
     recommend_glamox_luminaires,
 )
 from nce_verticals.lighting_dali.parsers import (
-    parse_dali_address_csv,
     parse_eulumdat_ldt,
     parse_iesna_ies,
     parse_relux_or_dialux_project,
@@ -529,7 +527,6 @@ class TestOdooSuperEngineAndCrossTalker(unittest.IsolatedAsyncioTestCase):
 class TestAuditFixesAndContracts(unittest.IsolatedAsyncioTestCase):
     async def test_entra_issuer_validation_and_route_mounting(self) -> None:
         from nce_verticals.mcp_tool_defs import TOOLS
-        from nce_verticals.plugin import VerticalEnginesPlugin
 
         cfg = EntraConfig(
             entra_tenant_id="11111111-2222-3333-4444-555555555555",

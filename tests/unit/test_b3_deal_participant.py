@@ -17,6 +17,7 @@ from __future__ import annotations
 
 from nce.resource_surface import build_all_resource_tool_specs
 from nce.tool_registry import TOOL_REGISTRY
+
 from nce_verticals.sales.resources import DEAL_PARTICIPANT_SPEC
 
 

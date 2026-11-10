@@ -11,10 +11,10 @@ from unittest.mock import patch
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest
-
 from nce.auth import set_namespace_context
 from nce.embeddings import _deterministic_hash_embedding
 from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
+
 from nce_verticals.project.recall import (
     do_recall_similar_projects,
     do_record_project_outcome,

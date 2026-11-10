@@ -5,8 +5,6 @@ from __future__ import annotations
 import json
 import uuid
 
-from starlette.responses import JSONResponse
-
 from nce import admin_state
 from nce.admin_handlers._shared import (
     admin_error_response,
@@ -18,6 +16,7 @@ from nce.admin_handlers._shared import (
     parse_optional_uuid,
     parse_page_limit_common,
 )
+from starlette.responses import JSONResponse
 
 
 async def api_admin_d365_config(request):
@@ -142,6 +141,7 @@ async def api_admin_d365_sync_now(request):
         import asyncio
 
         from nce.db_utils import scoped_pg_session
+
         from nce_verticals.dynamics365.auth import DataverseTokenManager
         from nce_verticals.dynamics365.client import DataverseClient
         from nce_verticals.dynamics365.sync import DataverseSyncEngine

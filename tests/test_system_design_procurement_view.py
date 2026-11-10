@@ -515,6 +515,7 @@ class TestSystemDesignProcurementViewIntegration:
         test_ns = await make_namespace()
         from nce.db_utils import scoped_pg_session
         from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
+
         from nce_verticals.system_design.devices import do_author_device_topology
         from nce_verticals.system_design.graph import do_author_functional_location
         from nce_verticals.system_design.to_quote import do_design_to_quote
@@ -629,6 +630,7 @@ class TestSystemDesignProcurementViewIntegration:
     ) -> None:
         from nce.db_utils import scoped_pg_session
         from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
+
         from nce_verticals.system_design.devices import do_author_device_topology
 
         ns_a = await make_namespace()

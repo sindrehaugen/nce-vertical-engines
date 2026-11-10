@@ -22,6 +22,7 @@ from nce.bom_lines import update_bom_line_status
 from nce.db_utils import scoped_pg_session
 from nce.entity_resolution.ownership import assert_owner
 from nce.mcp_errors import BusinessRefusalError
+
 from nce_verticals.field_tech.samsvar import (
     generate_eu_declaration_of_conformity,
     generate_samsvarserklaering,

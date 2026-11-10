@@ -24,8 +24,8 @@ from typing import Any
 from uuid import uuid4
 
 import pytest
-
 from nce.degradation import get_degradation_register
+
 from nce_verticals.business_insights.board_pack import do_generate_board_pack
 from nce_verticals.business_insights.radar import do_risk_radar
 from nce_verticals.business_insights.scenario import do_run_scenario

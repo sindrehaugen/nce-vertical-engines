@@ -30,9 +30,9 @@ from typing import Any
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest
-
 from nce.auth import set_namespace_context
 from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
+
 from nce_verticals.sales.lines import do_add_quote_line, do_get_quote_lines
 from nce_verticals.system_design import from_quote as from_quote_mod
 

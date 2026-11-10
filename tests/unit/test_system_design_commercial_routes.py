@@ -23,8 +23,8 @@ from typing import Any
 from unittest.mock import AsyncMock, patch
 
 import pytest
-
 from nce import admin_state
+
 from nce_verticals.admin_handlers import system_design as routes
 
 

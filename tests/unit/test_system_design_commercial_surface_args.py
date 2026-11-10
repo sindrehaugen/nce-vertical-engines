@@ -22,8 +22,8 @@ import uuid
 from typing import Any
 
 import pytest
-
 from nce.mcp_errors import MCP_INVALID_PARAMS, McpError
+
 from nce_verticals.system_design.mcp_handlers import (
     handle_system_design_enrich_design_lines,
     handle_system_design_from_quote,

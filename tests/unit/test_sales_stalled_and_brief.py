@@ -42,10 +42,10 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 import pytest
-
 from nce.admin_app import build_admin_routes
 from nce.mcp_errors import McpError
 from nce.tool_registry import TOOL_REGISTRY
+
 from nce_verticals.sales import (
     do_morning_brief_slice,
     do_stalled_deal_watcher,
@@ -421,6 +421,7 @@ async def test_handle_sales_morning_brief_slice_success() -> None:
 @pytest.mark.asyncio
 async def test_api_admin_sales_morning_brief_slice_no_engine() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers.sales import api_admin_sales_morning_brief_slice
 
     with patch.object(admin_state, "engine", None):
@@ -434,6 +435,7 @@ async def test_api_admin_sales_morning_brief_slice_no_engine() -> None:
 @pytest.mark.asyncio
 async def test_api_admin_sales_morning_brief_slice_validations() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers.sales import api_admin_sales_morning_brief_slice
 
     engine = _make_engine()
@@ -461,6 +463,7 @@ async def test_api_admin_sales_morning_brief_slice_validations() -> None:
 @pytest.mark.asyncio
 async def test_api_admin_sales_morning_brief_slice_success() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers.sales import api_admin_sales_morning_brief_slice
 
     engine = _make_engine()
@@ -495,6 +498,7 @@ async def test_api_admin_sales_morning_brief_slice_success() -> None:
 @pytest.mark.asyncio
 async def test_api_admin_sales_morning_brief_slice_exceptions() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers.sales import api_admin_sales_morning_brief_slice
 
     engine = _make_engine()

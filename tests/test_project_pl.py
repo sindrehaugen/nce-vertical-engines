@@ -13,9 +13,9 @@ from typing import Any
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest
-
 from nce.auth import set_namespace_context
 from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
+
 from nce_verticals.project.pl import (
     calculate_priority,
     do_capacity,

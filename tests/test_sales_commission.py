@@ -8,11 +8,11 @@ from typing import Any
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest
-
 from nce.auth import set_namespace_context
 from nce.embeddings import embed
 from nce.event_log import append_event
 from nce.orchestrator import NCEEngine
+
 from nce_verticals.sales.commission import (
     do_calculate_commission,
     do_initiate_quote_flow,

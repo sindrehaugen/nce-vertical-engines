@@ -62,7 +62,6 @@ import logging
 from typing import Any
 
 import asyncpg  # type: ignore[import-untyped]
-
 from nce.events.bus import subscribe
 
 log = logging.getLogger("nce_verticals.system_design.subscribers")

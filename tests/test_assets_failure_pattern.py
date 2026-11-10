@@ -27,9 +27,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 import pytest
+from nce.entity_resolution.ownership import OwnershipError
 
 from nce_verticals.admin_handlers import assets as assets_admin_handlers
-from nce.entity_resolution.ownership import OwnershipError
 from nce_verticals.assets.failure_pattern import (
     AssetNotFoundError,
     do_record_failure_pattern,

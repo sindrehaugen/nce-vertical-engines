@@ -40,8 +40,8 @@ from typing import Any
 import asyncpg  # type: ignore[import-untyped]
 import pytest
 import pytest_asyncio
-
 from nce.auth import set_namespace_context
+
 from nce_verticals.economy.recalibration import (
     _advisory_lock_key,
     _derive_candidate_thresholds,

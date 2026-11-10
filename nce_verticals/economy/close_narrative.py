@@ -51,7 +51,6 @@ from typing import Any
 from uuid import UUID
 
 import asyncpg  # type: ignore[import-untyped]
-
 from nce.structural import ground
 
 log = logging.getLogger("nce_verticals.economy.close_narrative")

@@ -26,6 +26,7 @@ from nce.admin_handlers._shared import (
 )
 from nce.auth import validate_agent_id
 from nce.db_utils import scoped_pg_session
+
 from nce_verticals.product._guard import ProductDisabledError, require_product_enabled
 from nce_verticals.product.mcp_handlers import do_get_product, do_search_products
 from nce_verticals.product.quality import (

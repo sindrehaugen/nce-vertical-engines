@@ -76,8 +76,8 @@ from uuid import UUID
 
 import httpx
 import jwt
-
 from nce.config import live_env_str
+
 from nce_verticals.assets.telemetry import TelemetryAdapter, TelemetrySample
 
 log = logging.getLogger("nce_verticals.assets.neowit")

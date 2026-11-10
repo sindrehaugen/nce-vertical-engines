@@ -11,8 +11,8 @@ import uuid
 from datetime import datetime, timedelta, timezone
 
 import pytest
-
 from nce.config import cfg
+
 from nce_verticals.dynamics365.sync import DataverseSyncEngine
 
 

@@ -16,7 +16,6 @@ import json
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-
 from nce.mcp_errors import MCP_INVALID_PARAMS, McpError
 from nce.signing_service import (
     UnimplementedTransportError,
@@ -24,6 +23,7 @@ from nce.signing_service import (
     get_dispatched_otp_codes,
     reset_signing_transports,
 )
+
 from nce_verticals.sales.mcp_handlers import handle_sales_request_signature
 from nce_verticals.sales.signing import (
     do_on_signed_callback,

@@ -25,8 +25,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import UUID
 
 import pytest
-
 from nce.engine_registry import EngineRegistry
+
 from nce_verticals.procurement import ManualPoTransport
 from nce_verticals.procurement.mcp_handlers import handle_procurement_submit_po
 from nce_verticals.procurement.po import do_submit_po

@@ -152,6 +152,7 @@ async def _seed(
     from nce.auth import set_namespace_context
     from nce.db_utils import scoped_pg_session
     from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
+
     from nce_verticals.system_design.devices import do_author_device_topology
     from nce_verticals.system_design.graph import do_author_functional_location
 
@@ -649,6 +650,7 @@ class TestRestSurface:
         monkeypatch.setattr("nce.quotas.cfg.NCE_QUOTAS_ENABLED", False)
 
         from nce import admin_state
+
         from nce_verticals.admin_handlers import system_design as routes
 
         design_id = "DESIGN-W13C-REST"
@@ -689,6 +691,7 @@ class TestRestSurface:
 async def test_rest_requires_design_id(monkeypatch: pytest.MonkeyPatch) -> None:
     """A missing design_id is a 422, not a 500 — and never reaches the database."""
     from nce import admin_state
+
     from nce_verticals.admin_handlers import system_design as routes
 
     monkeypatch.setattr(admin_state, "engine", _EngineStub(None), raising=False)
@@ -703,6 +706,7 @@ async def test_rest_requires_design_id(monkeypatch: pytest.MonkeyPatch) -> None:
 async def test_rest_requires_namespace_id(monkeypatch: pytest.MonkeyPatch) -> None:
     """A missing namespace_id is a 422 — the tenant is never defaulted."""
     from nce import admin_state
+
     from nce_verticals.admin_handlers import system_design as routes
 
     monkeypatch.setattr(admin_state, "engine", _EngineStub(None), raising=False)
@@ -964,6 +968,7 @@ class TestOwnerPoolIsolation:
 async def test_missing_namespace_id_is_invalid_params() -> None:
     """A missing namespace_id is an McpError(-32602), not a 500."""
     from nce.mcp_errors import MCP_INVALID_PARAMS, McpError
+
     from nce_verticals.system_design.mcp_handlers import (
         handle_system_design_validate_design_graph,
     )
@@ -979,6 +984,7 @@ async def test_missing_namespace_id_is_invalid_params() -> None:
 async def test_missing_design_id_is_invalid_params() -> None:
     """A missing design_id is an McpError(-32602), not a 500."""
     from nce.mcp_errors import MCP_INVALID_PARAMS, McpError
+
     from nce_verticals.system_design.mcp_handlers import (
         handle_system_design_validate_design_graph,
     )

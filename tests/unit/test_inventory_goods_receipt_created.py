@@ -8,8 +8,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 import pytest
-
 from nce.events import catalogue
+
 from nce_verticals.inventory.goods_receipt import do_record_goods_receipt
 
 

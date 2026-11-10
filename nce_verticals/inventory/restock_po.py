@@ -51,11 +51,11 @@ import uuid
 from typing import Any
 
 import asyncpg  # type: ignore[import-untyped]
-
 from nce.autonomy.governor import governed
 from nce.config import cfg
 from nce.db_utils import scoped_pg_session
 from nce.event_log import append_event
+
 from nce_verticals.procurement.po import (
     _derive_submit_idempotency_key,
     do_submit_po,

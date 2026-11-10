@@ -33,6 +33,7 @@ from typing import Protocol
 
 from nce.config import cfg
 from nce.mcp_errors import BusinessRefusalError
+
 from nce_verticals.diagnostics.profiles import LogProfile
 
 # ── Constants ───────────────────────────────────────────────────────────────────

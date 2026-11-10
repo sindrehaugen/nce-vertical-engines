@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from nce.resource_surface import register_resource
 from nce.resource_surface.spec import ResourceSpec
+
 from nce_verticals.inventory._guard import require_inventory_enabled
 
 # 1. STOCK_LOCATION

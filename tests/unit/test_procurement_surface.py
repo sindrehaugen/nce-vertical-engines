@@ -311,6 +311,7 @@ async def test_handle_calculate_tco_missing_namespace_id():
 @pytest.mark.asyncio
 async def test_handle_rank_suppliers_missing_namespace_id():
     from nce.mcp_errors import McpError
+
     from nce_verticals.procurement.mcp_handlers import (
         handle_procurement_rank_suppliers,
     )
@@ -330,6 +331,7 @@ async def test_handle_rank_suppliers_missing_namespace_id():
 @pytest.mark.asyncio
 async def test_handle_evaluate_match_missing_namespace_id():
     from nce.mcp_errors import McpError
+
     from nce_verticals.procurement.mcp_handlers import (
         handle_procurement_evaluate_match,
     )
@@ -354,6 +356,7 @@ async def test_handle_evaluate_match_missing_namespace_id():
 @pytest.mark.asyncio
 async def test_handle_aggregate_savings_missing_namespace_id():
     from nce.mcp_errors import McpError
+
     from nce_verticals.procurement.mcp_handlers import (
         handle_procurement_aggregate_savings,
     )
@@ -389,6 +392,7 @@ def test_procurement_routes_mounted_in_admin_app():
 @pytest.mark.asyncio
 async def test_api_procurement_aggregate_savings_get_success(monkeypatch):
     from nce import admin_state
+
     from nce_verticals.admin_handlers.procurement import (
         api_procurement_aggregate_savings,
     )
@@ -425,6 +429,7 @@ async def test_api_procurement_aggregate_savings_get_success(monkeypatch):
 @pytest.mark.asyncio
 async def test_api_procurement_aggregate_savings_post_success(monkeypatch):
     from nce import admin_state
+
     from nce_verticals.admin_handlers.procurement import (
         api_procurement_aggregate_savings,
     )
@@ -460,6 +465,7 @@ async def test_api_procurement_aggregate_savings_post_success(monkeypatch):
 @pytest.mark.asyncio
 async def test_api_procurement_aggregate_savings_missing_namespace():
     from nce import admin_state
+
     from nce_verticals.admin_handlers.procurement import (
         api_procurement_aggregate_savings,
     )
@@ -476,6 +482,7 @@ async def test_api_procurement_aggregate_savings_missing_namespace():
 @pytest.mark.asyncio
 async def test_api_procurement_aggregate_savings_missing_period():
     from nce import admin_state
+
     from nce_verticals.admin_handlers.procurement import (
         api_procurement_aggregate_savings,
     )
@@ -492,6 +499,7 @@ async def test_api_procurement_aggregate_savings_missing_period():
 @pytest.mark.asyncio
 async def test_api_procurement_aggregate_savings_engine_not_connected():
     from nce import admin_state
+
     from nce_verticals.admin_handlers.procurement import (
         api_procurement_aggregate_savings,
     )

@@ -7,7 +7,6 @@ a colliding tool name (e.g. `resources_list_resources` vs `handle_resources_list
 from __future__ import annotations
 
 import pytest
-
 from nce.resource_surface import ResourceSpec
 from nce.resource_surface.mcp import build_mcp_tool_specs
 from nce.tool_registry import TOOL_REGISTRY, ToolSpec

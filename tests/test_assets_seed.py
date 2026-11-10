@@ -72,9 +72,9 @@ from urllib.parse import urlparse, urlunparse
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest
-
 from nce.auth import set_namespace_context
 from nce.config import cfg
+
 from nce_verticals.assets.lifecycle import load_lifecycle_config
 from nce_verticals.assets.seed import do_seed_asset_from_bom, initial_lifecycle_state
 

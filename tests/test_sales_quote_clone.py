@@ -27,9 +27,9 @@ from typing import Any
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest
-
 from nce.auth import set_namespace_context
 from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
+
 from nce_verticals.sales.quote_clone import QuoteNotFoundError, do_clone_quote
 
 _TOOL = "sales_clone_quote"

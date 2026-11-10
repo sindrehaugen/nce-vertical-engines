@@ -31,6 +31,7 @@ from typing import TYPE_CHECKING, Any
 from nce.db_utils import scoped_pg_session
 from nce.mcp_args import require_namespace_id
 from nce.mcp_errors import McpError, mcp_handler
+
 from nce_verticals.product._guard import (
     ProductDisabledError,
     require_product_enabled,
@@ -361,6 +362,7 @@ async def handle_product_enrich(engine: NCEEngine, arguments: dict[str, Any]) ->
 
     from nce.db_utils import scoped_pg_session
     from nce.mcp_args import require_namespace_id
+
     from nce_verticals.product.enrich import (
         _derive_idempotency_key,
         do_enrich_product,
@@ -431,6 +433,7 @@ async def handle_product_ingest_spec(
 
     from nce.db_utils import scoped_pg_session
     from nce.mcp_args import require_namespace_id
+
     from nce_verticals.product.ingestion import (
         _derive_ingest_idempotency_key,
         do_ingest_spec,

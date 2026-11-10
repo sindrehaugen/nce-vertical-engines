@@ -37,7 +37,6 @@ import json
 from typing import Any
 
 import pytest
-
 from nce.config import DeploymentConfigurationError, cfg
 from nce.mcp_errors import (
     MCP_INTERNAL_ERROR,
@@ -45,6 +44,7 @@ from nce.mcp_errors import (
     McpError,
     mcp_handler,
 )
+
 from nce_verticals.sales.source_adapters import d365
 from nce_verticals.system_design.sow import _supplier_name, do_generate_sow
 

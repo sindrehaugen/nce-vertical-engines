@@ -20,6 +20,7 @@ from typing import Any
 from uuid import UUID
 
 from nce.db_utils import scoped_pg_session
+
 from nce_verticals.hr._guard import assert_ranking_prohibited
 
 log = logging.getLogger("nce_verticals.hr.capacity")

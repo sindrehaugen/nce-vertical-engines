@@ -61,11 +61,11 @@ from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
 from nce.bom_lines import list_bom_lines_for_quote
+
 from nce_verticals.sales.external_lines import do_import_quote_lines
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     import asyncpg
-
     from nce.orchestrator import NCEEngine
 
 _MAX_TITLE_LEN = 512

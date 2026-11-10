@@ -120,6 +120,7 @@ async def test_handle_project_can_enter_phase_missing_criteria():
 async def test_handle_project_can_enter_phase_missing_namespace_id():
     """Missing namespace_id raises McpError(-32602) via @mcp_handler."""
     from nce.mcp_errors import McpError
+
     from nce_verticals.project.mcp_handlers import (
         handle_project_can_enter_phase,
     )

@@ -28,12 +28,12 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 import pytest
-
-from nce_verticals.admin_handlers import support as support_handlers
 from nce.admin_handlers._shared import admin_state
 from nce.mcp_errors import MCP_SCOPE_FORBIDDEN, McpError
 from nce.mcp_stdio_tools import TOOLS
 from nce.tool_registry import TOOL_REGISTRY
+
+from nce_verticals.admin_handlers import support as support_handlers
 from nce_verticals.support._guard import SupportDisabledError
 from nce_verticals.support.mcp_handlers import (
     handle_support_get_ticket_links,

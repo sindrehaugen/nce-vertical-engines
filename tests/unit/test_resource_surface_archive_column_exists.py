@@ -32,7 +32,6 @@ import sys
 from pathlib import Path
 
 import pytest
-
 from nce.resource_surface import get_all_resource_specs, load_all_engine_resources
 
 _SCRIPTS = Path(__file__).resolve().parents[2] / "scripts"

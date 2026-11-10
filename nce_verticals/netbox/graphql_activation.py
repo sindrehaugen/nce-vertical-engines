@@ -17,7 +17,6 @@ from collections.abc import Callable
 from typing import Any
 
 import httpx
-
 from nce.config import cfg
 from nce.graph_query import SpikingActivationEngine
 

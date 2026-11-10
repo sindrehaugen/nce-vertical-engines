@@ -58,6 +58,7 @@ from uuid import UUID
 
 from nce.bom_lines import CreateFlow, create_bom_line
 from nce.db_utils import scoped_pg_session
+
 from nce_verticals.system_design.graph import (
     _design_label,
     _upsert_edge,

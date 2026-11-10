@@ -23,8 +23,8 @@ from __future__ import annotations
 import inspect
 
 import pytest
-
 from nce.tool_registry import CACHEABLE_TOOLS, MUTATION_TOOLS, TOOL_REGISTRY
+
 from nce_verticals.procurement import frontier
 from nce_verticals.procurement.frontier import (
     forecast_rebate,

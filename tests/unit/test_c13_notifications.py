@@ -18,10 +18,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import UUID, uuid4
 
 import pytest
-from starlette.applications import Starlette
-from starlette.testclient import TestClient
-from tests._verified_tier_middleware import VERIFIED_TIER_TEST_MIDDLEWARE
-
 from nce import admin_state
 from nce.event_log import EXPECTED_TENANT_RLS_TABLES
 from nce.resource_surface import (
@@ -31,6 +27,9 @@ from nce.resource_surface import (
 )
 from nce.resource_surface.rest import _clear_mem_store, make_resource_routes
 from nce.tool_registry import TOOL_REGISTRY
+from starlette.applications import Starlette
+from starlette.testclient import TestClient
+
 from nce_verticals.notifications import (
     NOTIFICATION_SPEC,
     REMINDER_SPEC,
@@ -50,6 +49,7 @@ from nce_verticals.notifications.subscribers import (
     handle_reminder_fired,
     handle_ticket_sla_breached,
 )
+from tests._verified_tier_middleware import VERIFIED_TIER_TEST_MIDDLEWARE
 
 _NS_A = UUID("11111111-1111-4111-8111-111111111111")
 _NS_B = UUID("22222222-2222-4222-8222-222222222222")

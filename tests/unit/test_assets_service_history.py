@@ -24,11 +24,11 @@ from unittest.mock import MagicMock, patch
 from uuid import UUID, uuid4
 
 import pytest
+from nce import admin_state
 from starlette.applications import Starlette
 from starlette.routing import Route
 from starlette.testclient import TestClient
 
-from nce import admin_state
 from nce_verticals.admin_handlers import assets as assets_handlers
 from nce_verticals.assets.mcp_handlers import handle_assets_service_history
 from nce_verticals.assets.service_history import (

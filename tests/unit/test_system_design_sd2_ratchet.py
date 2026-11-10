@@ -24,8 +24,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 import pytest
-
 from nce.config import cfg
+
 from nce_verticals.system_design.propose import (
     _apply_outcome_weights,
     do_propose_design,

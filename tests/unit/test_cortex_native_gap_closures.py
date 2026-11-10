@@ -11,20 +11,19 @@ Unit tests for Wave C-1A gap closures:
 from __future__ import annotations
 
 import json
-import os
 import uuid
 from decimal import Decimal
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
 from nce.source_mode.resolver import (
     _DEFAULT_MODE,
     get_default_source_mode,
     resolve,
     resolve_native_first,
 )
+
 from nce_verticals.economy.recalibration import (
     do_recalibrate_supplier,
     resolve_tenant_supplier_override,

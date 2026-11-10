@@ -68,7 +68,6 @@ import asyncpg
 import httpx
 import pytest
 import pytest_asyncio
-
 from nce.auth import set_namespace_context
 from nce.bom_lines import update_bom_line_status
 from nce.db_utils import scoped_pg_session
@@ -84,6 +83,7 @@ from nce.signing import (
     rotate_key,
 )
 from nce.tool_registry import TOOL_REGISTRY
+
 from nce_verticals.agreements.sla import do_set_sla_coverage
 from nce_verticals.assets.seed import do_seed_asset_from_bom
 from nce_verticals.assets.sla import do_attach_sla
@@ -746,6 +746,7 @@ async def _setup_live_context() -> AsyncGenerator[GoldenThreadScenarioContext, N
     # check. All of these are documented idempotent-per-process, so running
     # them once per test class (this fixture's scope) is safe.
     from nce.read_model_subscribers import register_read_model_subscribers
+
     from nce_verticals.field_tech.work_orders import (
         register_field_tech_subscribers,
     )

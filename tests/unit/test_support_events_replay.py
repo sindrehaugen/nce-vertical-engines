@@ -25,7 +25,6 @@ from unittest.mock import MagicMock
 from uuid import uuid4
 
 import pytest
-
 from nce.entity_resolution.ownership import OwnershipError
 from nce.event_types import VALID_EVENT_TYPES, EventType
 from nce.replay import (

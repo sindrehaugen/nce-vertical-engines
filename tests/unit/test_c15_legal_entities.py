@@ -17,14 +17,13 @@ from __future__ import annotations
 import uuid
 
 import pytest
-from starlette.applications import Starlette
-from starlette.testclient import TestClient
-from tests._verified_tier_middleware import VERIFIED_TIER_TEST_MIDDLEWARE
-
 from nce import admin_state
 from nce.entity_resolution.normalizers import normalize, normalize_org_nr
 from nce.resource_surface import ResourceSpec, register_resource
 from nce.resource_surface.rest import _clear_mem_store, make_resource_routes
+from starlette.applications import Starlette
+from starlette.testclient import TestClient
+
 from nce_verticals.legal_entities.models import LegalEntityRecord
 from nce_verticals.legal_entities.resources import LEGAL_ENTITY_SPEC
 from nce_verticals.legal_entities.service import (
@@ -35,6 +34,7 @@ from nce_verticals.legal_entities.service import (
 from nce_verticals.legal_entities.service import (
     _clear_mem_store as _clear_le_mem_store,
 )
+from tests._verified_tier_middleware import VERIFIED_TIER_TEST_MIDDLEWARE
 
 _NS_A = str(uuid.UUID("11111111-1111-1111-1111-111111111111"))
 _NS_B = str(uuid.UUID("22222222-2222-2222-2222-222222222222"))

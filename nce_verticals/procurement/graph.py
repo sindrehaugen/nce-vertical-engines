@@ -41,7 +41,6 @@ import logging
 from uuid import UUID
 
 import asyncpg  # type: ignore[import-untyped]
-
 from nce.entity_resolution.ownership import assert_owner
 from nce.events.emit import emit_graph_write
 

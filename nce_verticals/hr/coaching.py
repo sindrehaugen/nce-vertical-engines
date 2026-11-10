@@ -18,6 +18,7 @@ from typing import Any
 from uuid import UUID
 
 from nce.db_utils import scoped_pg_session
+
 from nce_verticals.hr.privacy import (
     calculate_sustained_overload,
     enforce_privacy_preconditions,

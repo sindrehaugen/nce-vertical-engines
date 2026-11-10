@@ -58,6 +58,7 @@ from typing import TYPE_CHECKING, Any
 
 from nce.db_utils import scoped_pg_session
 from nce.mcp_args import require_namespace_id
+
 from nce_verticals.product.graph import upsert_product_relation_edge
 
 if TYPE_CHECKING:

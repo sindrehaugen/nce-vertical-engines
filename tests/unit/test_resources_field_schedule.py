@@ -8,8 +8,8 @@ from unittest.mock import MagicMock
 from uuid import uuid4
 
 import pytest
-
 from nce.config import cfg
+
 from nce_verticals.resources._guard import (
     ResourceNotFoundError,
 )

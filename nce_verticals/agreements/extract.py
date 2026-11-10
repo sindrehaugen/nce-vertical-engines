@@ -11,13 +11,12 @@ import logging
 import uuid
 from typing import TYPE_CHECKING, Any
 
-from pydantic import BaseModel, Field
-
 from nce.config import cfg
 from nce.db_utils import scoped_pg_session
 from nce.mcp_args import require_namespace_id
 from nce.providers.base import Message
 from nce.providers.factory import get_provider
+from pydantic import BaseModel, Field
 
 if TYPE_CHECKING:
     from nce.orchestrator import NCEEngine

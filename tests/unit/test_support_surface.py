@@ -18,8 +18,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 import pytest
-from tests.tool_pins import FLAG_PINS
-
 from nce.mcp_errors import MCP_SCOPE_FORBIDDEN, McpError
 from nce.tool_registry import (
     ADMIN_ONLY_TOOLS,
@@ -27,6 +25,7 @@ from nce.tool_registry import (
     MUTATION_TOOLS,
     TOOL_REGISTRY,
 )
+
 from nce_verticals.support._guard import SupportDisabledError
 from nce_verticals.support.dispatch import DispatchCeilingExceededError
 from nce_verticals.support.mcp_handlers import (
@@ -46,6 +45,7 @@ from nce_verticals.support.tickets import (
     TicketAlreadyResolvedError,
     TicketNotFoundError,
 )
+from tests.tool_pins import FLAG_PINS
 
 _NAMESPACE_ID = "00000000-0000-4000-8000-000000000001"
 _TICKET_ID = str(uuid4())

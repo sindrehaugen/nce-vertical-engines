@@ -296,6 +296,7 @@ async def test_handle_assets_generate_qr():
 @pytest.mark.asyncio
 async def test_api_assets_generate_qr_success():
     from nce.admin_handlers._shared import admin_state
+
     from nce_verticals.admin_handlers.assets import api_assets_generate_qr
 
     mock_row = {
@@ -322,6 +323,7 @@ async def test_api_assets_generate_qr_success():
 @pytest.mark.asyncio
 async def test_api_assets_generate_qr_not_found():
     from nce.admin_handlers._shared import admin_state
+
     from nce_verticals.admin_handlers.assets import api_assets_generate_qr
 
     engine, _ = _make_mock_engine(fetchrow_return=None)
@@ -338,6 +340,7 @@ async def test_api_assets_generate_qr_not_found():
 @pytest.mark.asyncio
 async def test_api_assets_register_success():
     from nce.admin_handlers._shared import admin_state
+
     from nce_verticals.admin_handlers.assets import api_assets_register
 
     mock_rows = [

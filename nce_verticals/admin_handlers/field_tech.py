@@ -34,6 +34,7 @@ from nce.admin_handlers._shared import (
 )
 from nce.auth import resolve_partner_scope
 from nce.db_utils import scoped_pg_session
+
 from nce_verticals.field_tech._guard import (
     FieldTechDisabledError,
     require_field_tech_enabled,

@@ -34,7 +34,6 @@ from unittest.mock import AsyncMock, patch
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest
-
 from nce.auth import set_namespace_context
 from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
 from nce.resource_surface import build_all_resource_tool_specs
@@ -44,6 +43,7 @@ from nce.tool_registry import (
     MUTATION_TOOLS,
     TOOL_REGISTRY,
 )
+
 from nce_verticals.project.advance import do_advance_phase
 from nce_verticals.project.convert import _gate_label, _project_label
 

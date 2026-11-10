@@ -19,7 +19,6 @@ from typing import Any
 from uuid import UUID, uuid4
 
 import asyncpg  # type: ignore[import-untyped]
-
 from nce.autonomy.governor import governed
 from nce.db_utils import scoped_pg_session
 from nce.entity_resolution.ownership import assert_owner

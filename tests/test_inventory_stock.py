@@ -63,12 +63,12 @@ from urllib.parse import urlparse, urlunparse
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest
-
 from nce.auth import set_namespace_context
 from nce.config import cfg
 from nce.db_utils import scoped_pg_session
 from nce.entity_resolution.ownership import OwnershipError
 from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
+
 from nce_verticals.inventory.stock import (
     InsufficientStockError,
     _upsert_kg_node,

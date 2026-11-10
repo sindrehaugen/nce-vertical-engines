@@ -35,14 +35,14 @@ from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
 from nce.admin_app import build_admin_routes
-from nce_verticals.admin_handlers import procurement as procurement_handlers
 from nce.admin_handlers._shared import admin_state
 from nce.mcp_errors import McpError
 from nce.mcp_stdio_tools import TOOLS
 from nce.pricing.resolver import resolve_price
 from nce.tool_registry import TOOL_REGISTRY
+
+from nce_verticals.admin_handlers import procurement as procurement_handlers
 from nce_verticals.procurement import bids
 from nce_verticals.procurement import mcp_handlers as procurement_mcp_handlers
 

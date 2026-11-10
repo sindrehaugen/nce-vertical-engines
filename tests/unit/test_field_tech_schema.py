@@ -15,7 +15,6 @@ from pathlib import Path
 
 import asyncpg
 import pytest
-
 from nce.event_log import EXPECTED_TENANT_RLS_TABLES
 
 MIGRATION_PATH = (

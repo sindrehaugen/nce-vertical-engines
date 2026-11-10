@@ -16,7 +16,6 @@ from typing import Any
 
 import asyncpg
 import httpx
-
 from nce.signing import MasterKey, decrypt_signing_key, encrypt_signing_key
 
 log = logging.getLogger("nce_verticals.netbox.contacts")

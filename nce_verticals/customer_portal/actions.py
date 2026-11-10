@@ -18,6 +18,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from nce.engine_registry import EngineDisabledError, EngineNotFoundError
+
 from nce_verticals.customer_portal.auth import enforce_customer_scope
 from nce_verticals.customer_portal.redaction import project_customer_safe
 

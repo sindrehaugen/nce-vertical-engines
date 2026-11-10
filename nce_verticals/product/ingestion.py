@@ -34,7 +34,6 @@ import uuid
 from typing import Any
 
 import asyncpg  # type: ignore[import-untyped]
-
 from nce.autonomy.governor import governed
 
 log = logging.getLogger("nce_verticals.product.ingestion")

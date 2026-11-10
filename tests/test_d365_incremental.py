@@ -27,8 +27,8 @@ from typing import Any
 import asyncpg
 import pytest
 import pytest_asyncio
-
 from nce.auth import set_namespace_context
+
 from nce_verticals.dynamics365.sync import DataverseSyncEngine
 
 # ---------------------------------------------------------------------------

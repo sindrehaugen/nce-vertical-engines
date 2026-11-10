@@ -48,7 +48,6 @@ from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any
 
 import asyncpg  # type: ignore[import-untyped]
-
 from nce.config import cfg
 from nce.db_utils import scoped_pg_session
 from nce.pricing.resolver import _is_stale

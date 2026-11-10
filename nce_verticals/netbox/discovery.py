@@ -15,8 +15,8 @@ from typing import Any
 
 import httpx
 from jsonschema import validate
-
 from nce.config import cfg
+
 from nce_verticals.netbox.graphql_activation import NetBoxGraphQLClient
 
 log = logging.getLogger("nce_verticals.netbox.discovery")

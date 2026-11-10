@@ -32,7 +32,6 @@ from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
 from nce.admin_handlers._shared import _require_namespace_id
 
 _VALID_NS = "11111111-2222-3333-4444-555555555555"

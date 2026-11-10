@@ -25,9 +25,9 @@ from __future__ import annotations
 from uuid import uuid4
 
 import pytest
-
 from nce.degradation import get_degradation_register
 from nce.tool_registry import TOOL_REGISTRY
+
 from nce_verticals.business_insights.board_pack import do_generate_board_pack
 from nce_verticals.business_insights.brief import do_morning_brief
 from nce_verticals.business_insights.kpi import STATUS_NOT_AVAILABLE_YET

@@ -38,12 +38,12 @@ from typing import Any
 from unittest.mock import AsyncMock, patch
 
 import pytest
-
 from nce.auth import set_namespace_context
 from nce.bom_lines import bom_line_label
 from nce.db_utils import scoped_pg_session
 from nce.entity_resolution.ownership import OwnershipError
 from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
+
 from nce_verticals.system_design.graph import do_author_functional_location
 from nce_verticals.system_design.to_quote import do_design_to_quote
 from nce_verticals.system_design.validate import do_validate_design

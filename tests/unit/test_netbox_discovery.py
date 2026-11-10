@@ -12,8 +12,8 @@ from unittest.mock import AsyncMock, MagicMock
 import httpx
 import pytest
 from jsonschema import ValidationError
-
 from nce.config import cfg
+
 from nce_verticals.netbox.discovery import NetBoxDiscoveryReconciler
 from nce_verticals.netbox.graphql_activation import NetBoxGraphQLClient
 

@@ -112,6 +112,7 @@ async def handle_diag_ingest_bundle(
         from nce.config import cfg
         from nce.db_utils import scoped_pg_session
         from nce.storage import generate_secure_presigned_url
+
         from nce_verticals.diagnostics.profiles import get_profile
 
         # Validate vendor (registry falls back to 'generic' — reject silent fallback

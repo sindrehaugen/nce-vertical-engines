@@ -19,11 +19,11 @@ import json
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+from nce.mcp_errors import McpError
+from nce.tool_registry import ADMIN_ONLY_TOOLS, MUTATION_TOOLS, TOOL_REGISTRY
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from nce.mcp_errors import McpError
-from nce.tool_registry import ADMIN_ONLY_TOOLS, MUTATION_TOOLS, TOOL_REGISTRY
 from nce_verticals.sales.mcp_handlers import (
     handle_sales_request_signature,
 )
@@ -115,7 +115,6 @@ async def test_handle_sales_request_signature_ok(monkeypatch):
 @pytest.mark.asyncio
 async def test_webhook_signing_unsupported_provider():
     from fastapi import HTTPException
-
     from nce.webhook_receiver.main import signing_webhook
 
     req = MagicMock(spec=Request)
@@ -127,9 +126,8 @@ async def test_webhook_signing_unsupported_provider():
 
 @pytest.mark.asyncio
 async def test_webhook_signing_missing_session_id():
-    from fastapi import HTTPException
-
     import nce.webhook_receiver.main as wh
+    from fastapi import HTTPException
 
     req = MagicMock(spec=Request)
     with patch.object(

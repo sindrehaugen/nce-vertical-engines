@@ -6,9 +6,9 @@ from typing import Any
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest
-
 from nce.auth import set_namespace_context
 from nce.orchestrator import NCEEngine
+
 from nce_verticals.sales.baseline import do_freeze_baseline
 
 

@@ -62,9 +62,9 @@ from urllib.parse import urlparse, urlunparse
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest
-
 from nce.auth import set_namespace_context
 from nce.config import cfg
+
 from nce_verticals.inventory.reservation import (
     InsufficientAvailableError,
     OverReleaseError,

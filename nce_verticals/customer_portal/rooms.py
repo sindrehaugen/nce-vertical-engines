@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Any
 
 from nce.db_utils import scoped_pg_session
+
 from nce_verticals.customer_portal.auth import enforce_customer_scope
 from nce_verticals.customer_portal.redaction import project_customer_safe
 

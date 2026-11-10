@@ -21,8 +21,8 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-
 from nce.providers.base import LLMProvider, LLMProviderError, Message
+
 from nce_verticals.product.enrich import (
     EnrichedFieldProposal,
     ProductEnrichmentModel,

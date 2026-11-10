@@ -18,9 +18,9 @@ from unittest.mock import patch
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest
-
 from nce.auth import set_namespace_context
 from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
+
 from nce_verticals.project.insights import do_detect_scope_creep, do_status_report
 
 # Mock paths

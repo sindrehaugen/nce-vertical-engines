@@ -74,6 +74,7 @@ async def test_handle_system_design_ping_ok() -> None:
 @pytest.mark.asyncio
 async def test_handle_system_design_ping_missing_namespace_id() -> None:
     from nce.mcp_errors import McpError
+
     from nce_verticals.system_design.mcp_handlers import (
         handle_system_design_ping,
     )

@@ -23,6 +23,7 @@ from typing import Any
 from uuid import UUID
 
 from nce.auth import set_namespace_context
+
 from nce_verticals.marketing._guard import assert_no_sensitive_financials
 
 log = logging.getLogger("nce_verticals.marketing.advisor")

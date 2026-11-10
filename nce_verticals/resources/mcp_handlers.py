@@ -23,6 +23,7 @@ from typing import Any
 
 from nce.mcp_args import require_namespace_id
 from nce.mcp_errors import MCP_SCOPE_FORBIDDEN, McpError, mcp_handler
+
 from nce_verticals.resources._guard import (
     ResourcesDisabledError,
     require_resources_enabled,

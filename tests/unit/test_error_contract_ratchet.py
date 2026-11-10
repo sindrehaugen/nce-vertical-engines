@@ -59,7 +59,6 @@ from pathlib import Path
 from typing import Any, Final
 
 import pytest
-
 from nce.engine_registry import EngineDisabledError
 from nce.mcp_errors import (
     MCP_BUSINESS_REFUSED,

@@ -25,8 +25,8 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-
 from nce.engine_registry import VERTICAL_MODULE_NAMES
+
 from nce_verticals.customer_portal.actions import (
     do_raise_service_request,
     do_register_expansion_interest,

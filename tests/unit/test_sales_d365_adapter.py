@@ -16,8 +16,8 @@ from datetime import timezone
 from typing import Any
 
 import pytest
-
 from nce.config import cfg
+
 from nce_verticals.dynamics365.client import DataverseClient
 from nce_verticals.sales.source_adapters.d365 import SalesD365SyncEngine, parse_datetime
 

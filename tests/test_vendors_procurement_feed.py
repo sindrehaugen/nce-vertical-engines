@@ -12,8 +12,8 @@ from typing import Any
 from unittest.mock import MagicMock
 
 import pytest
-
 from nce.auth import set_namespace_context
+
 from nce_verticals.procurement.mcp_handlers import handle_procurement_rank_suppliers
 from nce_verticals.vendors.feed import (
     do_check_tier_at_risk,

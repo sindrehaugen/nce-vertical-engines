@@ -23,7 +23,6 @@ import logging
 from typing import TYPE_CHECKING, Any
 
 from asyncpg.exceptions import DataError
-
 from nce.engine_registry import EngineDisabledError
 
 if TYPE_CHECKING:

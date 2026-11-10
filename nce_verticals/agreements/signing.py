@@ -52,7 +52,6 @@ import uuid
 from typing import Any
 
 import asyncpg  # type: ignore[import-untyped]
-
 from nce.db_utils import scoped_pg_session
 from nce.entity_resolution.ownership import assert_owner
 from nce.events.emit import emit_graph_write
@@ -64,6 +63,7 @@ from nce.signing_service import (
     TransportMethod,
     sha256_fingerprint,
 )
+
 from nce_verticals.agreements.graph import (
     upsert_agreement_edge,
     upsert_agreement_term_node,

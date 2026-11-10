@@ -19,9 +19,9 @@ from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
 import pytest
+from nce.admin_handlers._shared import admin_state
 from starlette.responses import JSONResponse
 
-from nce.admin_handlers._shared import admin_state
 from nce_verticals.admin_handlers.sales import api_admin_sales_dealroom
 from nce_verticals.sales.dealroom import do_open_dealroom
 

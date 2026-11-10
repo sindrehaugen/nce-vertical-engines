@@ -23,7 +23,6 @@ from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
 import pytest
-
 from nce.event_types import (
     EVENT_FORBIDDEN_PARAM_KEYS,
     EVENT_REQUIRED_PARAM_KEYS,
@@ -35,6 +34,7 @@ from nce.replay import (
     _EventRow,
     _validate_handler_coverage,
 )
+
 from nce_verticals.hr._guard import HrRankingProhibitedError
 from nce_verticals.hr.a2a import (
     get_morning_brief_hr_slice,

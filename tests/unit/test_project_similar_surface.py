@@ -17,14 +17,14 @@ from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from starlette.requests import Request
-
 from nce import admin_state
 from nce.admin_app import build_admin_routes
-from nce_verticals.admin_handlers import project as project_handlers
 from nce.mcp_errors import McpError
 from nce.mcp_stdio_tools import TOOLS
 from nce.tool_registry import CACHEABLE_TOOLS, TOOL_REGISTRY
+from starlette.requests import Request
+
+from nce_verticals.admin_handlers import project as project_handlers
 from nce_verticals.project import mcp_handlers as project_mcp_handlers
 from nce_verticals.project.recall import do_recall_similar_projects
 

@@ -96,7 +96,6 @@ async def test_reembedding_tick_failure_alerts():
 @pytest.mark.asyncio
 async def test_outbox_relay_tick_failure_alerts():
     import asyncpg
-
     from nce.cron import _outbox_relay_tick
 
     mock_pool = MagicMock()
@@ -259,7 +258,6 @@ async def test_assets_telemetry_tick_persists_cursor_only_after_batch_loop():
 async def test_cron_tick_errors_and_reminders_watcher_throttled_alert():
     """_CRON_TICK_ERRORS includes httpx.HTTPError, BusinessRefusalError, RuntimeError and _reminders_watcher_tick dispatches throttled alert."""
     import httpx
-
     from nce.cron import _CRON_TICK_ERRORS, _reminders_watcher_tick
     from nce.mcp_errors import BusinessRefusalError
 

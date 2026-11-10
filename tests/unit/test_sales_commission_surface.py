@@ -19,10 +19,8 @@ from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
 from nce.admin_app import build_admin_routes
 from nce.admin_handlers._shared import admin_state
-from nce_verticals.admin_handlers.sales import api_admin_sales_calculate_commission
 from nce.mcp_errors import McpError
 from nce.mcp_stdio_tools import TOOLS
 from nce.tool_registry import (
@@ -31,6 +29,8 @@ from nce.tool_registry import (
     MUTATION_TOOLS,
     TOOL_REGISTRY,
 )
+
+from nce_verticals.admin_handlers.sales import api_admin_sales_calculate_commission
 from nce_verticals.sales.mcp_handlers import handle_sales_calculate_commission
 
 _NAMESPACE_ID = "00000000-0000-4000-8000-000000000001"

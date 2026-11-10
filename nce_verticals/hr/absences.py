@@ -18,6 +18,7 @@ from typing import Any
 from uuid import UUID, uuid4
 
 from nce.db_utils import scoped_pg_session
+
 from nce_verticals.hr.compliance import evaluate_absence_compliance
 
 log = logging.getLogger("nce_verticals.hr.absences")

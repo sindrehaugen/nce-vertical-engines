@@ -28,11 +28,11 @@ from typing import Any
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest
-
 from nce.auth import set_namespace_context
 from nce.bom_lines import bom_line_label
 from nce.entity_resolution.ownership import OwnershipError
 from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
+
 from nce_verticals.sales import lines as sales_lines
 from nce_verticals.sales.lines import do_add_quote_line
 

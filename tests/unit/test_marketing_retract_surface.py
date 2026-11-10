@@ -15,11 +15,11 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 import pytest
+from nce.admin_handlers._shared import admin_state
+from nce.mcp_errors import McpError
 from starlette.requests import Request
 
-from nce.admin_handlers._shared import admin_state
 from nce_verticals.admin_handlers.marketing import api_marketing_retract_testimonial
-from nce.mcp_errors import McpError
 from nce_verticals.marketing.mcp_handlers import (
     handle_marketing_retract_testimonial,
 )

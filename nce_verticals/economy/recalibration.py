@@ -148,9 +148,9 @@ from pathlib import Path
 from typing import Any
 
 import asyncpg  # type: ignore[import-untyped]
-
 from nce.db_utils import POOL_ACQUIRE_TIMEOUT, scoped_pg_session
 from nce.decision_feedback import record_decision_feedback
+
 from nce_verticals.economy.matching import (
     _MIN_GREEN,
     _coerce_cutoff,

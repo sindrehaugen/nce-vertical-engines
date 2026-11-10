@@ -28,7 +28,6 @@ from collections.abc import AsyncGenerator
 import asyncpg  # type: ignore[import-untyped]
 import pytest
 import pytest_asyncio
-
 from nce.auth import set_namespace_context
 from nce.entity_resolution.survivorship import (
     REASON_CONFIDENCE,
@@ -36,6 +35,7 @@ from nce.entity_resolution.survivorship import (
     REASON_SOURCE_TRUST,
     survive,
 )
+
 from nce_verticals.product.golden_record import (
     _build_field_candidates,
     _run_publish_gate,

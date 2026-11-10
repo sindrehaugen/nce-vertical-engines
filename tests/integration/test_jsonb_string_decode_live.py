@@ -48,12 +48,12 @@ from decimal import Decimal
 
 import asyncpg
 import pytest
-
 from nce.engine_registry import populate_engine_modules
 from nce.models import CreateSnapshotRequest
 from nce.orchestrator import NCEEngine
 from nce.orchestrators.temporal import TemporalOrchestrator
 from nce.replay import get_run_status
+
 from nce_verticals.economy.contracts import do_validate_contract
 
 pytestmark = pytest.mark.integration

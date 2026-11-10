@@ -59,12 +59,12 @@ from collections.abc import AsyncIterator
 from typing import Any
 
 import httpx
-
 from nce.config import resolve_secret
 from nce.http_resilience import (
     ExternalAPITransientError,
     classify_httpx_response,
 )
+
 from nce_verticals.product.sources.base import SourceAdapter
 
 log = logging.getLogger("nce_verticals.product.sources.manufacturer_api")

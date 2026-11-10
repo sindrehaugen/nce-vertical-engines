@@ -28,8 +28,8 @@ from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
 from nce.tool_registry import TOOL_REGISTRY
+
 from nce_verticals.product.enrich import (
     EnrichedFieldProposal,
     ProductEnrichmentModel,

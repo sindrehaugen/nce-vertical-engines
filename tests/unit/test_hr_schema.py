@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from tests.expected_tenant_rls_table_count import EXPECTED_TENANT_RLS_TABLE_COUNT
-
 from nce.event_log import EXPECTED_TENANT_RLS_TABLES
+
+from tests.expected_tenant_rls_table_count import EXPECTED_TENANT_RLS_TABLE_COUNT
 
 
 def test_hr_tables_registered_in_expected_tenant_rls_tables():

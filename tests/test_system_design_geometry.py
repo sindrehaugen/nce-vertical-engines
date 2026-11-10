@@ -1697,8 +1697,9 @@ class TestGeometryValidation:
         monkeypatch.setattr("nce.quotas.cfg.NCE_QUOTAS_ENABLED", False)
 
         from nce import admin_state
-        from nce_verticals.admin_handlers import system_design as routes
         from nce.mcp_errors import MCP_INTERNAL_ERROR, MCP_INVALID_PARAMS
+
+        from nce_verticals.admin_handlers import system_design as routes
 
         ns_id: uuid.UUID = await make_namespace()
         await _seed_ownership(pg_pool, ns_id)
@@ -1881,8 +1882,9 @@ class TestGeometryValidation:
         monkeypatch.setattr("nce.quotas.cfg.NCE_QUOTAS_ENABLED", False)
 
         from nce import admin_state
-        from nce_verticals.admin_handlers import system_design as routes
         from nce.mcp_errors import MCP_INTERNAL_ERROR, MCP_INVALID_PARAMS
+
+        from nce_verticals.admin_handlers import system_design as routes
 
         ns_id: uuid.UUID = await make_namespace()
         await _seed_ownership(pg_pool, ns_id)

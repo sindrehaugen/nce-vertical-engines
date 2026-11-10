@@ -21,6 +21,7 @@ from uuid import UUID
 
 from nce.db_utils import scoped_pg_session
 from nce.entity_resolution.ownership import assert_owner
+
 from nce_verticals.support.tickets import (
     _extract_pool,
     _parse_uuid,

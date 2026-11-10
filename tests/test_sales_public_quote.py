@@ -10,12 +10,12 @@ from uuid import UUID, uuid4
 import asyncpg  # type: ignore[import-untyped]
 import httpx
 import pytest
-
 from nce import admin_state
 from nce.admin_app import app
-from nce_verticals.admin_handlers.sales_public import generate_public_token
 from nce.auth import set_namespace_context
 from nce.orchestrator import NCEEngine
+
+from nce_verticals.admin_handlers.sales_public import generate_public_token
 
 
 async def _insert_sales_record(

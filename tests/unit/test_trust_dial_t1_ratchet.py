@@ -27,7 +27,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 import pytest
-
 from nce.tool_registry import (
     ADMIN_ONLY_TOOLS,
     CACHEABLE_TOOLS,

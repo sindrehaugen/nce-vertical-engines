@@ -26,10 +26,7 @@ from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from tests.tool_pins import FLAG_PINS
-
 from nce.admin_app import create_admin_app
-from nce_verticals.admin_handlers import economy as economy_admin_handlers
 from nce.admin_handlers._shared import admin_state
 from nce.config import cfg
 from nce.mcp_stdio_tools import TOOLS
@@ -39,12 +36,15 @@ from nce.tool_registry import (
     MUTATION_TOOLS,
     TOOL_REGISTRY,
 )
+
+from nce_verticals.admin_handlers import economy as economy_admin_handlers
 from nce_verticals.economy.mcp_handlers import (
     handle_economy_generate_ehf,
     handle_economy_generate_kid,
     handle_economy_validate_contract,
     handle_economy_validate_kid,
 )
+from tests.tool_pins import FLAG_PINS
 
 _NAMESPACE_ID = "00000000-0000-4000-8000-000000000001"
 

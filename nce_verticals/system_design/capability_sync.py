@@ -28,6 +28,7 @@ from typing import Any
 from uuid import UUID
 
 from nce.db_utils import scoped_pg_session
+
 from nce_verticals.system_design.devices import _upsert_capability
 
 log = logging.getLogger("nce_verticals.system_design.capability_sync")

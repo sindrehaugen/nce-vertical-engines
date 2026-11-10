@@ -27,6 +27,7 @@ from nce.config import cfg
 from nce.db_utils import scoped_pg_session
 from nce.entity_resolution.ownership import assert_owner
 from nce.events.bus import publish
+
 from nce_verticals.support.tickets import (
     InvalidTicketStatusError,
     TicketNotFoundError,

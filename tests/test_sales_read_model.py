@@ -17,9 +17,9 @@ from typing import Any
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest
-
 from nce.auth import set_namespace_context
 from nce.config import cfg
+
 from nce_verticals.sales.read_model import (
     classify_it_av,
     do_agreement_detail,

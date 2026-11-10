@@ -12,7 +12,6 @@ from typing import Any
 from uuid import UUID
 
 from bson import ObjectId
-
 from nce.db_utils import scoped_mongo_session, scoped_pg_session
 from nce.entity_resolution.ownership import assert_owner
 from nce.events.bus import publish

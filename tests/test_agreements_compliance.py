@@ -37,10 +37,10 @@ from typing import Any
 
 import asyncpg
 import pytest
-
 from nce.auth import set_namespace_context
 from nce.db_utils import scoped_pg_session
 from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
+
 from nce_verticals.agreements.compliance import (
     _MODEL_VERSION,
     _evaluate_discount_limit,

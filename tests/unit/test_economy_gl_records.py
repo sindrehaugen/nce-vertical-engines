@@ -17,7 +17,6 @@ from decimal import Decimal
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
 from nce.mcp_errors import McpError
 from nce.redaction import project
 from nce.tool_registry import (
@@ -26,6 +25,7 @@ from nce.tool_registry import (
     MUTATION_TOOLS,
     TOOL_REGISTRY,
 )
+
 from nce_verticals.agreements.coverage import _read_economy_gl_rows, do_coverage_matrix
 from nce_verticals.agreements.kickback import do_reconcile_kickback
 from nce_verticals.economy._guard import EconomyDisabledError

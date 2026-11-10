@@ -51,12 +51,12 @@ from typing import Any
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest
-
 from nce import outbox_relay
 from nce.auth import set_namespace_context
 from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
 from nce.events.bus import OutboxDeliveryError, publish, subscribe
 from nce.events.dispatch import dispatch_once
+
 from nce_verticals.project.tasks import (
     _GENERATES_CONFIDENCE,
     _STATUS_TO_TASK_KIND,
@@ -626,6 +626,7 @@ async def test_c4_relay_replay_is_idempotent(
     processed_outbox_events before the handler runs.
     """
     from nce.events.dispatch import make_idempotent_handler as mid
+
     from nce_verticals.project.tasks import (
         _ENGINE_REGISTRY,
         _handle_bom_line_status_changed,

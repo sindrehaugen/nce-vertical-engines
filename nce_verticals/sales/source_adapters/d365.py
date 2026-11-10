@@ -15,8 +15,8 @@ from datetime import datetime, timedelta, timezone
 from typing import Any
 
 import asyncpg  # type: ignore[import-untyped]
-
 from nce.config import DeploymentConfigurationError, cfg
+
 from nce_verticals.dynamics365.client import CURSOR_OVERLAP_SECONDS, DataverseClient
 
 log = logging.getLogger("nce_verticals.sales.source_adapters.d365")

@@ -41,7 +41,6 @@ from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
 import asyncpg  # type: ignore[import-untyped]
-
 from nce.db_utils import scoped_pg_session
 
 if TYPE_CHECKING:

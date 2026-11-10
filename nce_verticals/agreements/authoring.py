@@ -49,9 +49,9 @@ import uuid
 from typing import Any
 
 import asyncpg  # type: ignore[import-untyped]
-
 from nce.db_utils import scoped_pg_session
 from nce.mcp_args import require_namespace_id
+
 from nce_verticals.agreements.graph import (
     store_agreement_text_memory,
     upsert_agreement_node,

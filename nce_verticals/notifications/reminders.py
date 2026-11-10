@@ -13,7 +13,6 @@ from typing import Any
 from uuid import UUID, uuid4
 
 import asyncpg  # type: ignore[import-untyped]
-
 from nce.auth import set_namespace_context
 from nce.events.bus import publish
 

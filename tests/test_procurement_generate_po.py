@@ -27,9 +27,9 @@ from unittest.mock import AsyncMock, patch
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest
-
 from nce.auth import set_namespace_context
 from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
+
 from nce_verticals.procurement.bids import upsert_bid_projection
 from nce_verticals.procurement.po import _derive_po_idempotency_key, do_generate_po
 from nce_verticals.procurement.transports import NetsetPoTransport, NettailerPoTransport

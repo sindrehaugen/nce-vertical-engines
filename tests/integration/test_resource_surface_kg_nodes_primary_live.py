@@ -102,8 +102,6 @@ import asyncpg
 import httpx
 import pytest
 import pytest_asyncio
-from starlette.applications import Starlette
-
 from nce import admin_state
 from nce.auth import set_namespace_context
 from nce.engine_registry import populate_engine_modules
@@ -112,6 +110,8 @@ from nce.orchestrator import NCEEngine
 from nce.resource_surface.mcp import build_mcp_tool_specs
 from nce.resource_surface.rest import make_resource_routes
 from nce.resource_surface.spec import ResourceSpec, SecondaryTable
+from starlette.applications import Starlette
+
 from tests._verified_tier_middleware import VERIFIED_TIER_TEST_MIDDLEWARE
 
 pytestmark = pytest.mark.integration

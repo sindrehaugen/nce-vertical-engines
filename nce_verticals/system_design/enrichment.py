@@ -41,6 +41,7 @@ from typing import Any
 from uuid import UUID
 
 from nce.db_utils import scoped_pg_session
+
 from nce_verticals.procurement.tco import do_calculate_tco, load_procurement_config
 from nce_verticals.product.a2a import enqueue_product_enrichment
 

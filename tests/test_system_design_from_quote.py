@@ -41,10 +41,10 @@ from typing import Any
 from unittest.mock import AsyncMock, patch
 
 import pytest
-
 from nce.auth import set_namespace_context
 from nce.db_utils import scoped_pg_session
 from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
+
 from nce_verticals.system_design.from_quote import do_design_from_quote
 
 # ---------------------------------------------------------------------------

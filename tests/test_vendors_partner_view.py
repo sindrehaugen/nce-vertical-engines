@@ -10,12 +10,12 @@ from urllib.parse import urlparse, urlunparse
 
 import asyncpg
 import pytest
-
 from nce.a2a import A2AScopeViolationError
 from nce.a2a_server import _dispatch_skill
 from nce.auth import NamespaceContext
 from nce.config import cfg
 from nce.db_utils import scoped_pg_session
+
 from nce_verticals.vendors.contractors import do_upsert_contractor
 from nce_verticals.vendors.partner_view import do_partner_view
 

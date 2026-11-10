@@ -21,11 +21,11 @@ from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
 import pytest
-
 from nce.auth import resolve_customer_scope
 from nce.mcp_errors import MCP_INVALID_PARAMS, McpError
 from nce.mcp_stdio_tools import TOOLS
 from nce.tool_registry import ADMIN_ONLY_TOOLS, TOOL_REGISTRY
+
 from nce_verticals.customer_portal.auth import (
     NIL_UUID,
     enforce_customer_scope,

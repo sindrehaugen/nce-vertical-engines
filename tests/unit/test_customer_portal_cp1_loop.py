@@ -22,7 +22,6 @@ from typing import Any
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-
 from nce.engine_registry import EngineRegistry
 from nce.mcp_errors import (
     MCP_INVALID_PARAMS,
@@ -31,6 +30,7 @@ from nce.mcp_errors import (
     mcp_handler,
 )
 from nce.orchestrator import NCEEngine
+
 from nce_verticals.customer_portal.actions import (
     do_raise_service_request,
     do_register_expansion_interest,

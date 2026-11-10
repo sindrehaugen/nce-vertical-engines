@@ -25,7 +25,6 @@ from nce_verticals.lighting_dali.analyser import (
     EN12464_ZONES,
     analyze_dali2_bus,
     analyze_lighting_project,
-    analyze_room_en12464,
     calculate_dali_dimming_level,
     calculate_dt8_mirek,
 )

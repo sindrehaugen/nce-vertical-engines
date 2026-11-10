@@ -37,9 +37,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 import pytest
-from tests.tool_pins import FLAG_PINS
 
 from nce_verticals.inventory.stock import InsufficientStockError
+from tests.tool_pins import FLAG_PINS
 
 # ---------------------------------------------------------------------------
 # Shared fixtures / helpers
@@ -161,9 +161,9 @@ def test_inventory_tools_registered_with_correct_flags(
 
 
 def test_tool_count_updated_for_inventory() -> None:
-    from tests.test_tool_registry import _EXPECTED_TOTAL
-
     from nce.tool_registry import TOOL_REGISTRY
+
+    from tests.test_tool_registry import _EXPECTED_TOTAL
 
     assert "inventory_stock_levels" in TOOL_REGISTRY
     assert "inventory_transfer_stock" in TOOL_REGISTRY
@@ -199,6 +199,7 @@ async def test_handle_stock_levels_returns_core_result() -> None:
 @pytest.mark.asyncio
 async def test_handle_stock_levels_missing_namespace_id_raises_mcp_error() -> None:
     from nce.mcp_errors import McpError
+
     from nce_verticals.inventory.mcp_handlers import handle_inventory_stock_levels
 
     with pytest.raises(McpError) as exc_info:
@@ -231,6 +232,7 @@ async def test_handle_transfer_stock_returns_core_result() -> None:
 @pytest.mark.asyncio
 async def test_handle_transfer_stock_missing_namespace_id_raises_mcp_error() -> None:
     from nce.mcp_errors import McpError
+
     from nce_verticals.inventory.mcp_handlers import handle_inventory_transfer_stock
 
     with pytest.raises(McpError) as exc_info:
@@ -294,6 +296,7 @@ async def test_handle_record_consumption_missing_namespace_id_raises_mcp_error()
     None
 ):
     from nce.mcp_errors import McpError
+
     from nce_verticals.inventory.mcp_handlers import handle_inventory_record_consumption
 
     with pytest.raises(McpError) as exc_info:
@@ -345,6 +348,7 @@ def test_inventory_routes_mounted_in_admin_app() -> None:
 @pytest.mark.asyncio
 async def test_api_inventory_stock_levels_returns_ok_shape() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers import inventory as inventory_mod
 
     with patch.object(admin_state, "engine", _make_engine()):
@@ -364,6 +368,7 @@ async def test_api_inventory_stock_levels_returns_ok_shape() -> None:
 @pytest.mark.asyncio
 async def test_api_inventory_transfer_stock_returns_ok_shape() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers import inventory as inventory_mod
 
     with patch.object(admin_state, "engine", _make_engine()):
@@ -388,6 +393,7 @@ async def test_api_inventory_transfer_stock_returns_ok_shape() -> None:
 @pytest.mark.asyncio
 async def test_api_inventory_transfer_stock_insufficient_stock_returns_409() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers import inventory as inventory_mod
 
     with patch.object(admin_state, "engine", _make_engine()):
@@ -414,6 +420,7 @@ async def test_api_inventory_transfer_stock_insufficient_stock_returns_409() -> 
 @pytest.mark.asyncio
 async def test_api_inventory_record_consumption_returns_ok_shape() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers import inventory as inventory_mod
 
     with patch.object(admin_state, "engine", _make_engine()):
@@ -442,6 +449,7 @@ async def test_api_inventory_record_consumption_insufficient_stock_returns_409()
     None
 ):
     from nce import admin_state
+
     from nce_verticals.admin_handlers import inventory as inventory_mod
 
     with patch.object(admin_state, "engine", _make_engine()):
@@ -467,6 +475,7 @@ async def test_api_inventory_record_consumption_insufficient_stock_returns_409()
 @pytest.mark.asyncio
 async def test_api_inventory_routes_missing_namespace_id_returns_422() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers.inventory import (
         api_inventory_record_consumption,
         api_inventory_stock_levels,
@@ -487,6 +496,7 @@ async def test_api_inventory_routes_missing_namespace_id_returns_422() -> None:
 @pytest.mark.asyncio
 async def test_api_inventory_routes_no_engine_returns_503() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers.inventory import (
         api_inventory_record_consumption,
         api_inventory_stock_levels,
@@ -542,6 +552,7 @@ async def test_api_inventory_stock_levels_non_finite_float_serialises_successful
     ``test_economy_surface.py``'s NaN regression tests).
     """
     from nce import admin_state
+
     from nce_verticals.admin_handlers import inventory as inventory_mod
 
     poisoned: dict[str, Any] = {
@@ -581,6 +592,7 @@ async def test_api_inventory_record_consumption_non_finite_float_serialises_succ
     """Same guard on a write route: a non-finite ``float`` echoed into the
     consumption result serialises to a string at 200 rather than 422."""
     from nce import admin_state
+
     from nce_verticals.admin_handlers import inventory as inventory_mod
 
     poisoned: dict[str, Any] = {**_CONSUMPTION_RESULT, "on_hand": float("nan")}
@@ -614,6 +626,7 @@ async def test_api_inventory_insufficient_stock_non_finite_float_serialises_succ
     """The 409 refusal body also goes through ``_json_safe``; a non-finite float
     there must not turn the structured 409 into a 422."""
     from nce import admin_state
+
     from nce_verticals.admin_handlers import inventory as inventory_mod
 
     exc = InsufficientStockError(
@@ -649,10 +662,11 @@ def test_inventory_and_economy_share_one_json_safe() -> None:
     behaviour diverged while inventory's docstring claimed to mirror economy's.
     Assert there is now exactly ONE implementation behind both surfaces, so a
     future fix to one can never again silently skip the other."""
+    from nce.admin_handlers._shared import _json_safe, _require_namespace_id
+
     from nce_verticals.admin_handlers import assets as assets_mod
     from nce_verticals.admin_handlers import economy as economy_mod
     from nce_verticals.admin_handlers import inventory as inventory_mod
-    from nce.admin_handlers._shared import _json_safe, _require_namespace_id
 
     assert inventory_mod._json_safe is economy_mod._json_safe is _json_safe
     assert inventory_mod._require_namespace_id is _require_namespace_id
@@ -832,6 +846,7 @@ async def test_b138a_registry_entry_dispatches_to_its_own_handler(row: tuple) ->
     handler name leaves the probe un-awaited and goes RED.
     """
     from nce.tool_registry import TOOL_REGISTRY
+
     from nce_verticals.inventory import mcp_handlers as inv_mcp
 
     tool, handler, *_rest = row
@@ -879,6 +894,7 @@ async def test_b138a_handler_is_a_thin_adapter_over_the_right_core(row: tuple) -
 @pytest.mark.parametrize("row", _B138A_SURFACE, ids=_B138A_IDS)
 async def test_b138a_handler_requires_namespace_id(row: tuple) -> None:
     from nce.mcp_errors import McpError
+
     from nce_verticals.inventory import mcp_handlers as inv_mcp
 
     _tool, handler_name, core_name, *_rest = row
@@ -895,6 +911,7 @@ def test_b138a_rest_route_mounted_with_method_and_endpoint(row: tuple) -> None:
     for a route mounted with the wrong verb or pointed at another handler.
     """
     from nce.admin_app import build_admin_routes
+
     from nce_verticals.admin_handlers import inventory as inv_rest
 
     _tool, _handler, _core, _c, _a, _m, path, method, fn_name = row

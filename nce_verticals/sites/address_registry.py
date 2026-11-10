@@ -47,8 +47,8 @@ from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
 import httpx
-
 from nce.db_utils import scoped_pg_session
+
 from nce_verticals.sites.service import get_site, update_site
 
 if TYPE_CHECKING:

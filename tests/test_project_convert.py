@@ -35,10 +35,10 @@ from unittest.mock import AsyncMock, patch
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest
-
 from nce.auth import set_namespace_context
 from nce.entity_resolution.ownership import OwnershipError
 from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
+
 from nce_verticals.project.convert import (
     _bom_line_label,
     _fetch_bom_line_labels,

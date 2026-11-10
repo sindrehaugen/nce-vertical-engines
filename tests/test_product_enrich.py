@@ -28,8 +28,8 @@ from collections.abc import AsyncGenerator
 import asyncpg  # type: ignore[import-untyped]
 import pytest
 import pytest_asyncio
-
 from nce.auth import set_namespace_context
+
 from nce_verticals.product.enrich import (
     _MONEY_LEGAL_FIELDS,
     _derive_idempotency_key,

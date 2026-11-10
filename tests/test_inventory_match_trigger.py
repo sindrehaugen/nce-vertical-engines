@@ -210,13 +210,13 @@ from decimal import Decimal
 from typing import Any
 
 import asyncpg  # type: ignore[import-untyped]
-import pytest
-
 import nce.entity_resolution.ownership_seed as ownership_seed_module
+import pytest
 from nce.auth import set_namespace_context
 from nce.bom_lines import bom_line_label, create_bom_line
 from nce.entity_resolution.ownership import OwnershipError, assert_owner
 from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
+
 from nce_verticals.inventory import triggers
 from nce_verticals.inventory.triggers import (
     MATCH_TOOL_NAME,

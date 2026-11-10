@@ -18,7 +18,6 @@ from typing import Any
 from uuid import UUID
 
 import asyncpg
-
 from nce.db_utils import scoped_pg_session, set_external_scope
 
 log = logging.getLogger("nce_verticals.customer_portal.auth")

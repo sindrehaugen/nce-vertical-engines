@@ -50,8 +50,8 @@ import uuid
 
 import asyncpg
 import pytest
-
 from nce.orchestrator import NCEEngine
+
 from nce_verticals.system_design.capability_sync import do_sync_device_capabilities
 
 pytestmark = pytest.mark.integration

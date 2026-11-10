@@ -40,10 +40,10 @@ from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
 import asyncpg  # type: ignore[import-untyped]
-
 from nce.autonomy.governor import governed
 from nce.config import cfg
 from nce.event_log import append_event
+
 from nce_verticals.procurement.bids import do_resolve_bids
 from nce_verticals.procurement.graph import upsert_po_node
 from nce_verticals.procurement.po_line import (

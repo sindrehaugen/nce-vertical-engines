@@ -50,7 +50,6 @@ import time
 from typing import TYPE_CHECKING, Any
 
 import httpx
-
 from nce.config import cfg
 
 if TYPE_CHECKING:

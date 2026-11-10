@@ -12,8 +12,8 @@ from typing import Any
 from unittest.mock import MagicMock, patch
 
 import pytest
-
 from nce.auth import set_namespace_context
+
 from nce_verticals.vendors.tiers import (
     do_get_tier_status,
     do_record_outcome,

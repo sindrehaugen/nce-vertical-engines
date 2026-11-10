@@ -74,6 +74,7 @@ from nce.admin_handlers._shared import (
     ownership_denied_response,
 )
 from nce.entity_resolution.ownership import OwnershipError
+
 from nce_verticals.system_design.capability_sync import do_sync_device_capabilities
 from nce_verticals.system_design.enrichment import do_enrich_design_lines
 from nce_verticals.system_design.from_quote import do_design_from_quote
@@ -1048,6 +1049,7 @@ async def api_system_design_list_functional_locations(request) -> JSONResponse:
         {"status": "ok", "items": [...], "count": int}
     """
     from nce.db_utils import scoped_pg_session
+
     from nce_verticals.system_design.fl_tree import search_fl_nodes
 
     if not admin_state.engine:
@@ -1102,6 +1104,7 @@ async def api_system_design_get_functional_location(request) -> JSONResponse:
         {"status": "ok", "node": {...}}
     """
     from nce.db_utils import scoped_pg_session
+
     from nce_verticals.system_design.fl_tree import (
         FLNodeNotFoundError,
         get_fl_node,
@@ -1151,6 +1154,7 @@ async def api_system_design_get_fl_children(request) -> JSONResponse:
         {"status": "ok", "children": [...], "count": int}
     """
     from nce.db_utils import scoped_pg_session
+
     from nce_verticals.system_design.fl_tree import (
         FLNodeNotFoundError,
         get_fl_children,
@@ -1208,6 +1212,7 @@ async def api_system_design_get_fl_ancestors(request) -> JSONResponse:
         {"status": "ok", "ancestors": [...], "count": int}
     """
     from nce.db_utils import scoped_pg_session
+
     from nce_verticals.system_design.fl_tree import (
         FLNodeNotFoundError,
         get_fl_ancestors,
@@ -1258,6 +1263,7 @@ async def api_system_design_get_fl_path(request) -> JSONResponse:
         {"status": "ok", "path_nodes": [...], "path_string": str, "depth": int}
     """
     from nce.db_utils import scoped_pg_session
+
     from nce_verticals.system_design.fl_tree import (
         FLNodeNotFoundError,
         get_fl_path,
@@ -1308,6 +1314,7 @@ async def api_system_design_move_functional_location(request) -> JSONResponse:
         {"status": "ok", "moved": true, ...}
     """
     from nce.db_utils import scoped_pg_session
+
     from nce_verticals.system_design.fl_tree import (
         CycleDetectedError,
         FLNodeNotFoundError,
@@ -1377,6 +1384,7 @@ async def api_system_design_merge_functional_locations(request) -> JSONResponse:
         {"status": "ok", "merged": true, "audit": {...}}
     """
     from nce.db_utils import scoped_pg_session
+
     from nce_verticals.system_design.fl_tree import (
         FLNodeNotFoundError,
         MergeConflictError,
@@ -1454,6 +1462,7 @@ async def api_system_design_promote_functional_location(request) -> JSONResponse
         {"status": "ok", "as_built": true, ...}
     """
     from nce.db_utils import scoped_pg_session
+
     from nce_verticals.system_design.fl_tree import (
         FLNodeNotFoundError,
         promote_fl_node,
@@ -1861,6 +1870,7 @@ async def api_system_design_my_responsible_fls(request) -> JSONResponse:
         {"status": "ok", "functional_locations": [...], "count": int}
     """
     from nce.principal_bindings import current_principal
+
     from nce_verticals.system_design.room_categories import do_list_my_responsible_fls
 
     if not admin_state.engine:
@@ -1907,6 +1917,7 @@ async def api_system_design_list_designs(request) -> JSONResponse:
         offset (int, optional): Pagination offset (default 0).
     """
     from nce.db_utils import scoped_pg_session
+
     from nce_verticals.system_design.design_versions import list_designs
 
     if not admin_state.engine:
@@ -1984,6 +1995,7 @@ async def api_system_design_create_design(request) -> JSONResponse:
         source_id (str, optional)
     """
     from nce.db_utils import scoped_pg_session
+
     from nce_verticals.system_design.design_versions import (
         InvalidDesignError,
         InvalidRoomSpecError,
@@ -2065,6 +2077,7 @@ async def api_system_design_create_design(request) -> JSONResponse:
 async def api_system_design_get_design(request) -> JSONResponse:
     """GET /api/system-design/designs/{id}"""
     from nce.db_utils import scoped_pg_session
+
     from nce_verticals.system_design.design_versions import (
         DesignNotFoundError,
         get_design,
@@ -2104,6 +2117,7 @@ async def api_system_design_get_design(request) -> JSONResponse:
 async def api_system_design_update_design(request) -> JSONResponse:
     """PATCH /api/system-design/designs/{id}"""
     from nce.db_utils import scoped_pg_session
+
     from nce_verticals.system_design.design_versions import (
         DesignNotFoundError,
         InvalidDesignError,
@@ -2177,6 +2191,7 @@ async def api_system_design_update_design(request) -> JSONResponse:
 async def api_system_design_set_active_design(request) -> JSONResponse:
     """POST /api/system-design/designs/{id}/set-active"""
     from nce.db_utils import scoped_pg_session
+
     from nce_verticals.system_design.design_versions import (
         DesignNotFoundError,
         set_active_design,
@@ -2226,6 +2241,7 @@ async def api_system_design_set_active_design(request) -> JSONResponse:
 async def api_system_design_get_room_spec(request) -> JSONResponse:
     """GET /api/system-design/designs/{id}/room-spec"""
     from nce.db_utils import scoped_pg_session
+
     from nce_verticals.system_design.design_versions import (
         DesignNotFoundError,
         get_room_spec,
@@ -2265,6 +2281,7 @@ async def api_system_design_get_room_spec(request) -> JSONResponse:
 async def api_system_design_set_room_spec(request) -> JSONResponse:
     """PUT /api/system-design/designs/{id}/room-spec"""
     from nce.db_utils import scoped_pg_session
+
     from nce_verticals.system_design.design_versions import (
         DesignNotFoundError,
         InvalidRoomSpecError,
@@ -2320,6 +2337,7 @@ async def api_system_design_set_room_spec(request) -> JSONResponse:
 async def api_system_design_list_fl_designs(request) -> JSONResponse:
     """GET /api/system-design/functional-locations/{id}/designs"""
     from nce.db_utils import scoped_pg_session
+
     from nce_verticals.system_design.design_versions import list_designs
 
     if not admin_state.engine:
@@ -2384,6 +2402,7 @@ async def api_system_design_list_fl_designs(request) -> JSONResponse:
 async def api_system_design_get_fl_active_design(request) -> JSONResponse:
     """GET /api/system-design/functional-locations/{id}/active-design"""
     from nce.db_utils import scoped_pg_session
+
     from nce_verticals.system_design.design_versions import get_active_design_for_fl
 
     if not admin_state.engine:
@@ -2427,6 +2446,7 @@ async def api_system_design_get_fl_active_design(request) -> JSONResponse:
 async def api_system_design_list_requests(request) -> JSONResponse:
     """GET /api/system-design/requests"""
     from nce.db_utils import scoped_pg_session
+
     from nce_verticals.system_design.design_requests import list_design_requests
 
     if not admin_state.engine:
@@ -2497,6 +2517,7 @@ async def api_system_design_list_requests(request) -> JSONResponse:
 async def api_system_design_create_request(request) -> JSONResponse:
     """POST /api/system-design/requests"""
     from nce.db_utils import scoped_pg_session
+
     from nce_verticals.system_design.design_requests import (
         InvalidDesignRequestPayloadError,
         create_design_request,
@@ -2570,6 +2591,7 @@ async def api_system_design_create_request(request) -> JSONResponse:
 async def api_system_design_get_request(request) -> JSONResponse:
     """GET /api/system-design/requests/{id}"""
     from nce.db_utils import scoped_pg_session
+
     from nce_verticals.system_design.design_requests import (
         DesignRequestNotFoundError,
         get_design_request,
@@ -2609,6 +2631,7 @@ async def api_system_design_get_request(request) -> JSONResponse:
 async def api_system_design_update_request(request) -> JSONResponse:
     """PATCH /api/system-design/requests/{id}"""
     from nce.db_utils import scoped_pg_session
+
     from nce_verticals.system_design.design_requests import (
         DesignRequestNotFoundError,
         InvalidDesignRequestPayloadError,
@@ -2682,6 +2705,7 @@ async def api_system_design_update_request(request) -> JSONResponse:
 async def api_system_design_assign_request(request) -> JSONResponse:
     """POST /api/system-design/requests/{id}/assign"""
     from nce.db_utils import scoped_pg_session
+
     from nce_verticals.system_design.design_requests import (
         DesignRequestNotFoundError,
         InvalidDesignRequestPayloadError,
@@ -2742,6 +2766,7 @@ async def api_system_design_assign_request(request) -> JSONResponse:
 async def api_system_design_complete_request(request) -> JSONResponse:
     """POST /api/system-design/requests/{id}/complete"""
     from nce.db_utils import scoped_pg_session
+
     from nce_verticals.system_design.design_requests import (
         DesignRequestNotFoundError,
         InvalidDesignRequestPayloadError,
@@ -2857,6 +2882,7 @@ async def api_system_design_fulfill_request(request) -> JSONResponse:
 async def api_system_design_cancel_request(request) -> JSONResponse:
     """POST /api/system-design/requests/{id}/cancel"""
     from nce.db_utils import scoped_pg_session
+
     from nce_verticals.system_design.design_requests import (
         DesignRequestNotFoundError,
         cancel_design_request,

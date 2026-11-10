@@ -19,7 +19,6 @@ from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
 from nce.admin_app import build_admin_routes
 from nce.mcp_errors import MCP_SCOPE_FORBIDDEN, McpError
 from nce.mcp_stdio_tools import TOOLS
@@ -29,6 +28,7 @@ from nce.tool_registry import (
     MUTATION_TOOLS,
     TOOL_REGISTRY,
 )
+
 from nce_verticals.resources.mcp_handlers import (
     handle_resources_create,
     handle_resources_get_resource,
@@ -276,6 +276,7 @@ def test_rest_routes_mounted_in_admin_app():
 @pytest.mark.asyncio
 async def test_rest_api_resources_create_status_201():
     from nce import admin_state
+
     from nce_verticals.admin_handlers.resources import api_resources_create
 
     engine = _make_engine()
@@ -308,6 +309,7 @@ async def test_rest_api_resources_create_status_201():
 @pytest.mark.asyncio
 async def test_rest_api_resources_update_status_200():
     from nce import admin_state
+
     from nce_verticals.admin_handlers.resources import api_resources_update
 
     engine = _make_engine()
@@ -336,6 +338,7 @@ async def test_rest_api_resources_update_status_200():
 @pytest.mark.asyncio
 async def test_rest_api_resources_get_status_200():
     from nce import admin_state
+
     from nce_verticals.admin_handlers.resources import api_resources_get
 
     engine = _make_engine()
@@ -359,6 +362,7 @@ async def test_rest_api_resources_get_status_200():
 @pytest.mark.asyncio
 async def test_rest_api_resources_list_status_200():
     from nce import admin_state
+
     from nce_verticals.admin_handlers.resources import api_resources_list
 
     engine = _make_engine()
@@ -381,6 +385,7 @@ async def test_rest_api_resources_list_status_200():
 @pytest.mark.asyncio
 async def test_rest_error_responses():
     from nce import admin_state
+
     from nce_verticals.admin_handlers.resources import (
         api_resources_create,
         api_resources_get,
@@ -440,6 +445,7 @@ async def test_rest_error_responses():
 async def test_do_create_resource_enforces_assert_owner():
     """Verify do_create_resource enforces Contract-A assert_owner."""
     from nce.entity_resolution.ownership import OwnershipError
+
     from nce_verticals.resources.registry import do_create_resource
 
     engine = _make_engine()

@@ -14,9 +14,8 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-from start_worker import QUEUE_NAMES
-
 from nce.extractors.dispatch import DIAG_INGEST_QUEUE, get_diag_queue
+from start_worker import QUEUE_NAMES
 
 
 def test_diag_ingest_queue_constant() -> None:

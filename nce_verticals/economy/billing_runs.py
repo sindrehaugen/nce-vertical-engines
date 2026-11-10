@@ -74,9 +74,9 @@ from typing import Any
 from uuid import UUID, uuid4
 
 import asyncpg  # type: ignore[import-untyped]
-
 from nce.autonomy.governor import governed
 from nce.entity_resolution.ownership import assert_owner
+
 from nce_verticals.agreements.price_rules import evaluate_price_rule
 from nce_verticals.agreements.room_category_pricing import (
     CUSTOM_PROJECT,

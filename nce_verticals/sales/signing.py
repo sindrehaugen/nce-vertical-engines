@@ -25,6 +25,7 @@ from nce.signing_service import (
     TransportMethod,
     get_signing_transport,
 )
+
 from nce_verticals.project.convert import do_convert_signed_quote
 from nce_verticals.sales.baseline import do_freeze_baseline, get_signed_baseline
 from nce_verticals.sales.render import render_quote_document

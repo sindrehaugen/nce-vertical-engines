@@ -275,6 +275,7 @@ async def _seed(pg_pool: Any, ns_id: uuid.UUID, tag: str) -> None:
     from nce.auth import set_namespace_context
     from nce.db_utils import scoped_pg_session
     from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
+
     from nce_verticals.system_design.devices import do_author_device_topology
     from nce_verticals.system_design.graph import do_author_functional_location
 
@@ -383,6 +384,7 @@ async def _seed_other_design(pg_pool: Any, ns_id: uuid.UUID) -> str:
     in-scope nodes rather than by everything the tenant owns.
     """
     from nce.db_utils import scoped_pg_session
+
     from nce_verticals.system_design.devices import do_author_device_topology
     from nce_verticals.system_design.graph import do_author_functional_location
 

@@ -10,9 +10,9 @@ from urllib.parse import urlparse, urlunparse
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest
-
 from nce.config import cfg
 from nce.db_utils import scoped_pg_session
+
 from nce_verticals.agreements.review import do_review_extraction
 
 

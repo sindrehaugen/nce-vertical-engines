@@ -31,6 +31,7 @@ from unittest.mock import AsyncMock, MagicMock
 import asyncpg  # type: ignore[import-untyped]
 import pytest
 import pytest_asyncio
+from nce.tool_registry import TOOL_REGISTRY
 
 from nce_verticals.admin_handlers.business_insights import (
     api_business_insights_ask,
@@ -40,7 +41,6 @@ from nce_verticals.admin_handlers.business_insights import (
     api_business_insights_risk_radar,
     api_business_insights_run_scenario,
 )
-from nce.tool_registry import TOOL_REGISTRY
 from nce_verticals.business_insights._guard import (
     PersonRankingProhibitedError,
     ThirdPartyEgressUnauthorizedError,
@@ -396,10 +396,9 @@ async def test_mcp_handlers_execution():
 @pytest.mark.integration
 @pytest.mark.asyncio
 async def test_rest_routes_response_and_errors():
+    from nce import admin_state
     from starlette.datastructures import QueryParams
     from starlette.requests import Request
-
-    from nce import admin_state
 
     mock_engine = MagicMock()
     mock_engine.pg_pool = None

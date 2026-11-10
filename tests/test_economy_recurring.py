@@ -29,8 +29,8 @@ from typing import Any
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest
-
 from nce.auth import set_namespace_context
+
 from nce_verticals.economy.recurring import (
     _add_months,
     _as_money,

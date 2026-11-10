@@ -1421,6 +1421,7 @@ class TestPermanentDeleteRemovesEverything:
         the reachable half through the tool.
         """
         from nce.db_utils import scoped_pg_session
+
         from nce_verticals.system_design.retire import _delete_permanently
 
         await _seed_ownership(pg_pool, namespace_id)
@@ -2061,6 +2062,7 @@ class TestRestSurface:
         self, pg_pool: Any, namespace_id: uuid.UUID, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         from nce import admin_state
+
         from nce_verticals.admin_handlers.system_design import (
             api_system_design_delete_planned,
         )
@@ -2090,6 +2092,7 @@ class TestRestSurface:
     ) -> None:
         """409, not 422 and not 403 — and the reason is read from one definition."""
         from nce import admin_state
+
         from nce_verticals.admin_handlers.system_design import (
             api_system_design_delete_planned,
         )
@@ -2120,6 +2123,7 @@ class TestRestSurface:
     ) -> None:
         """🔴 ``"false"`` is truthy.  This is the trap the body-not-query rule avoids."""
         from nce import admin_state
+
         from nce_verticals.admin_handlers.system_design import (
             api_system_design_delete_planned,
         )
@@ -2148,6 +2152,7 @@ class TestRestSurface:
         self, pg_pool: Any, namespace_id: uuid.UUID, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         from nce import admin_state
+
         from nce_verticals.admin_handlers.system_design import (
             api_system_design_delete_planned,
         )
@@ -2177,6 +2182,7 @@ class TestRestSurface:
         self, pg_pool: Any, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         from nce import admin_state
+
         from nce_verticals.admin_handlers.system_design import (
             api_system_design_delete_planned,
         )

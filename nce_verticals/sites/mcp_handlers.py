@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING, Any
 
 from nce.mcp_args import require_namespace_id as _require_namespace_id
 from nce.mcp_errors import mcp_handler
+
 from nce_verticals.sites.address_registry import do_enrich_site_from_address_registry
 
 if TYPE_CHECKING:

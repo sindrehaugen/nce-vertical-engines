@@ -16,9 +16,11 @@ from unittest.mock import MagicMock
 from uuid import uuid4
 
 import pytest
+from nce.admin_handlers._shared import admin_state
+from nce.orchestrator import NCEEngine
+from nce.principal_bindings import PrincipalContext
 from starlette.requests import Request
 
-from nce.admin_handlers._shared import admin_state
 from nce_verticals.admin_handlers.system_design import (
     api_system_design_assign_fl_responsible,
     api_system_design_get_fl_room_category,
@@ -28,8 +30,6 @@ from nce_verticals.admin_handlers.system_design import (
     api_system_design_set_fl_room_category,
     api_system_design_unassign_fl_responsible,
 )
-from nce.orchestrator import NCEEngine
-from nce.principal_bindings import PrincipalContext
 from nce_verticals.system_design.fl_tree import (
     _MEM_EDGES,
     _MEM_NODES,

@@ -668,6 +668,7 @@ def test_generate_sow_fails_closed_when_supplier_unset(
 ) -> None:
     """Blank NCE_SUPPLIER_NAME must raise, not emit a party-less legal clause."""
     from nce.config import DeploymentConfigurationError, cfg
+
     from nce_verticals.system_design.sow import generate_sow
 
     monkeypatch.setattr(cfg, "NCE_SUPPLIER_NAME", "   ", raising=False)
@@ -684,6 +685,7 @@ async def test_do_generate_sow_fails_closed_when_supplier_unset(
 ) -> None:
     """The adapter refuses to generate the document at all, naming the key."""
     from nce.config import DeploymentConfigurationError, cfg
+
     from nce_verticals.system_design.sow import do_generate_sow
 
     monkeypatch.setattr(cfg, "NCE_SUPPLIER_NAME", "", raising=False)

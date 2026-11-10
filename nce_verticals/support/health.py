@@ -20,6 +20,7 @@ from typing import Any
 from uuid import uuid4
 
 from nce.db_utils import scoped_pg_session
+
 from nce_verticals.support.tickets import (
     _ZERO_TENSOR,
     _extract_pool,

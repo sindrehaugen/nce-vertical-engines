@@ -18,6 +18,7 @@ from nce.db_utils import scoped_pg_session
 from nce.orchestrator import NCEEngine
 from nce.source_mode import read_through, resolve
 from nce.source_mode.divergence import record_divergence
+
 from nce_verticals.dynamics365.auth import DataverseTokenManager
 from nce_verticals.dynamics365.client import DataverseClient
 from nce_verticals.sales import read_model

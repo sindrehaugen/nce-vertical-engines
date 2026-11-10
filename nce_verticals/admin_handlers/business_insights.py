@@ -28,6 +28,7 @@ from nce.admin_handlers._shared import (
     admin_error_response,
     admin_state,
 )
+
 from nce_verticals.business_insights._guard import (
     BusinessInsightsDisabledError,
     PersonRankingProhibitedError,

@@ -288,6 +288,7 @@ async def test_handle_assets_compute_health() -> None:
 @pytest.mark.asyncio
 async def test_api_assets_health_get() -> None:
     from nce.admin_handlers._shared import admin_state
+
     from nce_verticals.admin_handlers.assets import api_assets_health
 
     engine = MagicMock()

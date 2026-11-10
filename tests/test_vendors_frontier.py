@@ -12,8 +12,8 @@ from typing import Any
 from unittest.mock import MagicMock, patch
 
 import pytest
-
 from nce.auth import set_namespace_context
+
 from nce_verticals.vendors.frontier import do_calibrate_weights, do_reliability_radar
 
 

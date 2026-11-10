@@ -25,6 +25,7 @@ from nce.admin_handlers._shared import (
 )
 from nce.auth import resolve_partner_scope, validate_agent_id
 from nce.db_utils import scoped_pg_session
+
 from nce_verticals.vendors import (
     do_get_contractor,
     do_get_vendor,

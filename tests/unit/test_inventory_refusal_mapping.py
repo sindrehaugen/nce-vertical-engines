@@ -43,10 +43,10 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import UUID
 
 import pytest
-
 from nce import admin_state
-from nce_verticals.admin_handlers import inventory as inv_rest
 from nce.mcp_errors import MCP_INTERNAL_ERROR, MCP_SCOPE_FORBIDDEN, McpError
+
+from nce_verticals.admin_handlers import inventory as inv_rest
 from nce_verticals.inventory import mcp_handlers as inv_mcp
 from nce_verticals.inventory import refusals as inv_refusals
 from nce_verticals.inventory.reconcile import LedgerDivergenceError

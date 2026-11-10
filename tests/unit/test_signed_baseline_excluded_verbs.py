@@ -25,6 +25,7 @@ from nce.resource_surface import (
     build_all_resource_routes,
     build_all_resource_tool_specs,
 )
+
 from nce_verticals.sales.resources import SIGNED_BASELINE_SPEC
 
 

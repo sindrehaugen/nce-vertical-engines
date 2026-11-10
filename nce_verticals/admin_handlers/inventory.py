@@ -74,6 +74,7 @@ from nce.admin_handlers._shared import (
     admin_state,
     bump_mcp_cache_generation,
 )
+
 from nce_verticals.inventory._guard import (
     InventoryDisabledError,
     require_inventory_enabled,

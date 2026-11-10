@@ -41,11 +41,11 @@ import uuid
 
 import asyncpg
 import pytest
-
 from nce.auth import set_namespace_context
 from nce.db_utils import scoped_pg_session
 from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
 from nce.signing_service import sha256_fingerprint
+
 from nce_verticals.agreements.signing import (
     _KIND_RECORDED,
     _KIND_REQUEST,

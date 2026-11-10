@@ -16,7 +16,6 @@ from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
 import pytest
-
 from nce.events.bus import publish
 from nce.events.catalogue import EVENT_CATALOGUE
 from nce.observability import OUTBOX_UNCONSUMED_TOTAL
@@ -32,6 +31,7 @@ def _runtime_selectors() -> set[str]:
     selectors as orphans.
     """
     from nce.read_model_subscribers import register_read_model_subscribers
+
     from nce_verticals.field_tech.work_orders import register_field_tech_subscribers
     from nce_verticals.hr.compliance import register_hr_compliance_subscribers
     from nce_verticals.notifications.subscribers import (

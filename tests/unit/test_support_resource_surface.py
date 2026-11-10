@@ -28,10 +28,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import UUID, uuid4
 
 import pytest
-
 from nce import admin_state
 from nce.admin_app import build_admin_routes
-from nce_verticals.admin_handlers import support as support_admin_mod
 from nce.event_log import EXPECTED_TENANT_RLS_TABLES
 from nce.mcp_errors import MCP_SCOPE_FORBIDDEN, McpError
 from nce.mcp_stdio_tools import TOOLS
@@ -46,6 +44,8 @@ from nce.tool_registry import (
     MUTATION_TOOLS,
     TOOL_REGISTRY,
 )
+
+from nce_verticals.admin_handlers import support as support_admin_mod
 from nce_verticals.support._guard import SupportDisabledError
 from nce_verticals.support.mcp_handlers import (
     handle_support_log_ticket_action,

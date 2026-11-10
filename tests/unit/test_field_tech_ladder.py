@@ -16,8 +16,8 @@ from unittest.mock import AsyncMock, MagicMock
 from uuid import UUID
 
 import pytest
-
 from nce.bom_lines import StatusState
+
 from nce_verticals.field_tech.checklist import do_complete_checklist
 from nce_verticals.field_tech.scan import do_scan_serial
 

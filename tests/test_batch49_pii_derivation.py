@@ -11,11 +11,11 @@ from urllib.parse import urlparse
 
 import pytest
 import pytest_asyncio
-
 from nce import NCEEngine
 from nce.db_utils import scoped_pg_session
 from nce.signing import decrypt_signing_key, require_master_key
 from nce.tasks import process_code_indexing
+
 from nce_verticals.dynamics365.ingestion import DataverseIngestionWorker
 
 

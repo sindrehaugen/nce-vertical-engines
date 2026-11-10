@@ -27,11 +27,11 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import asyncpg  # type: ignore[import-untyped]
 import pytest
 import pytest_asyncio
-
 from nce.auth import set_namespace_context
 from nce.cron import async_main
 from nce.db_utils import scoped_pg_session
 from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
+
 from nce_verticals.product.graph import upsert_product_node
 from nce_verticals.product.watchers import do_check_eol
 

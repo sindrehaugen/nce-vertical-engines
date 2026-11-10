@@ -34,6 +34,7 @@ from nce.admin_handlers._shared import (
     admin_state,
 )
 from nce.db_utils import scoped_pg_session
+
 from nce_verticals.procurement import frontier as procurement_frontier
 from nce_verticals.procurement.bids import do_resolve_bids
 from nce_verticals.procurement.ranking import do_rank_suppliers

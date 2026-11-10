@@ -21,6 +21,7 @@ from typing import Any
 from uuid import UUID
 
 from nce.mcp_errors import BusinessRefusalError
+
 from nce_verticals.business_insights._guard import assert_exec_or_board_role
 from nce_verticals.business_insights.coverage import compute_coverage_indicator
 from nce_verticals.business_insights.events import (

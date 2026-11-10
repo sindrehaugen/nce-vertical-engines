@@ -12,9 +12,9 @@ from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+from nce.entity_resolution.resolver import Match
 
 from nce_verticals.admin_handlers.vendors import api_vendors_seed
-from nce.entity_resolution.resolver import Match
 from nce_verticals.vendors.registry import do_seed_vendors
 
 _NAMESPACE_ID = "00000000-0000-4000-8000-000000000001"

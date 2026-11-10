@@ -30,6 +30,7 @@ from typing import TYPE_CHECKING, Any
 from nce.db_utils import scoped_pg_session
 from nce.mcp_args import require_namespace_id
 from nce.mcp_errors import mcp_handler
+
 from nce_verticals.procurement import frontier
 from nce_verticals.procurement.bids import do_resolve_bids
 from nce_verticals.procurement.po import (

@@ -12,7 +12,6 @@ from typing import Any
 from uuid import UUID
 
 from bson import ObjectId
-
 from nce.db_utils import scoped_mongo_session, scoped_pg_session, set_external_scope
 from nce.redaction.redactor import project
 

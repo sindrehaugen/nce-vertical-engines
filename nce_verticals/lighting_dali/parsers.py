@@ -57,17 +57,17 @@ def parse_eulumdat_ldt(ldt_content: str) -> dict[str, Any]:
         )
 
     company = lines[0]
-    ityp = _safe_int(lines[1], 1)
+    _safe_int(lines[1], 1)
     isym = _safe_int(lines[2], 0)
     mc = _safe_int(lines[3], 1)
-    dc = _safe_float(lines[4], 0.0)
+    _safe_float(lines[4], 0.0)
     mg = _safe_int(lines[5], 1)
-    dg = _safe_float(lines[6], 0.0)
+    _safe_float(lines[6], 0.0)
     report_number = lines[7]
     luminaire_name = lines[8]
     luminaire_number = lines[9]
-    file_name = lines[10]
-    date_user = lines[11]
+    lines[10]
+    lines[11]
 
     length_mm = _safe_float(lines[12], 600.0)
     width_mm = _safe_float(lines[13], 600.0)
@@ -77,8 +77,8 @@ def parse_eulumdat_ldt(ldt_content: str) -> dict[str, Any]:
 
     dff_pct = _safe_float(lines[21], 100.0)
     lorl_pct = _safe_float(lines[22], 100.0)
-    conversion_factor = _safe_float(lines[23], 1.0)
-    tilt_deg = _safe_float(lines[24], 0.0)
+    _safe_float(lines[23], 1.0)
+    _safe_float(lines[24], 0.0)
     num_lamp_sets = max(1, _safe_int(lines[25], 1))
 
     idx = 26
@@ -91,7 +91,7 @@ def parse_eulumdat_ldt(ldt_content: str) -> dict[str, Any]:
         if idx + 5 >= len(lines):
             break
         n_lamps = max(1, abs(_safe_int(lines[idx], 1)))
-        lamp_type = lines[idx + 1]
+        lines[idx + 1]
         lamp_flux = _safe_float(lines[idx + 2], 4000.0)
         cct_raw = lines[idx + 3] or cct_raw
         cri_raw = lines[idx + 4] or cri_raw
@@ -123,7 +123,7 @@ def parse_eulumdat_ldt(ldt_content: str) -> dict[str, Any]:
     else:
         mc_stored = max(1, mc)
 
-    c_angles = remaining_nums[:mc] if len(remaining_nums) >= mc else [0.0]
+    remaining_nums[:mc] if len(remaining_nums) >= mc else [0.0]
     g_start = mc
     g_angles = (
         remaining_nums[g_start : g_start + mg]
@@ -241,7 +241,7 @@ def parse_iesna_ies(ies_content: str) -> dict[str, Any]:
     v_start = 13
     v_angles = nums[v_start : v_start + n_vertical]
     h_start = v_start + n_vertical
-    h_angles = nums[h_start : h_start + n_horizontal]
+    nums[h_start : h_start + n_horizontal]
     c_start = h_start + n_horizontal
     candelas = [c * multiplier for c in nums[c_start:]]
 

@@ -44,7 +44,6 @@ from typing import (
 )
 
 import httpx
-
 from nce.config import resolve_secret
 from nce.db_utils import scoped_pg_session
 from nce.http_resilience import request_with_retry

@@ -20,15 +20,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import UUID
 
 import pytest
-
 from nce.admin_app import build_admin_routes
 from nce.admin_handlers._shared import admin_state
-from nce_verticals.admin_handlers.sales import (
-    api_admin_sales_create_customer,
-    api_admin_sales_create_deal,
-    api_admin_sales_create_lead,
-    api_admin_sales_edit_deal,
-)
 from nce.mcp_errors import McpError
 from nce.mcp_stdio_tools import TOOLS
 from nce.tool_registry import (
@@ -36,6 +29,13 @@ from nce.tool_registry import (
     CACHEABLE_TOOLS,
     MUTATION_TOOLS,
     TOOL_REGISTRY,
+)
+
+from nce_verticals.admin_handlers.sales import (
+    api_admin_sales_create_customer,
+    api_admin_sales_create_deal,
+    api_admin_sales_create_lead,
+    api_admin_sales_edit_deal,
 )
 from nce_verticals.sales.graph import (
     do_create_customer,

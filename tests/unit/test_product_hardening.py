@@ -24,6 +24,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from asyncpg.exceptions import DataError as _PgDataError
+
 from tests.tool_pins import NAME_PINS
 
 # ---------------------------------------------------------------------------
@@ -217,6 +218,7 @@ def _make_engine_enabled() -> MagicMock:
 async def test_mcp_handler_disabled_namespace_raises_mcp_error() -> None:
     """handle_product_search raises McpError(-32005) for a non-opted-in namespace."""
     from nce.mcp_errors import McpError
+
     from nce_verticals.product.mcp_handlers import handle_product_search
 
     engine = _make_engine_disabled()

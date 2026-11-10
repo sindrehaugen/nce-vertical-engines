@@ -22,8 +22,8 @@ import logging
 from typing import Any
 
 import pytest
-
 from nce.config import DeploymentConfigurationError
+
 from nce_verticals.product.sources.nettailer import (
     _INTERNAL_FIELDS,
     FIELD_ALIAS_MAP,

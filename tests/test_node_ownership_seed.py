@@ -20,7 +20,6 @@ from unittest.mock import AsyncMock, patch
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest  # noqa: F401 # type: ignore[import-untyped]
-
 from nce.auth import set_namespace_context
 from nce.entity_resolution.ownership import OwnershipError, assert_owner
 from nce.entity_resolution.ownership_seed import seed_node_ownership_registry

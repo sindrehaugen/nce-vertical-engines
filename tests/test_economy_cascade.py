@@ -65,8 +65,8 @@ from uuid import UUID
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest
-
 from nce.auth import set_namespace_context
+
 from nce_verticals.economy.cascade import (
     _as_actual_cost,
     _as_lines,

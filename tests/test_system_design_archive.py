@@ -65,8 +65,8 @@ from datetime import datetime, timedelta, timezone
 from typing import Any
 
 import pytest
-
 from nce.event_types import VALID_EVENT_TYPES
+
 from nce_verticals.system_design import archive as archive_mod
 from nce_verticals.system_design.archive import (
     ARCHIVE_EVENT_TYPE,

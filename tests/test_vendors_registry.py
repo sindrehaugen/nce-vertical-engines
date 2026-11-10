@@ -10,10 +10,10 @@ import asyncpg
 import pytest
 from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorClient
-
 from nce.auth import set_namespace_context
 from nce.db_utils import scoped_mongo_session, scoped_pg_session
 from nce.entity_resolution.ownership import OwnershipError
+
 from nce_verticals.vendors.registry import do_upsert_vendor
 
 

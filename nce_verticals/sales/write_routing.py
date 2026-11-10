@@ -16,6 +16,7 @@ from uuid import UUID
 from nce.db_utils import scoped_pg_session
 from nce.orchestrator import NCEEngine
 from nce.source_mode import resolve, write_route
+
 from nce_verticals.sales import graph
 
 log = logging.getLogger("nce_verticals.sales.write_routing")

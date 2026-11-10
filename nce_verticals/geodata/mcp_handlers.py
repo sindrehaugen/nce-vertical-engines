@@ -19,6 +19,7 @@ import json
 from typing import TYPE_CHECKING, Any
 
 from nce.mcp_errors import mcp_handler
+
 from nce_verticals.geodata.n50 import do_import_n50_land_cover, do_query_n50_land_cover
 from nce_verticals.geodata.osm import do_import_osm_elements, do_query_osm_elements
 from nce_verticals.geodata.place_names import (

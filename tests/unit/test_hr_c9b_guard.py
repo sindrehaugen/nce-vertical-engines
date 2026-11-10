@@ -23,12 +23,12 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 import pytest
-
 from nce.mcp_errors import MCP_SCOPE_FORBIDDEN, McpError
 from nce.structural.no_person_grain import (
     AggregationGrain,
     PersonGrainRejected,
 )
+
 from nce_verticals.hr._guard import (
     HrRankingProhibitedError,
     assert_ranking_prohibited,
@@ -308,6 +308,7 @@ async def test_handle_hr_match_skills_maps_ranking_refusal_to_forbidden() -> Non
 async def test_api_hr_capacity_returns_403_on_ranking() -> None:
     """api_hr_capacity returns HTTP 403 when query parameters attempt ranking or sorting."""
     from nce.admin_handlers._shared import admin_state
+
     from nce_verticals.admin_handlers.hr import api_hr_capacity
 
     mock_engine = MagicMock()
@@ -328,6 +329,7 @@ async def test_api_hr_capacity_returns_403_on_ranking() -> None:
 async def test_api_hr_match_skills_returns_403_on_ranking() -> None:
     """api_hr_match_skills returns HTTP 403 when payload attempts ranking or sorting."""
     from nce.admin_handlers._shared import admin_state
+
     from nce_verticals.admin_handlers.hr import api_hr_match_skills
 
     mock_engine = MagicMock()

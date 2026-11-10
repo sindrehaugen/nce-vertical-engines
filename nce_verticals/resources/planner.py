@@ -18,6 +18,7 @@ from uuid import uuid4
 from nce.config import cfg
 from nce.db_utils import scoped_pg_session
 from nce.decision_feedback import record_decision_feedback
+
 from nce_verticals.hr.certs import validate_technician_regulatory_compliance
 from nce_verticals.resources._guard import (
     ResourceValidationError,

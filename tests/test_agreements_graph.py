@@ -13,12 +13,12 @@ from unittest.mock import MagicMock, patch
 import asyncpg
 import httpx
 import pytest
-
 from nce.admin_app import app
 from nce.auth import set_namespace_context
 from nce.config import cfg
 from nce.db_utils import scoped_pg_session
 from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
+
 from nce_verticals.agreements.extract import (
     ExtractedAgreementModel,
     ExtractedFieldFloat,

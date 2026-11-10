@@ -18,7 +18,6 @@ from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any
 
 import httpx
-
 from nce.causal.correlation import CausalGraph, DoCalculusEngine
 
 if TYPE_CHECKING:

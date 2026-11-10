@@ -21,8 +21,8 @@ import uuid
 from typing import Any
 
 import pytest
-
 from nce.config import DeploymentConfigurationError
+
 from nce_verticals.system_design import backfill_fl
 from nce_verticals.system_design.graph import _fl_label
 

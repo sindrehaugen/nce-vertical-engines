@@ -39,6 +39,7 @@ from typing import Any
 from uuid import UUID
 
 from nce.db_utils import scoped_pg_session
+
 from nce_verticals.system_design.graph import (
     _design_label,
     _upsert_design_node,

@@ -27,7 +27,6 @@ from typing import Any
 from uuid import UUID
 
 import httpx
-
 from nce.config import cfg
 from nce.db_utils import scoped_pg_session
 from nce.http_resilience import request_with_retry

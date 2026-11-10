@@ -16,8 +16,8 @@ from typing import Any
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest
-
 from nce.db_utils import unmanaged_pg_connection
+
 from nce_verticals.geodata.osm import (
     _bbox_for_element,
     _bbox_literal,

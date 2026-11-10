@@ -56,6 +56,7 @@ from uuid import UUID
 
 from nce.db_utils import scoped_pg_session
 from nce.events.emit import emit_graph_write
+
 from nce_verticals.system_design.design_requests import (
     complete_design_request,
     find_active_request_for_quote,

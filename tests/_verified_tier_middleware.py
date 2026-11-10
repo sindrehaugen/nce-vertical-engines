@@ -20,11 +20,10 @@ for verification.
 
 from __future__ import annotations
 
+from nce.auth import NamespaceContext
 from starlette.middleware import Middleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
-
-from nce.auth import NamespaceContext
 
 _VALID_TIERS = ("employee", "contractor", "external-customer")
 

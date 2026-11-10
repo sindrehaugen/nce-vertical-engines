@@ -16,12 +16,12 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import UUID
 
 import pytest
+from nce.cron import _assets_warranty_eol_tick
 
 from nce_verticals.admin_handlers.assets import (
     api_assets_check_warranty_eol,
     api_assets_sync_netbox,
 )
-from nce.cron import _assets_warranty_eol_tick
 from nce_verticals.assets.mcp_handlers import (
     handle_assets_check_warranty_eol,
     handle_assets_sync_netbox,

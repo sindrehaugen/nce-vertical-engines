@@ -41,10 +41,10 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import UUID
 
 import pytest
-
 from nce.admin_app import build_admin_routes
 from nce.mcp_errors import McpError
 from nce.tool_registry import TOOL_REGISTRY
+
 from nce_verticals.sales import do_read_sales_divergence
 from nce_verticals.sales.mcp_handlers import handle_sales_divergence_log
 
@@ -301,6 +301,7 @@ async def test_handle_sales_divergence_log_success() -> None:
 @pytest.mark.asyncio
 async def test_api_admin_sales_divergences_no_engine() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers.sales import api_admin_sales_divergences
 
     with patch.object(admin_state, "engine", None):
@@ -314,6 +315,7 @@ async def test_api_admin_sales_divergences_no_engine() -> None:
 @pytest.mark.asyncio
 async def test_api_admin_sales_divergences_missing_or_invalid_namespace() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers.sales import api_admin_sales_divergences
 
     engine = _make_engine()
@@ -330,6 +332,7 @@ async def test_api_admin_sales_divergences_missing_or_invalid_namespace() -> Non
 @pytest.mark.asyncio
 async def test_api_admin_sales_divergences_invalid_query_params() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers.sales import api_admin_sales_divergences
 
     engine = _make_engine()
@@ -350,6 +353,7 @@ async def test_api_admin_sales_divergences_invalid_query_params() -> None:
 @pytest.mark.asyncio
 async def test_api_admin_sales_divergences_success() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers.sales import api_admin_sales_divergences
 
     engine = _make_engine()

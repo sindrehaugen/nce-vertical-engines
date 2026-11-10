@@ -29,7 +29,6 @@ from typing import Any
 from uuid import UUID
 
 import asyncpg
-
 from nce.db_utils import scoped_pg_session
 from nce.events.bus import publish
 

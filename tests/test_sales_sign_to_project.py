@@ -9,9 +9,9 @@ from uuid import UUID, uuid4
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest
-
 from nce.auth import set_namespace_context
 from nce.orchestrator import NCEEngine
+
 from nce_verticals.sales.baseline import do_freeze_baseline, get_signed_baseline
 from nce_verticals.sales.signing import do_on_signed_callback, do_request_signature
 

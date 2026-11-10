@@ -21,7 +21,6 @@ import logging
 from typing import Any
 
 from asyncpg.exceptions import DataError
-
 from nce.engine_registry import EngineDisabledError
 
 log = logging.getLogger("nce_verticals.field_tech._guard")

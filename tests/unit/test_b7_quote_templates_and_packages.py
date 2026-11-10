@@ -13,6 +13,7 @@ from __future__ import annotations
 
 from nce.resource_surface import build_all_resource_tool_specs
 from nce.tool_registry import TOOL_REGISTRY
+
 from nce_verticals.product.resources import PACKAGE_SPEC
 from nce_verticals.sales.resources import QUOTE_TEMPLATE_SPEC
 

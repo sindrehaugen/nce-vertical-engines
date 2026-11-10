@@ -15,10 +15,10 @@ from unittest.mock import AsyncMock, patch
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest
-
 from nce.auth import set_namespace_context
 from nce.entity_resolution.ownership import OwnershipError
 from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
+
 from nce_verticals.sales.graph import (
     _customer_label,
     _deal_label,

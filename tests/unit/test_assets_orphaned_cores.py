@@ -15,7 +15,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 import pytest
-
 from nce.mcp_errors import McpError
 
 _NAMESPACE_ID = "00000000-0000-4000-8000-000000000001"
@@ -174,6 +173,7 @@ async def test_handle_assets_attach_sla_missing_namespace_raises() -> None:
 @pytest.mark.asyncio
 async def test_api_assets_seed_from_bom_success() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers import assets as assets_mod
 
     fake_result = {
@@ -208,6 +208,7 @@ async def test_api_assets_seed_from_bom_success() -> None:
 @pytest.mark.asyncio
 async def test_api_assets_seed_from_bom_validation_error() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers import assets as assets_mod
 
     with patch.object(admin_state, "engine", MagicMock()):
@@ -230,6 +231,7 @@ async def test_api_assets_seed_from_bom_validation_error() -> None:
 @pytest.mark.asyncio
 async def test_api_assets_pull_telemetry_success() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers import assets as assets_mod
 
     fake_result = {
@@ -260,6 +262,7 @@ async def test_api_assets_pull_telemetry_success() -> None:
 @pytest.mark.asyncio
 async def test_api_assets_pull_telemetry_validation_error() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers import assets as assets_mod
 
     with patch.object(admin_state, "engine", MagicMock()):
@@ -277,6 +280,7 @@ async def test_api_assets_pull_telemetry_validation_error() -> None:
 @pytest.mark.asyncio
 async def test_api_assets_attach_sla_success() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers import assets as assets_mod
 
     fake_result = {
@@ -312,6 +316,7 @@ async def test_api_assets_attach_sla_success() -> None:
 @pytest.mark.asyncio
 async def test_api_assets_attach_sla_validation_error() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers import assets as assets_mod
 
     with patch.object(admin_state, "engine", MagicMock()):
@@ -338,6 +343,7 @@ async def test_api_assets_attach_sla_validation_error() -> None:
 @pytest.mark.asyncio
 async def test_api_assets_new_routes_no_engine_returns_503() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers.assets import (
         api_assets_attach_sla,
         api_assets_pull_telemetry,

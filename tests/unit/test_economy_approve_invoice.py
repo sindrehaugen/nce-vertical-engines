@@ -22,7 +22,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import UUID
 
 import pytest
-
 from nce.mcp_errors import McpError
 from nce.tool_registry import (
     ADMIN_ONLY_TOOLS,
@@ -30,6 +29,7 @@ from nce.tool_registry import (
     MUTATION_TOOLS,
     TOOL_REGISTRY,
 )
+
 from nce_verticals.economy._guard import EconomyDisabledError
 from nce_verticals.economy.mcp_handlers import handle_economy_approve_invoice
 

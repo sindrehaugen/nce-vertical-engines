@@ -39,7 +39,6 @@ import uuid
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest
-
 from nce.cron import _fetch_asset_tick_batch
 
 # "ACTIVE" is a real, non-terminal entry in nce/config_data/asset-lifecycle.json's

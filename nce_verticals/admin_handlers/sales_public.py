@@ -12,13 +12,13 @@ import hmac
 import logging
 from uuid import UUID
 
-from starlette.requests import Request
-from starlette.responses import JSONResponse
-
 from nce import admin_state
 from nce.auth import _check_admin_http_rate_limit
 from nce.config import cfg
 from nce.redaction.redactor import project
+from starlette.requests import Request
+from starlette.responses import JSONResponse
+
 from nce_verticals.sales.source_mode import do_quote_detail
 
 log = logging.getLogger("nce_verticals.admin_handlers.sales_public")

@@ -40,8 +40,8 @@ from unittest.mock import AsyncMock, patch
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest
-
 from nce.auth import set_namespace_context
+
 from nce_verticals.economy.reconcile_agreements import (
     ALERTS_ENABLED_ENV,
     do_reconcile_agreements,

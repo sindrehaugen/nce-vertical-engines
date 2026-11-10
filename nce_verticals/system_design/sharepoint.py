@@ -47,9 +47,9 @@ import json
 import logging
 
 import httpx
-
 from nce.config import resolve_secret
 from nce.http_resilience import request_with_retry
+
 from nce_verticals.system_design.sow import SoWDoc
 
 log = logging.getLogger("nce_verticals.system_design.sharepoint")

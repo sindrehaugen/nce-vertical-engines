@@ -22,6 +22,7 @@ from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
 from nce.db_utils import scoped_pg_session
+
 from nce_verticals.assets.lifecycle import advance
 
 if TYPE_CHECKING:

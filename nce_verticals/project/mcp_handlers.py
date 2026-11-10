@@ -40,6 +40,7 @@ from typing import TYPE_CHECKING, Any
 
 from nce.mcp_args import require_namespace_id
 from nce.mcp_errors import mcp_handler
+
 from nce_verticals.project.advance import do_advance_phase
 from nce_verticals.project.case_study import do_generate_case_study_edge
 from nce_verticals.project.convert import do_convert_signed_quote

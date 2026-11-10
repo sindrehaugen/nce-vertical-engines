@@ -19,9 +19,9 @@ from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
 from nce import admin_state
 from nce.admin_app import build_admin_routes
+
 from nce_verticals.admin_handlers import hr as hr_mod
 from nce_verticals.hr._guard import HrDisabledError, HrRankingProhibitedError
 

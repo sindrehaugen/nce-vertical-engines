@@ -20,6 +20,7 @@ No DB, no Redis, no HTTP — pure import-time assertion.
 from __future__ import annotations
 
 import pytest
+
 from tests.tool_pins import FLAG_PINS
 
 # ---------------------------------------------------------------------------

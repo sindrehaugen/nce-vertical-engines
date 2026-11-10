@@ -95,6 +95,7 @@ from typing import TYPE_CHECKING, Any
 
 from nce.mcp_args import require_namespace_id
 from nce.mcp_errors import McpError, mcp_handler
+
 from nce_verticals.inventory._guard import (
     InventoryDisabledError,
     require_inventory_enabled,

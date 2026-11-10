@@ -132,6 +132,7 @@ async def _seed_ownership(pg_pool: Any, ns_id: uuid.UUID) -> None:
 async def _author_topology(pg_pool: Any, ns_id: uuid.UUID) -> dict[str, Any]:
     """Author the fixture topology once.  Returns the authored-count contract."""
     from nce.db_utils import scoped_pg_session
+
     from nce_verticals.system_design.devices import do_author_device_topology
 
     with patch(_MOCK_EMIT_DEV, new_callable=AsyncMock):

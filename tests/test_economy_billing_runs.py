@@ -35,12 +35,12 @@ from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
 from nce.auth import set_namespace_context
 from nce.db_utils import scoped_pg_session
 from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
 from nce.mcp_errors import McpError
 from nce.tool_registry import TOOL_REGISTRY
+
 from nce_verticals.economy.billing_runs import (
     AgreementNotFoundError,
     _billing_run_idempotency_key,

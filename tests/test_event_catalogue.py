@@ -18,7 +18,6 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-
 from nce.events.catalogue import EVENT_CATALOGUE, get_unproduced_selectors
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent

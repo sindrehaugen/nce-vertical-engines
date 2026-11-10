@@ -40,11 +40,11 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import UUID, uuid4
 
 import pytest
+from nce import admin_state
 from starlette.applications import Starlette
 from starlette.routing import Route
 from starlette.testclient import TestClient
 
-from nce import admin_state
 from nce_verticals.admin_handlers import assets as admin_assets
 from nce_verticals.assets.assignment import (
     AssetAssignmentError,

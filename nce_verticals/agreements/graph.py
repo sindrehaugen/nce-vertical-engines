@@ -13,7 +13,6 @@ from typing import Any
 from uuid import UUID
 
 import asyncpg
-
 from nce import embeddings as _embeddings
 from nce.db_utils import scoped_pg_session
 from nce.entity_resolution.ownership import assert_owner

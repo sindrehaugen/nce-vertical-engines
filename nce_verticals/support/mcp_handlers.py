@@ -52,6 +52,7 @@ from typing import Any
 
 from nce.mcp_args import require_namespace_id
 from nce.mcp_errors import MCP_SCOPE_FORBIDDEN, McpError, mcp_handler
+
 from nce_verticals.support._guard import (
     SupportDisabledError,
     require_support_enabled,

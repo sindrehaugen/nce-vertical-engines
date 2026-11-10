@@ -23,10 +23,10 @@ from typing import Any
 import httpx
 import pytest
 from jsonschema.exceptions import ValidationError
-
-import nce_verticals.netbox.circuits as circuits_mod
 from nce.auth import set_namespace_context
 from nce.graph_query import SpikingActivationEngine
+
+import nce_verticals.netbox.circuits as circuits_mod
 from nce_verticals.netbox.circuits import (
     NetBoxCircuitEscalator,
     NetBoxCircuitsClient,

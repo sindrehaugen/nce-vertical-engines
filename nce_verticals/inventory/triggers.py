@@ -341,17 +341,17 @@ wrong verdict, and it is written down here rather than described as impossible.
 
 from __future__ import annotations
 
-from collections.abc import Awaitable, Callable, Mapping
-
 import json
 import logging
 import math
+from collections.abc import Awaitable, Callable, Mapping
 from decimal import Decimal
 from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
 from nce.bom_lines import bom_line_label, update_bom_line_status
 from nce.db_utils import scoped_pg_session
+
 from nce_verticals.inventory.goods_receipt import (
     _as_ns_uuid,
     _as_po_ref,
@@ -367,7 +367,6 @@ from nce_verticals.procurement.three_way_match import (
 
 if TYPE_CHECKING:
     import asyncpg  # type: ignore[import-untyped]
-
     from nce.orchestrator import NCEEngine
 
 log = logging.getLogger("nce_verticals.inventory.triggers")

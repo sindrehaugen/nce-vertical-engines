@@ -76,7 +76,6 @@ from pathlib import Path
 from typing import NamedTuple
 
 import pytest
-
 from nce.engine_registry import VERTICAL_MODULE_NAMES
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent

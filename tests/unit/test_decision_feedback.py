@@ -17,11 +17,11 @@ from unittest.mock import AsyncMock, MagicMock
 from uuid import UUID, uuid4
 
 import pytest
-
 from nce.decision_feedback import (
     handle_record_decision_feedback,
     record_decision_feedback,
 )
+
 from nce_verticals.economy.recalibration import (
     do_record_match_decision as economy_record_match_decision,
 )

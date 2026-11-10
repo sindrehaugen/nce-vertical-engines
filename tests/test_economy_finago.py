@@ -31,8 +31,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest
-
 from nce.source_mode import divergence
+
 from nce_verticals.economy.finago import (
     ENGINE_KEY,
     FinagoGLReadError,

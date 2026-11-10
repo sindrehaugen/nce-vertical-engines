@@ -16,7 +16,6 @@ import uuid
 
 import pytest
 import pytest_asyncio
-
 from nce.db_utils import scoped_pg_session
 
 # ---------------------------------------------------------------------------

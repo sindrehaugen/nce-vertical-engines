@@ -20,6 +20,7 @@ from __future__ import annotations
 
 from nce.resource_surface import register_resource
 from nce.resource_surface.spec import ResourceSpec
+
 from nce_verticals.field_tech._guard import require_field_tech_enabled
 
 # 1. WORK_ORDER

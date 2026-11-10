@@ -35,8 +35,8 @@ from typing import Any
 from unittest.mock import AsyncMock, patch
 
 import pytest
-
 from nce.mcp_errors import MCP_INVALID_PARAMS, McpError
+
 from nce_verticals.system_design.mcp_handlers import (
     handle_system_design_propose_design,
 )

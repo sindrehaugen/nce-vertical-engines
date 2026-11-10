@@ -17,10 +17,10 @@ from uuid import UUID
 import asyncpg  # type: ignore[import-untyped]
 import httpx
 import pytest
-
 from nce.admin_app import app
 from nce.auth import set_namespace_context
 from nce.config import cfg
+
 from nce_verticals.sales.source_mode import (
     do_list_customers,
     do_sales_overview,

@@ -32,6 +32,7 @@ from nce.admin_handlers._shared import (
     bump_mcp_cache_generation,
 )
 from nce.structural.no_person_grain import PersonGrainRejected
+
 from nce_verticals.hr._guard import (
     HrDisabledError,
     HrRankingProhibitedError,

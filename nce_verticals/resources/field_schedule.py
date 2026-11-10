@@ -17,6 +17,7 @@ from typing import Any
 
 from nce.config import cfg
 from nce.db_utils import scoped_pg_session
+
 from nce_verticals.resources._guard import (
     ResourceNotFoundError,
     ResourceValidationError,

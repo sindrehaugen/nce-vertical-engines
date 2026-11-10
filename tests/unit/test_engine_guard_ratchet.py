@@ -23,7 +23,6 @@ from __future__ import annotations
 import pathlib
 
 import pytest
-
 from nce.resource_surface import (
     get_all_resource_specs,
     register_resource,

@@ -9,8 +9,8 @@ from uuid import UUID, uuid4
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest
-
 from nce.auth import set_namespace_context
+
 from nce_verticals.sales.dealroom import do_open_dealroom
 
 

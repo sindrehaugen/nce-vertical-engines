@@ -19,9 +19,9 @@ from unittest.mock import AsyncMock, patch
 from uuid import uuid4
 
 import pytest
-
 from nce.entity_resolution.ownership import OwnershipError, assert_owner
 from nce.event_log import EXPECTED_TENANT_RLS_TABLES
+
 from nce_verticals.procurement import (
     ALLOWED_TRANSITIONS,
     POLineStatus,

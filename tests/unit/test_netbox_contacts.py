@@ -13,8 +13,8 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from httpx import Request, Response
-
 from nce.signing import require_master_key
+
 from nce_verticals.netbox.contacts import NetBoxClient, NetBoxContactSync
 
 NS = uuid.UUID("bbbbbbbb-0000-0000-0000-000000000001")

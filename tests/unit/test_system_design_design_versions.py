@@ -16,9 +16,10 @@ import json
 from uuid import uuid4
 
 import pytest
+from nce.admin_handlers._shared import admin_state
+from nce.orchestrator import NCEEngine
 from starlette.requests import Request
 
-from nce.admin_handlers._shared import admin_state
 from nce_verticals.admin_handlers.system_design import (
     api_system_design_create_design,
     api_system_design_get_design,
@@ -30,7 +31,6 @@ from nce_verticals.admin_handlers.system_design import (
     api_system_design_set_room_spec,
     api_system_design_update_design,
 )
-from nce.orchestrator import NCEEngine
 from nce_verticals.system_design.design_versions import (
     DesignNotFoundError,
     DesignVersionError,

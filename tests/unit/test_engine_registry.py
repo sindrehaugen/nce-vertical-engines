@@ -17,8 +17,8 @@ import ast
 import pathlib
 from types import SimpleNamespace
 
+import nce as _nce_pkg
 import pytest
-
 from nce.engine_registry import (
     VERTICAL_MODULE_NAMES,
     EngineDisabledError,
@@ -28,8 +28,6 @@ from nce.engine_registry import (
     populate_engine_modules,
 )
 from nce.orchestrator import NCEEngine
-
-import nce as _nce_pkg
 
 _NCE_DIR = pathlib.Path(_nce_pkg.__file__).resolve().parent
 _STDIO = _NCE_DIR / "mcp_stdio_main.py"

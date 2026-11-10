@@ -14,7 +14,6 @@ from typing import Any
 from uuid import UUID
 
 from bson import ObjectId
-
 from nce.db_utils import scoped_mongo_session, scoped_pg_session
 
 log = logging.getLogger("nce_verticals.vendors.tiers")

@@ -42,6 +42,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from asyncpg.exceptions import DataError as _PgDataError
+
 from tests.tool_pins import NAME_PINS
 
 # ---------------------------------------------------------------------------
@@ -345,6 +346,7 @@ async def test_mcp_handler_disabled_namespace_raises_mcp_scope_forbidden() -> No
     the DB connection is mocked, not the guard function itself.
     """
     from nce.mcp_errors import McpError
+
     from nce_verticals.agreements.mcp_handlers import handle_agreements_lookup_terms
 
     engine = _make_engine_disabled()
@@ -481,6 +483,7 @@ async def test_leakage_flags_never_leak_extracted_term_values() -> None:
     appear in the flag's ``detail`` text.
     """
     from nce.entity_resolution.resolver import Match
+
     from nce_verticals.agreements.coverage import _leakage_flags
 
     vendor_node_id = uuid.UUID(_VENDOR_NODE_ID)

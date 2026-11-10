@@ -51,9 +51,9 @@ from typing import Any
 from unittest.mock import patch
 
 import pytest
-
 from nce.auth import set_namespace_context
 from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
+
 from nce_verticals.system_design.graph import do_author_functional_location
 
 # ---------------------------------------------------------------------------

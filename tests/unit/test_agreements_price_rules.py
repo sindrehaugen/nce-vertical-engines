@@ -18,10 +18,10 @@ from typing import Any
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-
 from nce import admin_state
-from nce_verticals.admin_handlers import agreements as agreements_admin_handlers
 from nce.mcp_errors import McpError
+
+from nce_verticals.admin_handlers import agreements as agreements_admin_handlers
 from nce_verticals.agreements.index_series import (
     calculate_index_uplift,
     do_calculate_index_adjustment,

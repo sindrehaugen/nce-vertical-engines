@@ -27,6 +27,7 @@ from uuid import UUID
 from nce.db_utils import scoped_pg_session
 from nce.mcp_args import require_namespace_id
 from nce.mcp_errors import MCP_SCOPE_FORBIDDEN, McpError, mcp_handler
+
 from nce_verticals.agreements._guard import (
     AgreementsDisabledError,
     require_agreements_enabled,

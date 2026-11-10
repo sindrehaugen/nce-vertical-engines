@@ -36,7 +36,6 @@ from typing import Any
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest
-
 from nce.auth import set_namespace_context
 from nce.models import (
     ManageNamespaceCommand,
@@ -46,6 +45,7 @@ from nce.models import (
     NamespaceMetadataPatch,
 )
 from nce.orchestrators.namespace import NamespaceOrchestrator
+
 from nce_verticals.economy.contracts import (
     _as_date,
     _as_fraction,

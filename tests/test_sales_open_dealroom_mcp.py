@@ -30,11 +30,11 @@ from uuid import uuid4
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest
-
 from nce.auth import set_namespace_context
 from nce.mcp_errors import McpError
 from nce.mcp_stdio_tools import TOOLS
 from nce.tool_registry import TOOL_REGISTRY
+
 from nce_verticals.sales.mcp_handlers import handle_sales_open_dealroom
 
 _NAMESPACE_ID = "00000000-0000-4000-8000-000000000001"

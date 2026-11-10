@@ -50,10 +50,10 @@ from urllib.parse import urlparse, urlunparse
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest
-
 from nce.auth import set_namespace_context
 from nce.config import cfg
 from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
+
 from nce_verticals.inventory.reconcile import (
     LedgerDivergenceError,
     classify_dead_stock_pairs,

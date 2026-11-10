@@ -92,8 +92,6 @@ import uuid
 import asyncpg
 import httpx
 import pytest
-from starlette.applications import Starlette
-
 from nce import admin_state
 from nce.engine_registry import populate_engine_modules
 from nce.mcp_errors import MCP_ENGINE_DISABLED, McpError
@@ -101,6 +99,7 @@ from nce.orchestrator import NCEEngine
 from nce.resource_surface import get_all_resource_specs, load_all_engine_resources
 from nce.resource_surface.rest import make_resource_routes
 from nce.tool_registry import TOOL_REGISTRY
+from starlette.applications import Starlette
 
 pytestmark = pytest.mark.integration
 

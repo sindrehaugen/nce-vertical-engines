@@ -17,8 +17,6 @@ import json
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from tests.tool_pins import FLAG_PINS
-
 from nce.mcp_errors import MCP_SCOPE_FORBIDDEN, McpError
 from nce.tool_registry import (
     ADMIN_ONLY_TOOLS,
@@ -26,6 +24,7 @@ from nce.tool_registry import (
     MUTATION_TOOLS,
     TOOL_REGISTRY,
 )
+
 from nce_verticals.field_tech._guard import FieldTechDisabledError
 from nce_verticals.field_tech.checklist import ChecklistIncompleteError
 from nce_verticals.field_tech.mcp_handlers import (
@@ -43,6 +42,7 @@ from nce_verticals.field_tech.mcp_handlers import (
 from nce_verticals.field_tech.work_orders import (
     WorkOrderNotFoundError,
 )
+from tests.tool_pins import FLAG_PINS
 
 _NAMESPACE_ID = "00000000-0000-4000-8000-000000000001"
 _PARTNER_SCOPE_ID = "11111111-1111-4000-8000-111111111111"

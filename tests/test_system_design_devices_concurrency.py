@@ -105,6 +105,7 @@ async def _author(pg_pool: Any, ns_id: uuid.UUID, *, reverse: bool) -> dict[str,
     reversal would let one loop's incidental agreement hide it.
     """
     from nce.db_utils import scoped_pg_session
+
     from nce_verticals.system_design.devices import do_author_device_topology
 
     racks = _racks()
@@ -248,6 +249,7 @@ async def _author_cnx(
     connections: list[dict[str, Any]],
 ) -> dict[str, Any]:
     from nce.db_utils import scoped_pg_session
+
     from nce_verticals.system_design.devices import do_author_device_topology
 
     async with scoped_pg_session(pg_pool, ns_id) as conn:

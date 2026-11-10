@@ -25,6 +25,7 @@ from typing import Any
 
 from nce.config import cfg
 from nce.pii import _fodselsnummer_check
+
 from nce_verticals.hr._guard import HrRankingProhibitedError, assert_ranking_prohibited
 
 log = logging.getLogger("nce_verticals.hr.privacy")

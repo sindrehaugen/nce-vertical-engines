@@ -22,7 +22,6 @@ from unittest.mock import patch
 import asyncpg  # type: ignore[import-untyped]
 import pytest
 import pytest_asyncio
-
 from nce.auth import set_namespace_context
 
 # ---------------------------------------------------------------------------

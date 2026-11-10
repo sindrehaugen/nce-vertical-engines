@@ -479,6 +479,7 @@ class TestSignalFlowIntegration:
     ) -> None:
         """Author topology + geometry -> inspect signal flow over DB."""
         from nce.db_utils import scoped_pg_session
+
         from nce_verticals.system_design.devices import (
             cable_label,
             device_label,
@@ -659,6 +660,7 @@ class TestSignalFlowIntegration:
     ) -> None:
         """Call system_design_inspect_signal_flow through handle_system_design_inspect_signal_flow."""
         from nce.db_utils import scoped_pg_session
+
         from nce_verticals.system_design.graph import _design_label
         from nce_verticals.system_design.mcp_handlers import (
             handle_system_design_inspect_signal_flow,
@@ -698,10 +700,11 @@ class TestSignalFlowIntegration:
     ) -> None:
         """Verify REST api_system_design_inspect_signal_flow returns 200 JSON."""
         from nce.admin_handlers._shared import admin_state
+        from nce.db_utils import scoped_pg_session
+
         from nce_verticals.admin_handlers.system_design import (
             api_system_design_inspect_signal_flow,
         )
-        from nce.db_utils import scoped_pg_session
         from nce_verticals.system_design.graph import _design_label
 
         test_ns = await make_namespace()
@@ -747,6 +750,7 @@ class TestSignalFlowIntegration:
     ) -> None:
         """Colliding labels across two namespaces stay isolated by SQL predicate."""
         from nce.db_utils import scoped_pg_session
+
         from nce_verticals.system_design.devices import (
             device_label,
             do_author_device_topology,

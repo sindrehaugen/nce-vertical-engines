@@ -41,8 +41,6 @@ from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
-from nce_verticals.admin_handlers import agreements as admin_agreements
 from nce.mcp_errors import McpError
 from nce.tool_registry import (
     ADMIN_ONLY_TOOLS,
@@ -50,6 +48,8 @@ from nce.tool_registry import (
     MUTATION_TOOLS,
     TOOL_REGISTRY,
 )
+
+from nce_verticals.admin_handlers import agreements as admin_agreements
 from nce_verticals.agreements import mcp_handlers
 
 _NAMESPACE_ID = "00000000-0000-4000-8000-000000000001"

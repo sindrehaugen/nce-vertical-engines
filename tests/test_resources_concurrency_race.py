@@ -19,8 +19,8 @@ from typing import Any
 
 import asyncpg
 import pytest
-
 from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
+
 from nce_verticals.resources._guard import ResourceConcurrencyError
 from nce_verticals.resources.allocations import do_reserve
 from nce_verticals.resources.registry import do_create_resource

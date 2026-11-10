@@ -77,8 +77,8 @@ from typing import Any
 from uuid import UUID
 
 import asyncpg  # type: ignore[import-untyped]
-
 from nce.mcp_errors import BusinessRefusalError
+
 from nce_verticals.system_design.devices import (
     cable_label,
     device_label,

@@ -39,8 +39,8 @@ from typing import Any
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest
-
 from nce.auth import set_namespace_context
+
 from nce_verticals.inventory.schema_seed import (
     DEFAULT_VAN_COUNT,
     seed_warehouse_and_vans,

@@ -19,10 +19,6 @@ import uuid
 from unittest.mock import MagicMock
 
 import pytest
-from starlette.applications import Starlette
-from starlette.testclient import TestClient
-from tests._verified_tier_middleware import VERIFIED_TIER_TEST_MIDDLEWARE
-
 from nce import admin_state
 from nce.resource_surface import (
     ResourceSpec,
@@ -34,12 +30,16 @@ from nce.resource_surface import (
 from nce.resource_surface.mcp import build_mcp_tool_definitions, build_mcp_tool_specs
 from nce.resource_surface.rest import _clear_mem_store, make_resource_routes
 from nce.tool_registry import TOOL_REGISTRY
+from starlette.applications import Starlette
+from starlette.testclient import TestClient
+
 from nce_verticals.inventory.resources import (
     GOODS_RECEIPT_SPEC,
     INVENTORY_ITEM_SPEC,
     INVENTORY_RMA_SPEC,
     STOCK_LOCATION_SPEC,
 )
+from tests._verified_tier_middleware import VERIFIED_TIER_TEST_MIDDLEWARE
 
 _NS_A = str(uuid.UUID("11111111-1111-1111-1111-111111111111"))
 _NS_B = str(uuid.UUID("22222222-2222-2222-2222-222222222222"))

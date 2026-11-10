@@ -34,6 +34,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from asyncpg.exceptions import DataError as _PgDataError
+
 from tests.tool_pins import NAME_PINS
 
 # ---------------------------------------------------------------------------
@@ -197,6 +198,7 @@ async def test_mcp_null_metadata_namespace_refused() -> None:
     """A namespace whose metadata carries no 'economy' key at all (the real
     NULL-metadata / column-absent shape) is refused with McpError(-32005)."""
     from nce.mcp_errors import McpError
+
     from nce_verticals.economy.mcp_handlers import handle_economy_match_invoice
 
     engine = _make_engine_for_namespaces({_NAMESPACE_ID: {}})
@@ -211,6 +213,7 @@ async def test_mcp_null_metadata_namespace_refused() -> None:
 async def test_mcp_enabled_false_bool_namespace_refused() -> None:
     """metadata.economy.enabled = false (JSON bool) is refused."""
     from nce.mcp_errors import McpError
+
     from nce_verticals.economy.mcp_handlers import handle_economy_match_invoice
 
     engine = _make_engine_for_namespaces(
@@ -228,6 +231,7 @@ async def test_mcp_enabled_false_string_namespace_refused() -> None:
     """metadata.economy.enabled = "false" (the literal string, as Postgres's
     own ::boolean cast would also coerce to false) is refused."""
     from nce.mcp_errors import McpError
+
     from nce_verticals.economy.mcp_handlers import handle_economy_match_invoice
 
     engine = _make_engine_for_namespaces(
@@ -245,6 +249,7 @@ async def test_mcp_unknown_namespace_refused() -> None:
     """A namespace_id with no matching row at all is refused, never treated
     as implicitly enabled."""
     from nce.mcp_errors import McpError
+
     from nce_verticals.economy.mcp_handlers import handle_economy_match_invoice
 
     engine = _make_engine_for_namespaces({})  # no namespace known at all
@@ -279,6 +284,7 @@ async def test_mcp_enabled_true_namespace_proceeds() -> None:
 async def test_mcp_compute_periodisering_disabled_namespace_refused() -> None:
     """The gate applies to all three MCP handlers, not just match-invoice."""
     from nce.mcp_errors import McpError
+
     from nce_verticals.economy.mcp_handlers import (
         handle_economy_compute_periodisering,
     )
@@ -297,6 +303,7 @@ async def test_mcp_compute_periodisering_disabled_namespace_refused() -> None:
 async def test_mcp_emit_event_disabled_namespace_refused() -> None:
     """The gate applies to all three MCP handlers, not just match-invoice."""
     from nce.mcp_errors import McpError
+
     from nce_verticals.economy.mcp_handlers import handle_economy_emit_event
 
     engine = _make_engine_for_namespaces(
@@ -315,6 +322,7 @@ async def test_mcp_disabled_namespace_never_reaches_core() -> None:
     event's own error path must never even get a chance to fire when the
     namespace itself is refused first."""
     from nce.mcp_errors import McpError
+
     from nce_verticals.economy.mcp_handlers import handle_economy_emit_event
 
     engine = _make_engine_for_namespaces(

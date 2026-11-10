@@ -22,9 +22,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 import pytest
-
 from nce import admin_state
 from nce.admin_app import build_admin_routes
+
 from nce_verticals.admin_handlers import field_tech as ft_mod
 from nce_verticals.field_tech._guard import FieldTechDisabledError
 from nce_verticals.field_tech.checklist import (

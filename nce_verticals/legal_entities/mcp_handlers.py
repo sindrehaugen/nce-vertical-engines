@@ -15,6 +15,7 @@ import json
 from typing import TYPE_CHECKING, Any
 
 from nce.mcp_errors import mcp_handler
+
 from nce_verticals.legal_entities.brreg_feed import do_enrich_legal_entity_from_registry
 
 if TYPE_CHECKING:

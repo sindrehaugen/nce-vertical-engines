@@ -31,6 +31,7 @@ from nce.admin_handlers._shared import (
     admin_state,
 )
 from nce.db_utils import scoped_pg_session
+
 from nce_verticals.economy._guard import EconomyDisabledError, require_economy_enabled
 from nce_verticals.economy.close_narrative import do_generate_close_narrative
 from nce_verticals.economy.contracts import do_validate_contract

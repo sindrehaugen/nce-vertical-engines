@@ -40,13 +40,13 @@ from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
 import asyncpg  # type: ignore[import-untyped]
-
 from nce.db_utils import scoped_pg_session
 from nce.entity_resolution.survivorship import (
     append_survivorship_provenance,
     survive,
 )
 from nce.mcp_args import require_namespace_id
+
 from nce_verticals.product.enrich import _MONEY_LEGAL_FIELDS
 from nce_verticals.product.quality import (
     CHANNEL_REQUIRED_FIELDS,

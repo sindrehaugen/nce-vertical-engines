@@ -58,6 +58,7 @@ from typing import Any
 
 from nce.db_utils import scoped_pg_session
 from nce.mcp_args import require_namespace_id
+
 from nce_verticals.agreements.coverage import (
     _resolve_vendor_node_id,
     _unwrap_field,

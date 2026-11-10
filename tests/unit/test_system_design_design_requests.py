@@ -18,9 +18,10 @@ from unittest.mock import AsyncMock, patch
 from uuid import uuid4
 
 import pytest
+from nce.admin_handlers._shared import admin_state
+from nce.orchestrator import NCEEngine
 from starlette.requests import Request
 
-from nce.admin_handlers._shared import admin_state
 from nce_verticals.admin_handlers.system_design import (
     api_system_design_assign_request,
     api_system_design_cancel_request,
@@ -31,7 +32,6 @@ from nce_verticals.admin_handlers.system_design import (
     api_system_design_list_requests,
     api_system_design_update_request,
 )
-from nce.orchestrator import NCEEngine
 from nce_verticals.system_design.design_requests import (
     PRIORITY_HIGH,
     PRIORITY_LOW,

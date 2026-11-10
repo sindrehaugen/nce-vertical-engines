@@ -27,10 +27,10 @@ from datetime import datetime, timedelta, timezone
 from typing import Any
 
 import asyncpg
-
 from nce.config import cfg
 from nce.entity_resolution.ownership import assert_owner
 from nce.events.emit import emit_graph_write
+
 from nce_verticals.dynamics365.client import CURSOR_OVERLAP_SECONDS, DataverseClient
 
 log = logging.getLogger("nce_verticals.dynamics365.sync")

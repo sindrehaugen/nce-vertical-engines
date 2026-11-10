@@ -36,6 +36,7 @@ from typing import Any
 
 from nce.mcp_args import require_namespace_id
 from nce.mcp_errors import MCP_SCOPE_FORBIDDEN, McpError, mcp_handler
+
 from nce_verticals.field_tech._guard import (
     FieldTechDisabledError,
     require_field_tech_enabled,

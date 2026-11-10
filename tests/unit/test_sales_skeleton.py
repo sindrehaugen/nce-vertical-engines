@@ -74,6 +74,7 @@ async def test_handle_sales_ping_ok() -> None:
 @pytest.mark.asyncio
 async def test_handle_sales_ping_missing_namespace_id() -> None:
     from nce.mcp_errors import McpError
+
     from nce_verticals.sales.mcp_handlers import (
         handle_sales_ping,
     )
@@ -107,9 +108,9 @@ def test_sales_ping_registered_with_correct_flags() -> None:
 
 
 def test_tool_count_grew_by_one() -> None:
-    from tests.test_tool_registry import _EXPECTED_TOTAL
-
     from nce.tool_registry import TOOL_REGISTRY
+
+    from tests.test_tool_registry import _EXPECTED_TOTAL
 
     assert len(TOOL_REGISTRY) == _EXPECTED_TOTAL, (
         f"Expected {_EXPECTED_TOTAL} tools (repo-wide registry ratchet), "

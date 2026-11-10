@@ -17,6 +17,7 @@ import logging
 from typing import Any
 
 from nce.db_utils import scoped_pg_session
+
 from nce_verticals.support.tickets import (
     TicketNotFoundError,
     _extract_pool,

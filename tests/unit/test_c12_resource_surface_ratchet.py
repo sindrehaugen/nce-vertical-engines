@@ -39,7 +39,6 @@ import sys
 from pathlib import Path
 
 import pytest
-
 from nce.resource_surface import (
     RESOURCE_SURFACE_EXEMPTIONS,
     ResourceExemption,

@@ -9,8 +9,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 import pytest
-
 from nce.events import catalogue
+
 from nce_verticals.field_tech.work_orders import (
     handle_ticket_dispatched,
     register_field_tech_subscribers,

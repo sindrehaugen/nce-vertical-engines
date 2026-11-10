@@ -68,8 +68,6 @@ import asyncpg
 import httpx
 import pytest
 import pytest_asyncio
-from starlette.applications import Starlette
-
 from nce import admin_state
 from nce.orchestrator import NCEEngine
 from nce.resource_surface import (
@@ -78,6 +76,7 @@ from nce.resource_surface import (
     load_all_engine_resources,
 )
 from nce.resource_surface.rest import make_resource_routes
+from starlette.applications import Starlette
 
 pytestmark = pytest.mark.integration
 

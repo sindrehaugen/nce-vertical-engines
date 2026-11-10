@@ -18,7 +18,6 @@ import logging
 from typing import Any
 
 from asyncpg.exceptions import DataError
-
 from nce.engine_registry import EngineDisabledError
 from nce.mcp_errors import BusinessRefusalError
 

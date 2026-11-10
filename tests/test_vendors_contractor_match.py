@@ -11,9 +11,9 @@ from typing import Any
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest
-
 from nce.a2a_server import NamespaceContext, _dispatch_skill
 from nce.db_utils import scoped_pg_session
+
 from nce_verticals.vendors.contractors import do_upsert_contractor
 from nce_verticals.vendors.matching import do_match_contractor
 

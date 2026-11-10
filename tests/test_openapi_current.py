@@ -324,7 +324,6 @@ def _find_nullable_type_violations(
     Returns (wrongly_scalar, wrongly_nullable, checked_count).
     """
     from check_schema_drift import expected_column_nullability
-
     from nce.resource_surface import get_all_resource_specs, load_all_engine_resources
 
     load_all_engine_resources()
@@ -429,7 +428,6 @@ def test_positive_control_nullable_type_regression_is_caught(openapi_doc):
     caught only by running the check itself, not by reading the code.
     """
     from check_schema_drift import expected_column_nullability
-
     from nce.resource_surface import get_all_resource_specs, load_all_engine_resources
 
     load_all_engine_resources()

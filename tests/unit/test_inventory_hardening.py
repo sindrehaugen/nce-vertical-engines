@@ -37,9 +37,9 @@ from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
 from nce import tool_registry as tr
 from nce.mcp_errors import MCP_SCOPE_FORBIDDEN, McpError
+
 from nce_verticals.inventory import mcp_handlers as inv_mcp
 from nce_verticals.inventory import stock as inv_stock
 from nce_verticals.inventory._guard import (

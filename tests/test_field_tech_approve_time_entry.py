@@ -35,8 +35,8 @@ from typing import Any
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-
 from nce.db_utils import scoped_pg_session
+
 from nce_verticals.field_tech.resources import FIELD_TECH_TIME_ENTRY_SPEC
 from nce_verticals.field_tech.time_entry import (
     TimeEntryNotFoundError,

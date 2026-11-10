@@ -23,8 +23,8 @@ import json
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-
 from nce.mailer import RecordingFakeMailer, reset_mailer, set_global_mailer
+
 from nce_verticals.sales.render import render_quote_document
 from nce_verticals.sales.signing import do_on_signed_callback
 

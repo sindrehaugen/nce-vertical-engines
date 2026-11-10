@@ -23,10 +23,10 @@ import uuid
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
 from nce.mcp_errors import McpError
 from nce.mcp_stdio_tools import TOOLS
 from nce.tool_registry import CACHEABLE_TOOLS, TOOL_REGISTRY
+
 from nce_verticals.project import mcp_handlers as project_mcp_handlers
 
 

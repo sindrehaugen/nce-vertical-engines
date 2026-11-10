@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from tests.tool_pins import FLAG_PINS
-
 from nce.mcp_stdio_tools import TOOLS
 from nce.tool_registry import (
     ADMIN_ONLY_TOOLS,
@@ -11,6 +9,8 @@ from nce.tool_registry import (
     MUTATION_TOOLS,
     TOOL_REGISTRY,
 )
+
+from tests.tool_pins import FLAG_PINS
 
 # Pin lives in tests/tool_pins.py (FLAG_PINS["marketing"]) -- edit there.
 EXPECTED_MARKETING_TOOLS = FLAG_PINS["marketing"]

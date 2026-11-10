@@ -105,6 +105,7 @@ from typing import Any
 from uuid import UUID
 
 from nce.db_utils import scoped_pg_session
+
 from nce_verticals.system_design.geometry import (
     fetch_design_version,
     fetch_geometry_by_labels,

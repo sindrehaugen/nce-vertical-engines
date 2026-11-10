@@ -10,10 +10,10 @@ from __future__ import annotations
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock
 
-import portal_server
 import yaml
 from starlette.testclient import TestClient
 
+import portal_server
 from nce_verticals.customer_portal.app import build_customer_portal_app
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]

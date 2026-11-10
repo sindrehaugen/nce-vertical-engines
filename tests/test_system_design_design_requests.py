@@ -41,9 +41,9 @@ import uuid
 
 import asyncpg  # type: ignore[import-untyped]
 import pytest
-
 from nce.auth import set_namespace_context
 from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
+
 from nce_verticals.system_design.design_requests import (
     DesignRequestNotFoundError,
     assign_design_request,

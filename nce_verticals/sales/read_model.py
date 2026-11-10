@@ -20,8 +20,8 @@ from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
 import asyncpg  # type: ignore[import-untyped]
-
 from nce.db_utils import scoped_pg_session
+
 from nce_verticals.sales.source_adapters.d365 import prefixed_field, publisher_prefix
 
 if TYPE_CHECKING:

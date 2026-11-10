@@ -315,9 +315,9 @@ def test_economy_tools_registered_with_correct_flags(tool_name: str) -> None:
 
 
 def test_tool_count_includes_economy_tools() -> None:
-    from tests.test_tool_registry import _EXPECTED_TOTAL
-
     from nce.tool_registry import TOOL_REGISTRY
+
+    from tests.test_tool_registry import _EXPECTED_TOTAL
 
     assert "economy_match_invoice" in TOOL_REGISTRY
     assert "economy_compute_periodisering" in TOOL_REGISTRY
@@ -477,6 +477,7 @@ def test_economy_routes_mounted_in_admin_app() -> None:
 @pytest.mark.asyncio
 async def test_api_economy_match_invoice_returns_ok_shape() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers.economy import api_economy_match_invoice
 
     with patch.object(admin_state, "engine", MagicMock()):
@@ -498,6 +499,7 @@ async def test_api_economy_match_invoice_returns_ok_shape() -> None:
 @pytest.mark.asyncio
 async def test_api_economy_periodisering_returns_ok_shape() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers.economy import api_economy_periodisering
 
     with patch.object(admin_state, "engine", MagicMock()):
@@ -514,6 +516,7 @@ async def test_api_economy_periodisering_returns_ok_shape() -> None:
 @pytest.mark.asyncio
 async def test_api_economy_emit_event_returns_ok_shape() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers.economy import api_economy_emit_event
 
     with patch.object(admin_state, "engine", MagicMock()):
@@ -528,6 +531,7 @@ async def test_api_economy_emit_event_returns_ok_shape() -> None:
 @pytest.mark.asyncio
 async def test_api_economy_emit_event_unbalanced_returns_422() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers.economy import api_economy_emit_event
 
     with patch.object(admin_state, "engine", MagicMock()):
@@ -542,6 +546,7 @@ async def test_api_economy_emit_event_unbalanced_returns_422() -> None:
 @pytest.mark.asyncio
 async def test_api_economy_routes_no_engine() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers.economy import (
         api_economy_emit_event,
         api_economy_match_invoice,
@@ -579,6 +584,7 @@ async def test_api_economy_emit_event_status_field_cannot_override_envelope() ->
     removed and the envelope dict-literal is reverted to
     ``{"status": "ok", **_json_safe(result)}`` (caller key first -> caller wins)."""
     from nce import admin_state
+
     from nce_verticals.admin_handlers.economy import api_economy_emit_event
 
     poisoned_event = {
@@ -616,8 +622,9 @@ async def test_rest_routes_return_422_not_crash_on_malformed_scalar_field(
     ``ServerErrorMiddleware``. Goes RED if the ``dict(...)``/``list(...)`` coercion is
     moved back outside its route's ``try`` block, or if ``TypeError`` is dropped from
     the ``except`` tuple."""
-    import nce_verticals.admin_handlers.economy as economy_mod
     from nce import admin_state
+
+    import nce_verticals.admin_handlers.economy as economy_mod
 
     fn = getattr(economy_mod, fn_name)
     with patch.object(admin_state, "engine", MagicMock()):
@@ -639,6 +646,7 @@ async def test_api_economy_match_invoice_nan_candidate_id_serializes_successfull
     ``allow_nan=False`` encoder and get mis-filed as a 422 domain-validation error.
     Goes RED if ``_json_safe`` stops neutralising non-finite floats."""
     from nce import admin_state
+
     from nce_verticals.admin_handlers.economy import api_economy_match_invoice
 
     candidates = [{**_CANDIDATES[0], "candidate_id": float("nan")}]
@@ -665,6 +673,7 @@ async def test_api_economy_periodisering_nan_period_end_serializes_successfully(
     must serialize, not crash the response encoder and get mis-filed as an invalid
     invoice."""
     from nce import admin_state
+
     from nce_verticals.admin_handlers.economy import api_economy_periodisering
 
     params = {**_PERIODISERING_PARAMS, "period_end": float("nan")}
@@ -740,6 +749,7 @@ async def test_mcp_match_invoice_thresholds_override_ignored(monkeypatch) -> Non
 async def test_rest_match_invoice_thresholds_override_ignored(monkeypatch) -> None:
     """REST-surface twin of the MCP thresholds-containment test above."""
     from nce import admin_state
+
     from nce_verticals.admin_handlers import economy as economy_mod
 
     monkeypatch.setattr(
@@ -804,6 +814,7 @@ async def test_rest_periodisering_chart_and_mapping_override_ignored(
 ) -> None:
     """REST-surface twin of the MCP chart/mapping-containment test above."""
     from nce import admin_state
+
     from nce_verticals.admin_handlers import economy as economy_mod
 
     monkeypatch.setattr(
@@ -859,6 +870,7 @@ async def test_mcp_emit_event_epsilon_override_ignored() -> None:
 async def test_rest_emit_event_epsilon_override_ignored() -> None:
     """REST-surface twin of the MCP epsilon-containment test above."""
     from nce import admin_state
+
     from nce_verticals.admin_handlers.economy import api_economy_emit_event
 
     with patch.object(admin_state, "engine", MagicMock()):
@@ -895,6 +907,7 @@ async def test_rest_emit_event_error_key_rejected() -> None:
     ``_RESERVED_EVENT_KEYS`` guard in ``api_economy_emit_event`` is removed or
     if 'error' is dropped from the reserved set."""
     from nce import admin_state
+
     from nce_verticals.admin_handlers.economy import api_economy_emit_event
 
     poisoned_event = {**_BALANCED_EVENT, "error": "FAKE_INJECTED_ERROR"}
@@ -915,6 +928,7 @@ async def test_rest_emit_event_status_key_rejected() -> None:
     the request be REJECTED outright rather than silently let through with the
     caller's key discarded. Goes RED if the guard is removed."""
     from nce import admin_state
+
     from nce_verticals.admin_handlers.economy import api_economy_emit_event
 
     poisoned_event = {**_BALANCED_EVENT, "status": "TOTALLY_NOT_OK_INJECTED"}
@@ -975,6 +989,7 @@ async def test_rest_emit_event_near_miss_keys_still_accepted(
     unchanged. Goes RED if the guard is changed to lowercase/strip/substring-
     match the caller's keys instead of comparing them exactly."""
     from nce import admin_state
+
     from nce_verticals.admin_handlers.economy import api_economy_emit_event
 
     near_miss_event = {**_BALANCED_EVENT, near_miss_key: "not-a-reserved-key"}
@@ -1010,6 +1025,7 @@ async def test_rest_emit_event_no_reserved_keys_still_succeeds() -> None:
     """Non-regression: a normal balanced event with no reserved keys at all
     must still succeed unchanged."""
     from nce import admin_state
+
     from nce_verticals.admin_handlers.economy import api_economy_emit_event
 
     with patch.object(admin_state, "engine", MagicMock()):
@@ -1218,6 +1234,7 @@ async def test_handle_generate_close_narrative_success_and_missing_ns() -> None:
 @pytest.mark.asyncio
 async def test_api_economy_forecast_success() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers.economy import api_economy_forecast
 
     with patch.object(admin_state, "engine", MagicMock()):
@@ -1238,6 +1255,7 @@ async def test_api_economy_forecast_success() -> None:
 @pytest.mark.asyncio
 async def test_api_economy_mrr_arr_churn_success() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers.economy import api_economy_mrr_arr_churn
 
     with patch.object(admin_state, "engine", MagicMock()):
@@ -1257,6 +1275,7 @@ async def test_api_economy_mrr_arr_churn_success() -> None:
 @pytest.mark.asyncio
 async def test_api_economy_dunning_success() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers.economy import api_economy_dunning
 
     with patch.object(admin_state, "engine", MagicMock()):
@@ -1277,6 +1296,7 @@ async def test_api_economy_dunning_success() -> None:
 @pytest.mark.asyncio
 async def test_api_economy_recognition_schedule_success() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers.economy import api_economy_recognition_schedule
 
     with patch.object(admin_state, "engine", MagicMock()):
@@ -1298,6 +1318,7 @@ async def test_api_economy_recognition_schedule_success() -> None:
 @pytest.mark.asyncio
 async def test_api_economy_gl_sync_status_success() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers.economy import api_economy_gl_sync_status
 
     with patch.object(admin_state, "engine", MagicMock()):
@@ -1323,6 +1344,7 @@ async def test_api_economy_gl_sync_status_success() -> None:
 @pytest.mark.asyncio
 async def test_api_economy_close_narrative_success() -> None:
     from nce import admin_state
+
     from nce_verticals.admin_handlers.economy import api_economy_close_narrative
 
     with patch.object(admin_state, "engine", MagicMock()):

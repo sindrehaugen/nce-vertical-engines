@@ -25,8 +25,8 @@ from typing import Any
 from uuid import UUID
 
 import asyncpg  # type: ignore[import-untyped]
-
 from nce.db_utils import scoped_pg_session
+
 from nce_verticals.product.graph import upsert_product_relation_edge
 
 log = logging.getLogger("nce_verticals.product.watchers")

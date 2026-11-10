@@ -41,8 +41,8 @@ from collections.abc import AsyncGenerator
 import asyncpg  # type: ignore[import-untyped]
 import pytest
 import pytest_asyncio
-
 from nce.entity_resolution.ownership import OwnershipError, assert_owner
+
 from nce_verticals.field_tech.checklist import (
     ChecklistIncompleteError,
     do_complete_checklist,

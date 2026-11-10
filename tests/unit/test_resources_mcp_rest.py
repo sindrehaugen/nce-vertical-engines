@@ -13,6 +13,7 @@ import json
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+from nce.mcp_errors import McpError
 
 from nce_verticals.admin_handlers.resources import (
     api_resources_capacity_pulse,
@@ -26,7 +27,6 @@ from nce_verticals.admin_handlers.resources import (
     api_resources_reserve,
     api_resources_resolve_capacity,
 )
-from nce.mcp_errors import McpError
 from nce_verticals.resources.mcp_handlers import (
     handle_resources_detect_conflicts,
     handle_resources_field_schedule,

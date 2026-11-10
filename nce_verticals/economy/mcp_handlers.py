@@ -33,6 +33,7 @@ from typing import TYPE_CHECKING, Any
 from nce.db_utils import scoped_pg_session
 from nce.mcp_args import require_namespace_id
 from nce.mcp_errors import McpError, mcp_handler
+
 from nce_verticals.economy._guard import EconomyDisabledError, require_economy_enabled
 from nce_verticals.economy.billing_runs import (
     AgreementNotFoundError,

@@ -16,8 +16,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 import pytest
-
 from nce.events.catalogue import EVENT_CATALOGUE
+
 from nce_verticals.hr.certs import do_check_hr_cert_expiry
 from nce_verticals.resources.watcher import handle_hr_cert_change
 from nce_verticals.vendors.certs import do_check_cert_expiry

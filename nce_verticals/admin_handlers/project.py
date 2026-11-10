@@ -30,6 +30,7 @@ from nce.admin_handlers._shared import (
 )
 from nce.bom_lines import list_bom_lines_for_quote
 from nce.db_utils import scoped_pg_session
+
 from nce_verticals.project.advance import do_advance_phase, read_current_phase
 from nce_verticals.project.case_study import do_generate_case_study_edge
 from nce_verticals.project.convert import do_convert_signed_quote

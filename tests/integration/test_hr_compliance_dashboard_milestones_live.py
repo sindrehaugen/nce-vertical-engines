@@ -47,8 +47,8 @@ from datetime import date, timedelta
 
 import asyncpg
 import pytest
-
 from nce.orchestrator import NCEEngine
+
 from nce_verticals.hr.a2a import get_morning_brief_hr_slice
 from nce_verticals.hr.compliance import (
     COMPLIANCE_STATE_DIALOGMOTE_7W_PENDING,

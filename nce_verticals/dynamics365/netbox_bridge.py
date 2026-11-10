@@ -42,8 +42,8 @@ from typing import Any
 
 import asyncpg
 import httpx
-
 from nce.config import cfg
+
 from nce_verticals.dynamics365.client import DataverseClient
 
 log = logging.getLogger("nce_verticals.dynamics365.netbox_bridge")

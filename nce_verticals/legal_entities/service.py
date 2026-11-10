@@ -17,6 +17,7 @@ from typing import Any
 from uuid import UUID
 
 from nce.entity_resolution.normalizers import normalize_org_nr
+
 from nce_verticals.legal_entities.models import LegalEntityRecord
 
 # In-memory store for hermetic unit testing and offline harness execution

@@ -72,8 +72,8 @@ from typing import Any
 from uuid import UUID
 
 import httpx
-
 from nce.config import live_env_str
+
 from nce_verticals.assets.telemetry import TelemetryAdapter, TelemetrySample
 
 log = logging.getLogger("nce_verticals.assets.neat_pulse")

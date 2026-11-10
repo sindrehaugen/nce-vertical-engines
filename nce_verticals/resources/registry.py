@@ -24,6 +24,7 @@ from uuid import UUID, uuid4
 
 from nce.db_utils import scoped_pg_session
 from nce.entity_resolution.ownership import assert_owner
+
 from nce_verticals.resources._guard import (
     ResourceNotFoundError,
     ResourceValidationError,

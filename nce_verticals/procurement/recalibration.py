@@ -41,7 +41,6 @@ import uuid
 from typing import Any
 
 import asyncpg  # type: ignore[import-untyped]
-
 from nce.db_utils import scoped_pg_session
 from nce.decision_feedback import record_decision_feedback
 

@@ -30,8 +30,8 @@ from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
 from nce.mcp_errors import McpError
+
 from nce_verticals.agreements._guard import AgreementsDisabledError
 
 # ---------------------------------------------------------------------------

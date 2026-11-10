@@ -106,6 +106,7 @@ from uuid import UUID
 
 from nce import config as _config
 from nce.source_mode.divergence import alert_threshold, record_divergence
+
 from nce_verticals.economy.contracts import fetch_contracts_for_recognition
 from nce_verticals.economy.gl import do_get_gl_records
 from nce_verticals.economy.recurring import do_compute_recognition_schedule

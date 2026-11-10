@@ -16,12 +16,12 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import UUID, uuid4
 
 import pytest
-
 from nce.tool_registry import (
     ADMIN_ONLY_TOOLS,
     MUTATION_TOOLS,
     TOOL_REGISTRY,
 )
+
 from nce_verticals.assets.telemetry import (
     VENDOR_PLATFORMS,
     select_telemetry_adapter,

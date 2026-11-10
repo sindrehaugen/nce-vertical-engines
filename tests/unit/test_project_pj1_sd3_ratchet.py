@@ -23,7 +23,6 @@ from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
 from nce.config import cfg
 from nce.mcp_stdio_tools import TOOLS
 from nce.tool_registry import (
@@ -32,6 +31,7 @@ from nce.tool_registry import (
     MUTATION_TOOLS,
     TOOL_REGISTRY,
 )
+
 from nce_verticals.project.advance import do_advance_phase
 from nce_verticals.project.phase_gates import can_enter_phase, load_gate_config
 from nce_verticals.project.recall import do_record_project_outcome

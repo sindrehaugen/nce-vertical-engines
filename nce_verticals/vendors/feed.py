@@ -13,6 +13,7 @@ from uuid import UUID
 
 from nce.config import cfg
 from nce.db_utils import scoped_pg_session
+
 from nce_verticals.vendors.tiers import do_get_tier_status
 
 log = logging.getLogger("nce_verticals.vendors.feed")

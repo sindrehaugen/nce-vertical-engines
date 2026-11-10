@@ -520,6 +520,7 @@ class TestDeviceTopologyIntegration:
         from nce.auth import set_namespace_context
         from nce.db_utils import scoped_pg_session
         from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
+
         from nce_verticals.system_design.devices import do_author_device_topology
         from nce_verticals.system_design.graph import do_author_functional_location
 
@@ -604,6 +605,7 @@ class TestDeviceTopologyIntegration:
         from nce.auth import set_namespace_context
         from nce.db_utils import scoped_pg_session
         from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
+
         from nce_verticals.system_design.devices import do_author_device_topology
         from nce_verticals.system_design.graph import do_author_functional_location
 
@@ -700,6 +702,7 @@ class TestPhase1ContractUnchanged:
         from nce.auth import set_namespace_context
         from nce.db_utils import scoped_pg_session
         from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
+
         from nce_verticals.system_design.graph import do_author_functional_location
         from nce_verticals.system_design.validate import do_validate_design
 
@@ -766,6 +769,7 @@ class TestPhase1ContractUnchanged:
         from nce.auth import set_namespace_context
         from nce.db_utils import scoped_pg_session
         from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
+
         from nce_verticals.system_design.graph import do_author_functional_location
         from nce_verticals.system_design.validate import do_validate_design
 

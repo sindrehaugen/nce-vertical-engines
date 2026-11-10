@@ -35,13 +35,13 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import UUID
 
 import pytest
-
 from nce.admin_app import build_admin_routes
-from nce_verticals.admin_handlers import sales as sales_admin_handlers
 from nce.admin_handlers._shared import admin_state
 from nce.mcp_errors import McpError
 from nce.mcp_stdio_tools import TOOLS
 from nce.tool_registry import TOOL_REGISTRY
+
+from nce_verticals.admin_handlers import sales as sales_admin_handlers
 from nce_verticals.sales.ai import do_draft_quote, do_score_lead
 from nce_verticals.sales.mcp_handlers import (
     handle_sales_draft_quote,

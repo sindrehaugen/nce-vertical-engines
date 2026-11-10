@@ -25,6 +25,7 @@ from typing import Any
 from uuid import UUID
 
 from nce.auth import set_namespace_context
+
 from nce_verticals.marketing._guard import (
     MarketingConsentMissingError,
     MarketingUnapprovedPublishError,

@@ -27,7 +27,6 @@ from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
 from nce.mcp_stdio_tools import TOOLS
 from nce.tool_registry import (
     ADMIN_ONLY_TOOLS,
@@ -35,6 +34,7 @@ from nce.tool_registry import (
     MUTATION_TOOLS,
     TOOL_REGISTRY,
 )
+
 from nce_verticals.marketing.candidates import do_find_case_study_candidates
 from nce_verticals.project.advance import do_advance_phase
 from nce_verticals.project.case_study import do_generate_case_study_edge

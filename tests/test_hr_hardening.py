@@ -24,8 +24,8 @@ from collections.abc import AsyncGenerator
 import asyncpg  # type: ignore[import-untyped]
 import pytest
 import pytest_asyncio
-
 from nce.structural.no_person_grain import PersonGrainRejected
+
 from nce_verticals.hr._guard import HrRankingProhibitedError, assert_ranking_prohibited
 from nce_verticals.hr.certs import do_cert_status
 from nce_verticals.hr.profile import (

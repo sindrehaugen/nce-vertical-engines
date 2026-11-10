@@ -23,6 +23,7 @@ from typing import Any
 from nce.auth import resolve_customer_scope
 from nce.mcp_args import require_namespace_id
 from nce.mcp_errors import mcp_handler
+
 from nce_verticals.customer_portal.actions import (
     do_raise_service_request,
     do_register_expansion_interest,

@@ -10,9 +10,9 @@ import asyncpg  # type: ignore[import-untyped]
 import pytest
 from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorClient
-
 from nce.db_utils import scoped_mongo_session, scoped_pg_session
 from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
+
 from nce_verticals.vendors.certs import do_check_cert_expiry, do_upsert_cert
 
 

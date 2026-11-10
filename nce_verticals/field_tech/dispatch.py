@@ -26,6 +26,7 @@ from typing import Any
 from uuid import UUID
 
 from nce.db_utils import scoped_pg_session
+
 from nce_verticals.hr.certs import validate_technician_regulatory_compliance
 from nce_verticals.vendors.certs import validate_contractor_regulatory_compliance
 

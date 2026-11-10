@@ -17,10 +17,9 @@ from contextlib import asynccontextmanager
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from starlette.testclient import TestClient
-
 from nce.admin_app import app
 from nce.config import cfg
+from starlette.testclient import TestClient
 
 
 @pytest.fixture(autouse=True)

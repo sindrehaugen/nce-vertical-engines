@@ -49,6 +49,7 @@ from typing import Any
 from uuid import UUID
 
 from nce.db_utils import scoped_pg_session
+
 from nce_verticals.system_design.graph import _design_label
 from nce_verticals.system_design.read import (
     _ENTITY_CABLE,

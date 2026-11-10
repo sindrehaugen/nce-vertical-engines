@@ -25,9 +25,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 import pytest
-
 from nce.db_utils import UNMANAGED_PG_AUDITED_SITES
 from nce.events.catalogue import EVENT_CATALOGUE
+
 from nce_verticals.hr import do_check_compliance_deadlines
 
 
@@ -719,6 +719,7 @@ async def test_cron_hr_compliance_watcher_tick_skips_when_lock_held() -> None:
 def test_register_hr_compliance_subscribers_wires_outbox_handler() -> None:
     """Verify register_hr_compliance_subscribers registers ABSENCE.compliance_alert."""
     from nce.outbox_relay import OUTBOX_HANDLERS
+
     from nce_verticals.hr.compliance import (
         handle_absence_compliance_alert,
         register_hr_compliance_subscribers,

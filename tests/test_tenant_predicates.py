@@ -34,11 +34,11 @@ import uuid
 from typing import Any
 
 import asyncpg
+import nce.query_catalog as catalog_mod
 import pytest
 import pytest_asyncio
-
-import nce.query_catalog as catalog_mod
 from nce.query_catalog import CatalogManager
+
 from nce_verticals.product.mcp_handlers import do_get_product
 
 pytestmark = [pytest.mark.integration, pytest.mark.asyncio]

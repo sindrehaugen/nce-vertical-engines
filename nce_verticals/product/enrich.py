@@ -32,11 +32,10 @@ import uuid
 from typing import TYPE_CHECKING, Any
 
 import asyncpg  # type: ignore[import-untyped]
-from pydantic import BaseModel, Field
-
 from nce.autonomy.governor import governed
 from nce.providers.base import Message
 from nce.providers.factory import get_provider
+from pydantic import BaseModel, Field
 
 if TYPE_CHECKING:
     from nce.providers.base import LLMProvider

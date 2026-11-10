@@ -119,10 +119,10 @@ from typing import Any
 from uuid import UUID
 
 import asyncpg  # type: ignore[import-untyped]
-
 from nce.autonomy.governor import governed
 from nce.db_utils import scoped_pg_session
 from nce.events.bus import PostCommitAction, subscribe
+
 from nce_verticals.project.tasks import do_sync_bom_tasks
 
 log = logging.getLogger("nce_verticals.project.automation")
@@ -682,9 +682,8 @@ def _enqueue_rq_task(fn: Any, **kwargs: Any) -> None:
     """
     redis_conn = None
     try:
-        from rq import Queue  # type: ignore[import-untyped]
-
         from nce.config import cfg
+        from rq import Queue  # type: ignore[import-untyped]
 
         redis_url = getattr(cfg, "REDIS_URL", None) or "redis://localhost:6379"
         from redis import Redis  # type: ignore[import-untyped]

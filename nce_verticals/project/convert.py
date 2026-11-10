@@ -55,10 +55,10 @@ from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
 import asyncpg  # type: ignore[import-untyped]
-
 from nce.db_utils import scoped_pg_session
 from nce.entity_resolution.ownership import assert_owner
 from nce.events.emit import emit_graph_write
+
 from nce_verticals.project.baseline import _read_signed_baseline
 
 if TYPE_CHECKING:

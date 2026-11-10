@@ -22,7 +22,6 @@ from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any
 
 import asyncpg
-
 from nce.config import cfg
 
 if TYPE_CHECKING:
@@ -371,6 +370,7 @@ class DataverseIngestionWorker:
 
             if degradations:
                 from nce.db_utils import scoped_pg_session
+
                 from nce_verticals.netbox.circuits import (
                     NetBoxCircuitEscalator,
                     NetBoxCircuitsClient,

@@ -16,12 +16,12 @@ from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
 from nce import admin_state
-from nce_verticals.admin_handlers import system_design as admin_routes
 from nce.mcp_errors import McpError
 from nce.mcp_stdio_tools import TOOLS
 from nce.tool_registry import TOOL_REGISTRY
+
+from nce_verticals.admin_handlers import system_design as admin_routes
 from nce_verticals.system_design.capability_sync import (
     _extract_capabilities_from_etim,
     do_sync_device_capabilities,
