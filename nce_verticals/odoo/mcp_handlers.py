@@ -133,9 +133,7 @@ async def handle_odoo_llm_crosstalk(engine: Any, arguments: dict[str, Any]) -> s
     """
     Full Bidirectional LLM Cross-Talker for Odoo:
     - `action="prompt"`: Send a natural-language `@nce` prompt for an Odoo record/channel,
-      cross-analyzing Odoo, Salesforce, and Lighting/DALI-2, and post the response to Odoo Chatter.
-    - `action="bridge_relux"`: Convert a Relux / Glamox DALI-2 lighting project directly into
-      a priced Odoo `sale.order` + Chatter engineering report.
+      cross-analyzing Odoo and Salesforce, and post the response to Odoo Chatter.
     - `action="bridge_salesforce"`: Synchronize a Salesforce Account & Opportunity into Odoo
       `res.partner` and `crm.lead`.
     """
@@ -146,19 +144,10 @@ async def handle_odoo_llm_crosstalk(engine: Any, arguments: dict[str, Any]) -> s
     action = str(arguments.get("action") or "prompt").strip().lower()
     ct = OdooLLMCrossTalker()
     try:
-        if action == "bridge_relux":
-            project = arguments.get("project") or arguments.get("relux_project") or {}
-            res = await ct.bridge_relux_lighting_to_odoo(
-                project,
-                partner_id=int(arguments.get("partner_id", 102)),
-                partner_name=str(arguments.get("partner_name", "Equinor Energy AS")),
-            )
-            return json.dumps(res, default=str)
-
         if action == "bridge_salesforce":
             res = await ct.bridge_salesforce_to_odoo(
-                sf_account_name=str(arguments.get("sf_account_name") or "Glamox Marine Client AS"),
-                sf_opportunity_name=str(arguments.get("sf_opportunity_name") or "Offshore DALI-2 Retrofit"),
+                sf_account_name=str(arguments.get("sf_account_name") or "Nordic Systems AS"),
+                sf_opportunity_name=str(arguments.get("sf_opportunity_name") or "Enterprise Server Infrastructure"),
                 expected_revenue=float(arguments.get("expected_revenue", 850000.0)),
             )
             return json.dumps(res, default=str)

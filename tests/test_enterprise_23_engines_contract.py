@@ -1,7 +1,7 @@
 """tests/test_enterprise_23_engines_contract.py
 ===================================================
 Comprehensive enterprise contract tests for NCE Vertical Engines:
-1. All 23 Engine Descriptors Contract (registry taxonomy, metadata, schema deps).
+1. All 22 Engine Descriptors Contract (registry taxonomy, metadata, schema deps).
 2. Entra ID Cryptographic JWKS RS256 Verification (P0-SEC-001).
 3. Sales/Project Live Bridge Opt-In Seams & Admin Handlers (P1-VERT-001).
 4. Migration 082 WORM & Composite Indexes Contract (P1-VERT-002).
@@ -42,13 +42,13 @@ os.environ.setdefault(
 )
 
 # ===========================================================================
-# Area 1: All 23 Engine Descriptors Contract
+# Area 1: All 22 Engine Descriptors Contract
 # ===========================================================================
 
 
-def test_registry_has_exact_23_engines_and_valid_descriptors():
-    """Verify ENGINE_REGISTRY contains exactly 23 engines with valid descriptors."""
-    assert len(ENGINE_REGISTRY) == 23
+def test_registry_has_exact_22_engines_and_valid_descriptors():
+    """Verify ENGINE_REGISTRY contains exactly 22 engines with valid descriptors."""
+    assert len(ENGINE_REGISTRY) == 22
 
     for slug, engine_meta in ENGINE_REGISTRY.items():
         assert isinstance(slug, str) and slug.strip()
@@ -70,10 +70,10 @@ def test_registry_has_exact_23_engines_and_valid_descriptors():
 
     plugin = VerticalEnginesPlugin(enabled_engines="all")
     descriptors = plugin.get_engine_descriptors()
-    assert len(descriptors) == 23
+    assert len(descriptors) == 22
 
     slugs = {d["slug"] for d in descriptors}
-    assert len(slugs) == 23
+    assert len(slugs) == 22
     assert slugs == set(ENGINE_REGISTRY.keys())
 
     for d in descriptors:

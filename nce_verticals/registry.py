@@ -85,7 +85,7 @@ ENGINE_ALIASES: dict[str, str] = {
     "diag": "diagnostics",
 }
 
-# 23 Canonical Engines
+# 22 Canonical Engines
 ENGINE_REGISTRY: dict[str, EngineSpec] = {
     "product": EngineSpec(
         slug="product",
@@ -352,18 +352,6 @@ ENGINE_REGISTRY: dict[str, EngineSpec] = {
         aliases=(),
         tool_count=10,
         route_count=7,
-    ),
-    "lighting_dali": EngineSpec(
-        slug="lighting_dali",
-        title="Relux/DIALux Lighting & IEC 62386 DALI-2 Engine",
-        package="nce_verticals.lighting_dali",
-        plugin_class="LightingDaliPlugin",
-        types=frozenset({"infra-iot"}),
-        categories=frozenset({"operations-delivery", "av-it-integrator", "field-service-ops"}),
-        requires_schemas=(),
-        aliases=(),
-        tool_count=9,
-        route_count=8,
     ),
 }
 

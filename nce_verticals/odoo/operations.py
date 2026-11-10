@@ -96,8 +96,8 @@ class OdooOperations:
         self._store["res.partner"] = {
             101: {
                 "id": 101,
-                "name": "Glamox Nordic AS",
-                "email": "ordre@glamox.com",
+                "name": "Nordic Systems AS",
+                "email": "ordre@nordicsystems.no",
                 "phone": "+47 22 02 11 00",
                 "is_company": True,
                 "customer_rank": 5,
@@ -122,7 +122,7 @@ class OdooOperations:
         self._store["crm.lead"] = {
             201: {
                 "id": 201,
-                "name": "Oslo Hovedkontor DALI-2 & AV Modernisering",
+                "name": "Oslo Hovedkontor AV & IT Modernisering",
                 "partner_name": "Equinor Energy AS",
                 "email_from": "facilities@equinor.com",
                 "expected_revenue": 1450000.0,
@@ -163,7 +163,7 @@ class OdooOperations:
             302: {
                 "id": 302,
                 "name": "SO00302",
-                "partner_id": [101, "Glamox Nordic AS"],
+                "partner_id": [101, "Nordic Systems AS"],
                 "state": "draft",
                 "amount_untaxed": 120000.0,
                 "amount_total": 150000.0,
@@ -176,8 +176,8 @@ class OdooOperations:
         self._store["stock.quant"] = {
             401: {
                 "id": 401,
-                "product_id": [501, "Glamox C95-R 600x600 4000 DALI 840 MP"],
-                "product_code": "GLX-C95R-4000-DA2",
+                "product_id": [501, "Nordic Enterprise Server Rack 42U"],
+                "product_code": "NESR-42U-01",
                 "location_name": "WH/Stock",
                 "quantity": 18.0,
                 "reserved_quantity": 14.0,
@@ -189,8 +189,8 @@ class OdooOperations:
             },
             402: {
                 "id": 402,
-                "product_id": [502, "Glamox Ethernet2DALI 3-Line Controller"],
-                "product_code": "GLAMOX-ETH2DALI-3",
+                "product_id": [502, "Industrial Sensor Gateway Controller"],
+                "product_code": "IND-GW-CTRL-3",
                 "location_name": "WH/Stock",
                 "quantity": 2.0,
                 "reserved_quantity": 2.0,
@@ -205,7 +205,7 @@ class OdooOperations:
             601: {
                 "id": 601,
                 "name": "WH/MO/00601",
-                "product_id": [510, "Pre-Wired DALI-2 Switchboard Cabinet EN 61439"],
+                "product_id": [510, "Pre-Wired Industrial Switchboard Cabinet EN 61439"],
                 "product_qty": 3.0,
                 "state": "confirmed",
                 "origin": "SO00301",
@@ -233,7 +233,7 @@ class OdooOperations:
                 "id": 702,
                 "name": "BILL/2026/00702",
                 "move_type": "in_invoice",
-                "partner_id": [101, "Glamox Nordic AS"],
+                "partner_id": [101, "Nordic Systems AS"],
                 "state": "posted",
                 "payment_state": "not_paid",
                 "amount_untaxed": 95000.0,
@@ -248,7 +248,7 @@ class OdooOperations:
         self._store["project.project"] = {
             801: {
                 "id": 801,
-                "name": "PRJ-801 Equinor Stavanger AV & DALI-2",
+                "name": "PRJ-801 Equinor Stavanger AV & IT Infrastructure",
                 "partner_id": [102, "Equinor Energy AS"],
                 "stage_name": "In Progress",
                 "allocated_hours": 320.0,
@@ -260,7 +260,7 @@ class OdooOperations:
         self._store["helpdesk.ticket"] = {
             901: {
                 "id": 901,
-                "name": "DALI-2 Line 2 Bus Drop Warning in Room 204",
+                "name": "Network Switchboard Voltage Warning in Room 204",
                 "partner_id": [102, "Equinor Energy AS"],
                 "stage_name": "In Progress",
                 "priority": "3",

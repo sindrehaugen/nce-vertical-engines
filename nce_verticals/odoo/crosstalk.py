@@ -10,10 +10,6 @@ Makes Odoo a conversational & autonomous participant across the entire NCE ecosy
    - Executes autonomous analysis, workflow transitions, or cross-engine synchronization,
      and posts rich formatted responses directly back into the Odoo record's Chatter thread.
 2. Cross-Engine Bridges:
-   - `bridge_relux_lighting_to_odoo()`: Takes an analyzed Relux / Glamox DALI-2 lighting project
-     and automatically generates an Odoo `sale.order` (or `mrp.bom`) with decoded Glamox luminaires
-     and `Glamox Ethernet2DALI` controllers, posting the EN 12464-1 / IEC 62386 compliance summary
-     into the Odoo Sale Order Chatter!
    - `bridge_salesforce_to_odoo()`: Synchronizes a Salesforce `Account` / `Opportunity` directly
      into an Odoo `res.partner` + `crm.lead` / `sale.order` (and vice versa).
 """
@@ -23,8 +19,6 @@ from __future__ import annotations
 import time
 from typing import Any
 
-from nce_verticals.lighting_dali.analyser import analyze_lighting_project
-from nce_verticals.lighting_dali.parsers import parse_relux_or_dialux_project
 from nce_verticals.odoo.intelligence import OdooSuperIntelligence
 from nce_verticals.odoo.operations import OdooOperations, get_global_odoo_ops
 from nce_verticals.salesforce.operations import get_global_salesforce_ops
@@ -33,7 +27,7 @@ from nce_verticals.salesforce.operations import get_global_salesforce_ops
 class OdooLLMCrossTalker:
     """
     Bidirectional LLM Cross-Talker connecting Odoo Chatter/Discuss, Claude/MCP,
-    Salesforce, and the Relux/DALI-2/Glamox Lighting Design Engine.
+    Salesforce, and the NCE Graph.
     """
 
     def __init__(self, ops: OdooOperations | None = None) -> None:
@@ -78,7 +72,7 @@ class OdooLLMCrossTalker:
     ) -> dict[str, Any]:
         """
         Process a natural-language Cross-Talk message from Odoo Chatter/Discuss or an LLM,
-        gather live intelligence across Odoo, Salesforce, and Lighting/DALI-2, execute requested
+        gather live intelligence across Odoo and Salesforce, execute requested
         actions, and post the reply back into Odoo Chatter.
         """
         clean_prompt = str(prompt or "").strip()
@@ -93,8 +87,8 @@ class OdooLLMCrossTalker:
             structured_data["finance_and_margins"] = fin
             actions_executed.append("analyze_margins_and_invoices")
 
-        # 2. Check if prompt asks for stock / inventory / MRP / Glamox replenishment
-        if any(k in low for k in ("lager", "stock", "inventory", "mrp", "innkjøp", "reorder", "glamox")):
+        # 2. Check if prompt asks for stock / inventory / MRP replenishment
+        if any(k in low for k in ("lager", "stock", "inventory", "mrp", "innkjøp", "reorder")):
             inv = await self.intel.forecast_inventory_and_mrp()
             structured_data["inventory_and_mrp"] = inv
             actions_executed.append("forecast_inventory_and_mrp")
@@ -158,105 +152,6 @@ class OdooLLMCrossTalker:
             "chatter_message": chatter_post,
             "crosstalk_log": log_entry,
             "intelligence_data": structured_data,
-        }
-
-    async def bridge_relux_lighting_to_odoo(
-        self,
-        relux_project: dict[str, Any] | str,
-        *,
-        partner_id: int = 102,
-        partner_name: str = "Equinor Energy AS",
-        luminaire_unit_price_nok: float = 2650.0,
-        controller_unit_price_nok: float = 8900.0,
-    ) -> dict[str, Any]:
-        """
-        Cross-Engine Bridge (Relux / Glamox DALI-2 -> Odoo ERP):
-        1. Parses & analyzes the Relux / DIALux lighting project (EN 12464-1 + IEC 62386 DALI-2).
-        2. Creates a priced Odoo `sale.order` and `sale.order.line` items for all Glamox luminaires
-           and `Glamox Ethernet2DALI` controllers.
-        3. Posts the full engineering compliance certificate into the Odoo Sale Order Chatter!
-        """
-        parsed = parse_relux_or_dialux_project(relux_project)
-        report = analyze_lighting_project(parsed)
-        summary = report["summary"]
-
-        lum_qty = int(summary["total_luminaires"])
-        ctrl_qty = int(summary["glamox_eth2dali_controllers"])
-        untaxed = round((lum_qty * luminaire_unit_price_nok) + (ctrl_qty * controller_unit_price_nok), 2)
-        total_inc_vat = round(untaxed * 1.25, 2)
-        est_margin = round(untaxed * 0.32, 2)
-
-        order_id = await self.ops.execute_kw(
-            "sale.order",
-            "create",
-            args=[
-                {
-                    "partner_id": [partner_id, partner_name],
-                    "state": "draft",
-                    "origin": f"RELUX:{report['project_name']}",
-                    "amount_untaxed": untaxed,
-                    "amount_total": total_inc_vat,
-                    "margin": est_margin,
-                    "margin_percent": 0.32,
-                }
-            ],
-        )
-
-        line1_id = await self.ops.execute_kw(
-            "sale.order.line",
-            "create",
-            args=[
-                {
-                    "order_id": order_id,
-                    "name": f"Glamox DALI-2 Luminaires ({report['project_name']})",
-                    "product_uom_qty": lum_qty,
-                    "price_unit": luminaire_unit_price_nok,
-                    "price_subtotal": round(lum_qty * luminaire_unit_price_nok, 2),
-                }
-            ],
-        )
-        line2_id = await self.ops.execute_kw(
-            "sale.order.line",
-            "create",
-            args=[
-                {
-                    "order_id": order_id,
-                    "name": "Glamox Ethernet2DALI 3-Line Application Controller (IEC 62386-103)",
-                    "product_uom_qty": ctrl_qty,
-                    "price_unit": controller_unit_price_nok,
-                    "price_subtotal": round(ctrl_qty * controller_unit_price_nok, 2),
-                }
-            ],
-        )
-
-        chatter_note = (
-            f"Relux & Glamox DALI-2 Engineering Bridge synced project '{report['project_name']}': "
-            f"{lum_qty} luminaires across {summary['rooms_count']} rooms, "
-            f"{summary['total_dali2_subnets']} DALI-2 subnets, "
-            f"{ctrl_qty}x Glamox Ethernet2DALI controllers. "
-            f"EN 12464-1 & IEC 62386 Compliance: {'PASS' if report['compliance_passed'] else 'REVIEW REQUIRED'}."
-        )
-        await self.ops.post_chatter_message("sale.order", int(order_id), chatter_note)
-
-        self._record_crosstalk(
-            channel_or_model="sale.order",
-            record_id=int(order_id),
-            direction="CROSS_ENGINE_BRIDGE",
-            author="lighting_dali_engine",
-            prompt_or_body=f"Bridge Relux project '{report['project_name']}' to Odoo Sale Order",
-            target_engines=["lighting_dali", "odoo"],
-            response_summary=chatter_note,
-            actions_executed=["sale.order.create", "sale.order.line.create", "mail.message.post"],
-        )
-
-        return {
-            "status": "ok",
-            "odoo_sale_order_id": order_id,
-            "odoo_order_line_ids": [line1_id, line2_id],
-            "amount_untaxed_nok": untaxed,
-            "amount_total_nok": total_inc_vat,
-            "lighting_report_summary": summary,
-            "compliance_passed": report["compliance_passed"],
         }
 
     async def bridge_salesforce_to_odoo(

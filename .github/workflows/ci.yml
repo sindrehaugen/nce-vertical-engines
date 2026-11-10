@@ -103,18 +103,18 @@ jobs:
           NCE_ENGINE_CATEGORY_FILTER=av-it-integrator /tmp/venv_cat/bin/python -c "
           from nce_verticals.plugin import VerticalEnginesPlugin
           p = VerticalEnginesPlugin()
-          assert len(p.sub_plugins) == 12, f'Expected 12 engines, got {len(p.sub_plugins)}'
+          assert len(p.sub_plugins) == 11, f'Expected 11 engines, got {len(p.sub_plugins)}'
           "
           NCE_ENGINE_TYPE_FILTER=infra-iot NCE_ENGINE_CATEGORY_FILTER=av-it-integrator /tmp/venv_cat/bin/python -c "
           from nce_verticals.plugin import VerticalEnginesPlugin
           p = VerticalEnginesPlugin()
           names = sorted(sp.name for sp in p.sub_plugins)
-          assert names == ['assets', 'lighting_dali', 'netbox'], f'Unexpected: {names}'
+          assert names == ['assets', 'netbox'], f'Unexpected: {names}'
           "
           /tmp/venv_cat/bin/pytest "$GITHUB_WORKSPACE/tests/test_registry_filters.py" -q
 
   wheel-full-suite:
-    name: Wheel Verify (All 23 Engines, Ruff, Mypy & Unit Suite)
+    name: Wheel Verify (All 22 Engines, Ruff, Mypy & Unit Suite)
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -132,8 +132,8 @@ jobs:
 
       - name: Ruff Format & Lint
         run: |
-          ruff format --check nce_verticals/registry.py nce_verticals/plugin.py nce_verticals/cli.py nce_verticals/security/ nce_verticals/servers/ tests/test_registry_filters.py tests/unit/test_entra_salesforce_lighting_dali.py tests/test_enterprise_23_engines_contract.py
-          ruff check nce_verticals/ tests/test_registry_filters.py tests/unit/test_entra_salesforce_lighting_dali.py tests/test_enterprise_23_engines_contract.py
+          ruff format --check nce_verticals/registry.py nce_verticals/plugin.py nce_verticals/cli.py nce_verticals/security/ nce_verticals/servers/ tests/test_registry_filters.py tests/unit/test_entra_salesforce.py tests/test_enterprise_23_engines_contract.py
+          ruff check nce_verticals/ tests/test_registry_filters.py tests/unit/test_entra_salesforce.py tests/test_enterprise_23_engines_contract.py
 
       - name: Mypy Typecheck
         run: |
@@ -141,7 +141,7 @@ jobs:
 
       - name: Run Modular & Vertical Unit Tests
         run: |
-          pytest tests/test_registry_filters.py tests/unit/test_entra_salesforce_lighting_dali.py tests/test_enterprise_23_engines_contract.py -q
+          pytest tests/test_registry_filters.py tests/unit/test_entra_salesforce.py tests/test_enterprise_23_engines_contract.py -q
 
       - name: Build & Verify Full Wheel in Clean Venv (/tmp/venv_all)
         run: |
@@ -154,6 +154,6 @@ jobs:
           NCE_ENABLED_ENGINES=all /tmp/venv_all/bin/python -c "
           from nce_verticals.plugin import VerticalEnginesPlugin
           p = VerticalEnginesPlugin()
-          assert len(p.sub_plugins) >= 23, f'Expected >=23 plugins, got {len(p.sub_plugins)}'
+          assert len(p.sub_plugins) >= 22, f'Expected >=22 plugins, got {len(p.sub_plugins)}'
           "
           /tmp/venv_all/bin/pytest "$GITHUB_WORKSPACE/tests/test_registry_filters.py" -q

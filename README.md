@@ -1,6 +1,6 @@
 # NCE Vertical Engines
 
-> 23 operational business engines, enterprise IT/ERP integrations, and domain modules built on the Neuro-Cognitive Engine (NCE) substrate.
+> 22 operational business engines, enterprise IT/ERP integrations, and domain modules built on the Neuro-Cognitive Engine (NCE) substrate.
 
 <p>
   <img alt="version" src="https://img.shields.io/badge/version-3.1.0-blue">
@@ -16,7 +16,7 @@
 ## Table of Contents
 
 - [Architecture & System Flow](#architecture--system-flow)
-- [The 23-Engine Catalog](#the-23-engine-catalog)
+- [The 22-Engine Catalog](#the-22-engine-catalog)
 - [Dual-Axis Classification & Filters](#dual-axis-classification--filters)
   - [Axis 1 — Type Filter (`types`)](#axis-1--type-filter-types)
   - [Axis 2 — Business Category Filter (`categories`)](#axis-2--business-category-filter-categories)
@@ -43,7 +43,6 @@ flowchart TB
     WEB[Customer Web Portal]
     ERP[ERP & CRM · Dynamics 365 · Salesforce · Odoo]
     NET[Network & IT Infrastructure · NetBox]
-    LIGHT[Lighting & Automation · DALI-2 · Glamox]
     FIELD[Field Tech Mobile Clients]
   end
 
@@ -69,7 +68,6 @@ flowchart TB
       FT[Field Tech & Work Orders]
       RES[Staff & Resource Allocator]
       SUPP[Support & SLA Clocks]
-      DALI[Lighting DALI-2 & Glamox]
     end
 
     subgraph Strategic [Management & Integrations]
@@ -109,7 +107,7 @@ flowchart TB
 
 ---
 
-## The 23-Engine Catalog
+## The 22-Engine Catalog
 
 Each engine provides domain-specific data models, confirm-first autonomy boundaries, MCP tools, and REST handlers:
 
@@ -137,11 +135,10 @@ Each engine provides domain-specific data models, confirm-first autonomy boundar
 | 20 | **Diagnostics Profiler** | `diagnostics` | `observability`, `infra-iot` | `service-support`, `av-it-integrator` | `diagnostics` | `004_diagnostics` |
 | 21 | **Odoo ERP Connector** | `odoo` | `erp-crm` | `enterprise-erp`, `commercial`, `finance-governance` | `odoo` | `081_odoo_vertical_engine` |
 | 22 | **Salesforce CRM** | `salesforce` | `erp-crm` | `commercial`, `enterprise-erp` | `salesforce`, `entra_id` | `075_entra_id_security_gate`, `076_salesforce_vertical_engine` |
-| 23 | **Lighting DALI-2 & Glamox** | `lighting_dali` | `infra-iot` | `av-it-integrator`, `field-service-ops` | `lighting_dali` | `077_lighting_dali_vertical_engine` |
 
 > [!NOTE]
 > **Installable Vertical Engines vs. Shared-Core Support Packages:**
-> The **23 installable vertical engines** listed above are dynamically controlled, filtered, and activated via `NCE_ENABLED_ENGINES`, `NCE_ENGINE_TYPE_FILTER`, and `NCE_ENGINE_CATEGORY_FILTER`. In contrast, the **shared-core support packages** (`documents`, `geodata`, `legal_entities`, `notifications`, `sites`, `shared`, `security`, `servers`) represent foundational shared infrastructure and are bundled automatically inside the `nce_verticals` distribution wheel, providing universal cross-engine capabilities (such as entity resolution, C3 external-scope confinement, document attachment registries, and Brønnøysundregistrene/Kartverket geocoding) across all deployments regardless of which vertical engines are active.
+> The **22 installable vertical engines** listed above are dynamically controlled, filtered, and activated via `NCE_ENABLED_ENGINES`, `NCE_ENGINE_TYPE_FILTER`, and `NCE_ENGINE_CATEGORY_FILTER`. In contrast, the **shared-core support packages** (`documents`, `geodata`, `legal_entities`, `notifications`, `sites`, `shared`, `security`, `servers`) represent foundational shared infrastructure and are bundled automatically inside the `nce_verticals` distribution wheel, providing universal cross-engine capabilities (such as entity resolution, C3 external-scope confinement, document attachment registries, and Brønnøysundregistrene/Kartverket geocoding) across all deployments regardless of which vertical engines are active.
 
 ---
 
@@ -157,7 +154,7 @@ Filters engines based on execution runtime, connectivity mode, and architecture:
 |:---|:---|:---|:---|
 | `core-domain` | Core Domain Services | Core transactional and computational business engines that operate directly against NCE's Quad-DB substrate and knowledge graph. | `product`, `procurement`, `agreements`, `vendors`, `sales`, `system_design`, `project`, `economy`, `inventory`, `assets`, `support`, `resources`, `field_tech`, `hr`, `marketing`, `business_insights` |
 | `erp-crm` | ERP & CRM Connectors | Bidirectional enterprise sync engines connecting external systems-of-record into NCE graph and change-tracking ledgers. | `dynamics365`, `salesforce`, `odoo` |
-| `infra-iot` | Infrastructure & IoT | Network topology, hardware discovery, sensors, DALI-2 lighting protocols, and physical equipment controllers. | `netbox`, `lighting_dali`, `assets`, `system_design`, `diagnostics` |
+| `infra-iot` | Infrastructure & IoT | Network topology, hardware discovery, sensors, and physical equipment controllers. | `netbox`, `assets`, `system_design`, `diagnostics` |
 | `observability` | Observability & Diagnostics | Telemetry digestion, log anomaly detection, cross-engine risk radar, and executive analytics. | `diagnostics`, `business_insights`, `netbox` |
 | `portal` | Customer & Partner Portals | Dedicated external-facing unprivileged ASGI application shells executing under strict C3 principal confinement. | `customer_portal` |
 
@@ -171,9 +168,9 @@ Filters engines based on organizational departments, operational workflows, and 
 | `operations-delivery` | Operations & Delivery | Stage-gate project execution (G0–G6), multi-warehouse inventory algebra, resource capacity, and ISO competency matrices. | `procurement`, `vendors`, `project`, `inventory`, `assets`, `resources`, `field_tech`, `hr`, `netbox` |
 | `finance-governance` | Finance & Governance | NGAAP accounting cascades, PEPPOL e-invoicing, volume rebates (kickbacks), balance verification triggers, and contract audits. | `agreements`, `economy`, `hr`, `business_insights`, `odoo` |
 | `service-support` | Service & Support | Multi-tier ticketing, automated SLA countdown clocks, on-call rotation, hardware health profiling, and customer self-service. | `assets`, `support`, `customer_portal`, `diagnostics`, `dynamics365` |
-| `av-it-integrator` | AV/IT Integrator Specialist | Specialized AV/IT topology design, Functional Location trees, NetBox DCIM sync, DALI-2 lighting systems, and distributor BOM matching. | `product`, `system_design`, `inventory`, `assets`, `netbox`, `diagnostics`, `lighting_dali` |
+| `av-it-integrator` | AV/IT Integrator Specialist | Specialized AV/IT topology design, Functional Location trees, NetBox DCIM sync, and distributor BOM matching. | `product`, `system_design`, `inventory`, `assets`, `netbox`, `diagnostics` |
 | `enterprise-erp` | Enterprise ERP & CRM | Large-scale external enterprise platforms managing master accounts, contacts, field services, and ledger sync. | `dynamics365`, `salesforce`, `odoo` |
-| `field-service-ops` | Field Service Operations | Mobile work orders, offline synchronization, technician checklists, lightning/electrical commissioning, and site logistics. | `resources`, `field_tech`, `lighting_dali` |
+| `field-service-ops` | Field Service Operations | Mobile work orders, offline synchronization, technician checklists, and site logistics. | `resources`, `field_tech` |
 
 ---
 
@@ -213,8 +210,8 @@ export NCE_ENGINE_CATEGORY_FILTER=av-it-integrator
 export NCE_ENABLED_ENGINES="type:infra-iot+category:av-it-integrator"
 ```
 
-### Mode 5: All 23 Engines (Full Suite)
-Install and activate the entire 23-engine suite:
+### Mode 5: All 22 Engines (Full Suite)
+Install and activate the entire 22-engine suite:
 ```bash
 pip install "nce-vertical-engines[all]"
 export NCE_ENABLED_ENGINES=all
@@ -229,7 +226,7 @@ export NCE_ENABLED_ENGINES=all
 `nce-vertical-engines` provides a unified CLI tool for inspecting and managing vertical engines:
 
 ```bash
-# List all 23 available engines
+# List all 22 available engines
 nce-verticals list
 
 # Filter engines by technical system type
@@ -257,14 +254,12 @@ Dedicated ASGI server entrypoints are packaged directly in `[project.scripts]` f
 | `nce-portal-server` | `nce_verticals.servers.portal:app` | `8010` | Customer-facing self-service portal running under unprivileged C3 principal confinement. |
 | `nce-odoo-server` | `nce_verticals.servers.odoo:app` | `8011` | Odoo XML-RPC/JSON-RPC integration and cross-engine LLM crosstalk server. |
 | `nce-salesforce-server` | `nce_verticals.servers.salesforce:app` | `8012` | Salesforce CRM and Bulk API 2.0 integration server gated by Microsoft Entra ID. |
-| `nce-lighting-dali-server` | `nce_verticals.servers.lighting_dali:app` | `8013` | Relux/DIALux lighting design parser and IEC 62386 DALI-2 line controller. |
 
 To run any standalone server directly:
 ```bash
 uvicorn nce_verticals.servers.portal:app --host 0.0.0.0 --port 8010
 uvicorn nce_verticals.servers.odoo:app --host 0.0.0.0 --port 8011
 uvicorn nce_verticals.servers.salesforce:app --host 0.0.0.0 --port 8012
-uvicorn nce_verticals.servers.lighting_dali:app --host 0.0.0.0 --port 8013
 ```
 
 ---
@@ -297,7 +292,7 @@ Set `NCE_ENABLE_WORKPLACE_TELEMETRY=true` only with explicit organizational opt-
 
 ## Shared-Core Foundation (C1–C9)
 
-All 23 vertical engines build upon NCE's enterprise governance framework:
+All 22 vertical engines build upon NCE's enterprise governance framework:
 
 - **C1: Entity Resolution** — Cross-source entity deduplication, survivorship rules, and merge-review queues preventing duplicate accounts and devices.
 - **C2: Autonomy Governance** — Enforces `@governed` confirm-first gates, value/volume thresholds, and an instantaneous kill-switch for automated operations.
@@ -314,7 +309,7 @@ The standalone engines and customer portal can be deployed alongside NCE Core vi
 
 ```bash
 # Launch portal and standalone servers
-docker compose -f docker-compose.yml -f docker-compose.verticals.yml up -d portal odoo salesforce lighting-dali
+docker compose -f docker-compose.yml -f docker-compose.verticals.yml up -d portal odoo salesforce
 ```
 
 Environment variables passed to the services:

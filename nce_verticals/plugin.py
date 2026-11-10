@@ -4196,104 +4196,6 @@ class SalesforcePlugin:
         return mdir if mdir.is_dir() else None
 
 
-class LightingDaliPlugin:
-    """Relux / DIALux Light Design & IEC 62386 DALI-2 / Glamox System Design Engine Plugin."""
-
-    plugin_id: str = "lighting_dali"
-
-    def register_tools(self, registry: Any) -> None:
-        from nce_verticals.lighting_dali import mcp_handlers as ld_mcp_handlers
-
-        tools = {
-            "lighting_parse_photometric": ToolSpec(
-                _h(ld_mcp_handlers, "handle_lighting_parse_photometric"),
-                cacheable=True,
-                admin_only=False,
-                mutation=False,
-                engine="lighting_dali",
-            ),
-            "lighting_analyze_relux_project": ToolSpec(
-                _h(ld_mcp_handlers, "handle_lighting_analyze_relux_project"),
-                cacheable=False,
-                admin_only=False,
-                mutation=True,
-                engine="lighting_dali",
-            ),
-            "lighting_analyze_room": ToolSpec(
-                _h(ld_mcp_handlers, "handle_lighting_analyze_room"),
-                cacheable=True,
-                admin_only=False,
-                mutation=False,
-                engine="lighting_dali",
-            ),
-            "dali2_analyze_bus": ToolSpec(
-                _h(ld_mcp_handlers, "handle_dali2_analyze_bus"),
-                cacheable=True,
-                admin_only=False,
-                mutation=False,
-                engine="lighting_dali",
-            ),
-            "glamox_decode_and_recommend": ToolSpec(
-                _h(ld_mcp_handlers, "handle_glamox_decode_and_recommend"),
-                cacheable=True,
-                admin_only=False,
-                mutation=False,
-                engine="lighting_dali",
-            ),
-            "glamox_catalog_list": ToolSpec(
-                _h(ld_mcp_handlers, "handle_glamox_catalog_list"),
-                cacheable=True,
-                admin_only=False,
-                mutation=False,
-                engine="lighting_dali",
-            ),
-        }
-        for k, v in tools.items():
-            registry[k] = v
-
-    def register_routes(self, app: Any) -> None:
-        from nce_verticals.admin_handlers import lighting_dali as ld_handlers
-
-        routes = [
-            Route(
-                "/api/admin/lighting-dali/catalog",
-                endpoint=ld_handlers.api_admin_lighting_catalog,
-                methods=["GET"],
-            ),
-            Route(
-                "/api/admin/lighting-dali/analyze-project",
-                endpoint=ld_handlers.api_admin_lighting_analyze_project,
-                methods=["POST"],
-            ),
-            Route(
-                "/api/admin/lighting-dali/analyze-bus",
-                endpoint=ld_handlers.api_admin_lighting_analyze_dali_bus,
-                methods=["POST"],
-            ),
-            Route(
-                "/api/admin/lighting-dali/parse-photometric",
-                endpoint=ld_handlers.api_admin_lighting_parse_photometric,
-                methods=["POST"],
-            ),
-            Route(
-                "/api/admin/lighting-dali/decode-glamox",
-                endpoint=ld_handlers.api_admin_lighting_decode_glamox,
-                methods=["POST"],
-            ),
-        ]
-        _mount_routes(app, routes)
-
-    def register_workers(self, worker_registry: Any) -> None:
-        pass
-
-    def register_cognitive_hooks(self, cognitive_engine: Any) -> None:
-        pass
-
-    def get_migration_dir(self) -> Path | None:
-        mdir = Path(__file__).parent / "migrations"
-        return mdir if mdir.is_dir() else None
-
-
 class OdooPlugin:
     """Standalone & Integrated Super-Intelligent Odoo Vertical Engine + LLM Cross-Talker Plugin."""
 
@@ -4330,7 +4232,7 @@ class OdooPlugin:
                 admin_only=False,
                 mutation=True,
                 engine="odoo",
-                engine_dependencies=("odoo", "salesforce", "lighting_dali"),
+                engine_dependencies=("odoo", "salesforce"),
             ),
             "odoo_sync_now": ToolSpec(
                 _h(odoo_mcp_handlers, "handle_odoo_sync_now"),
@@ -4414,7 +4316,7 @@ class OdooPlugin:
 
 
 class VerticalEnginesPlugin:
-    """Unified NCE Plugin aggregating the 23 modular vertical engines with Dual-Axis filtering."""
+    """Unified NCE Plugin aggregating the 22 modular vertical engines with Dual-Axis filtering."""
 
     plugin_id: str = "nce_verticals"
     name: str = "nce_verticals"

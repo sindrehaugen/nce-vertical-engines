@@ -33,7 +33,7 @@ Vertical engines operate under strict enterprise defense-in-depth policies:
 
 ### 1. Microsoft Entra ID (Azure AD) OIDC & JWKS Cryptographic Token Verification
 
-All standalone vertical servers (`nce-portal-server`, `nce-odoo-server`, `nce-salesforce-server`, `nce-lighting-dali-server`) and administrative entrypoints verify incoming identities via Microsoft Entra ID (`nce_verticals/security/entra_id.py`):
+All standalone vertical servers (`nce-portal-server`, `nce-odoo-server`, `nce-salesforce-server`) and administrative entrypoints verify incoming identities via Microsoft Entra ID (`nce_verticals/security/entra_id.py`):
 
 - **Asymmetric Signature Verification:** Tokens are verified against Microsoft Entra OpenID Connect discovery JWKS endpoints (`https://login.microsoftonline.com/{tenant_id}/discovery/v2.0/keys`).
 - **Cryptographic Algorithms:** Only `RS256` and `ES256` asymmetric algorithms are permitted (`ALLOWED_JWT_ALGORITHMS`). Symmetric algorithms (e.g. `HS256`) and unencrypted tokens are strictly rejected.

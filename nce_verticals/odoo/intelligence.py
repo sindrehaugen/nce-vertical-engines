@@ -174,9 +174,9 @@ class OdooSuperIntelligence:
             if idle_days >= 14:
                 nba = f"Stagnation alert ({idle_days}d idle): Schedule technical review & post follow-up in Odoo Chatter."
             elif prob >= 70.0:
-                nba = "High closing velocity: Generate final Odoo Sale Order quotation & verify Glamox/AV stock."
+                nba = "High closing velocity: Generate final Odoo Sale Order quotation & verify equipment stock."
             else:
-                nba = "Qualify technical scope and link to System Design / Relux room calculation."
+                nba = "Qualify technical scope and link to System Design room calculation."
 
             scored_leads.append(
                 {

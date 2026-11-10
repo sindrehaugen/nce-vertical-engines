@@ -10727,7 +10727,7 @@ if cfg.NCE_DIAG_ENABLED:
 TOOLS.extend(build_all_resource_tool_definitions())
 
 
-# ── Entra ID Gate, Salesforce, Relux/Glamox DALI-2 & Odoo Super-Engine Tools ──
+# ── Entra ID Gate, Salesforce & Odoo Super-Engine Tools ──
 _VERTICAL_STANDALONE_TOOLS = [
     Tool(
         name="entra_whoami",
@@ -10943,82 +10943,6 @@ _VERTICAL_STANDALONE_TOOLS = [
         inputSchema={"type": "object", "properties": {}},
     ),
     Tool(
-        name="lighting_parse_photometric",
-        description="Parse an EULUMDAT (.ldt) or IESNA LM-63 (.ies) photometric file and decode Glamox luminaire specs.",
-        inputSchema={
-            "type": "object",
-            "properties": {
-                "content": {"type": "string", "description": "Raw EULUMDAT (.ldt) or IESNA (.ies) text."},
-                "format": {"type": "string", "enum": ["ldt", "ies"]},
-            },
-            "required": ["content"],
-        },
-    ),
-    Tool(
-        name="lighting_analyze_relux_project",
-        description="Parse a Relux / DIALux project export (JSON, XML, or CSV) and run EN 12464-1 + IEC 62386 DALI-2 & Glamox Ethernet2DALI analysis.",
-        inputSchema={
-            "type": "object",
-            "properties": {
-                "project": {"type": ["object", "string"], "description": "Relux/DIALux JSON, XML, or CSV schedule."},
-            },
-        },
-    ),
-    Tool(
-        name="lighting_analyze_room",
-        description="Run EN 12464-1 indoor lighting compliance (and optional EN 1838 emergency lighting check) on a room.",
-        inputSchema={
-            "type": "object",
-            "properties": {
-                "name": {"type": "string"},
-                "zone_code": {"type": "string", "default": "OFFICE_WRITING"},
-                "length_m": {"type": "number", "default": 6.0},
-                "width_m": {"type": "number", "default": 4.0},
-                "height_m": {"type": "number", "default": 2.8},
-                "luminaires": {"type": "array", "items": {"type": "object", "additionalProperties": True}},
-                "include_emergency_en1838": {"type": "boolean", "default": False},
-            },
-        },
-    ),
-    Tool(
-        name="dali2_analyze_bus",
-        description="Validate a DALI-2 bus line per IEC 62386-101/102/103 & NEK 400 (64 ECG/64 ECD, 250mA current, <=2.0V drop, MCB inrush).",
-        inputSchema={
-            "type": "object",
-            "properties": {
-                "ecg_count": {"type": "integer", "default": 20},
-                "ecd_sensor_count": {"type": "integer", "default": 4},
-                "ecd_pushbutton_count": {"type": "integer", "default": 2},
-                "dt1_emergency_count": {"type": "integer", "default": 0},
-                "cable_length_m": {"type": "number", "default": 120.0},
-                "cable_cross_section_mm2": {"type": "number", "default": 1.5},
-                "psu_rated_current_ma": {"type": "number", "default": 240.0},
-                "topology": {"type": "string", "default": "line_or_star"},
-                "mcb_rating": {"type": "string", "default": "B16"},
-                "export_commissioning_csv": {"type": "boolean", "default": False},
-            },
-        },
-    ),
-    Tool(
-        name="glamox_decode_and_recommend",
-        description="Decode a Glamox luminaire variant code (DALI/TWH/SEN/DT1/MP) and recommend Glamox luminaires & DALI-2 controls.",
-        inputSchema={
-            "type": "object",
-            "properties": {
-                "code": {"type": "string", "description": "Glamox product code or description."},
-                "zone_code": {"type": "string", "default": "OFFICE_WRITING"},
-                "require_tunable_white": {"type": "boolean", "default": False},
-                "dali_level": {"type": "integer", "minimum": 0, "maximum": 254},
-                "cct_kelvin": {"type": "number"},
-            },
-        },
-    ),
-    Tool(
-        name="glamox_catalog_list",
-        description="List curated Glamox DALI-2 luminaires, control devices, and EN 12464-1 zones.",
-        inputSchema={"type": "object", "properties": {}},
-    ),
-    Tool(
         name="odoo_execute_kw",
         description="Execute any Odoo ORM method (search_read, read, create, write, unlink, fields_get) across any Odoo model.",
         inputSchema={
@@ -11066,15 +10990,14 @@ _VERTICAL_STANDALONE_TOOLS = [
     ),
     Tool(
         name="odoo_llm_crosstalk",
-        description="Full Bidirectional LLM Cross-Talker for Odoo (prompt, bridge_relux, bridge_salesforce).",
+        description="Full Bidirectional LLM Cross-Talker for Odoo (prompt, bridge_salesforce).",
         inputSchema={
             "type": "object",
             "properties": {
-                "action": {"type": "string", "enum": ["prompt", "bridge_relux", "bridge_salesforce"], "default": "prompt"},
+                "action": {"type": "string", "enum": ["prompt", "bridge_salesforce"], "default": "prompt"},
                 "prompt": {"type": "string"},
                 "model": {"type": "string", "default": "sale.order"},
                 "record_id": {"type": "integer", "default": 301},
-                "project": {"type": "object", "additionalProperties": True},
                 "sf_account_name": {"type": "string"},
                 "sf_opportunity_name": {"type": "string"},
                 "expected_revenue": {"type": "number"},

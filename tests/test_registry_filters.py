@@ -1,4 +1,4 @@
-"""Comprehensive unit and clean-room wheel tests for the 23-engine Dual-Axis Registry,
+"""Comprehensive unit and clean-room wheel tests for the 22-engine Dual-Axis Registry,
 Type Filter + Business Category Filter resolution, topological SQL schema dependency graph,
 lazy plugin loading, CLI, packaged config_data/migrations, and Workplace Telemetry opt-in gate.
 """
@@ -37,9 +37,9 @@ from nce_verticals.registry import (
 )
 
 
-def test_registry_has_all_23_engines_and_exact_dual_axis_taxonomy() -> None:
-    assert len(ENGINE_REGISTRY) == 23
-    expected_23 = {
+def test_registry_has_all_22_engines_and_exact_dual_axis_taxonomy() -> None:
+    assert len(ENGINE_REGISTRY) == 22
+    expected_22 = {
         "product",
         "procurement",
         "agreements",
@@ -62,9 +62,8 @@ def test_registry_has_all_23_engines_and_exact_dual_axis_taxonomy() -> None:
         "diagnostics",
         "odoo",
         "salesforce",
-        "lighting_dali",
     }
-    assert set(ENGINE_REGISTRY.keys()) == expected_23
+    assert set(ENGINE_REGISTRY.keys()) == expected_22
 
     # Axis 1: 5 Type filters
     assert VALID_TYPES == {
@@ -79,7 +78,7 @@ def test_registry_has_all_23_engines_and_exact_dual_axis_taxonomy() -> None:
     }
     assert len(type_counts["core-domain"]) == 15
     assert sorted(type_counts["erp-crm"]) == ["dynamics365", "odoo", "salesforce"]
-    assert sorted(type_counts["infra-iot"]) == ["assets", "lighting_dali", "netbox"]
+    assert sorted(type_counts["infra-iot"]) == ["assets", "netbox"]
     assert sorted(type_counts["observability"]) == ["business_insights", "diagnostics"]
     assert sorted(type_counts["portal"]) == ["customer_portal"]
 
@@ -98,12 +97,12 @@ def test_registry_has_all_23_engines_and_exact_dual_axis_taxonomy() -> None:
         for c in VALID_CATEGORIES
     }
     assert len(cat_counts["commercial"]) == 9
-    assert len(cat_counts["operations-delivery"]) == 6
+    assert len(cat_counts["operations-delivery"]) == 5
     assert len(cat_counts["finance-governance"]) == 4
     assert len(cat_counts["service-support"]) == 4
-    assert len(cat_counts["av-it-integrator"]) == 12
+    assert len(cat_counts["av-it-integrator"]) == 11
     assert len(cat_counts["enterprise-erp"]) == 8
-    assert len(cat_counts["field-service-ops"]) == 6
+    assert len(cat_counts["field-service-ops"]) == 5
 
 
 def test_legacy_slug_aliases() -> None:
@@ -164,21 +163,20 @@ def test_five_installation_and_resolution_modes(monkeypatch: pytest.MonkeyPatch)
 
     # Mode 4: Combined Type + Category Intersection
     intersect = resolve_enabled_engines(type_filter="infra-iot", category_filter="av-it-integrator")
-    assert sorted(s.slug for s in intersect) == ["assets", "lighting_dali", "netbox"]
+    assert sorted(s.slug for s in intersect) == ["assets", "netbox"]
 
     intersect_inline = resolve_enabled_engines("type:infra-iot+category:av-it-integrator")
     assert sorted(s.slug for s in intersect_inline) == [
         "assets",
-        "lighting_dali",
         "netbox",
     ]
 
     disjoint = resolve_enabled_engines(type_filter="portal", category_filter="commercial")
     assert disjoint == []
 
-    # Mode 5: All 23 engines
+    # Mode 5: All 22 engines
     all_engines = resolve_enabled_engines("all")
-    assert len(all_engines) == 23
+    assert len(all_engines) == 22
 
 
 def test_unknown_slug_type_or_category_raises_informative_value_error() -> None:
@@ -237,7 +235,6 @@ def test_lazy_plugin_instantiation_and_descriptors(
     p_intersect = VerticalEnginesPlugin(type_filter="infra-iot", category_filter="av-it-integrator")
     assert sorted(sp.name for sp in p_intersect.sub_plugins) == [
         "assets",
-        "lighting_dali",
         "netbox",
     ]
 
@@ -257,7 +254,7 @@ def test_lazy_plugin_instantiation_and_descriptors(
         assert d["enabled"] is True
 
     all_descriptors = p_erp.get_engine_descriptors()
-    assert len(all_descriptors) == 23
+    assert len(all_descriptors) == 22
     for d in all_descriptors:
         assert d["tool_count"] > 0
         assert d["route_count"] > 0
@@ -304,7 +301,6 @@ def test_cli_list_filters_and_json_output(
     data2 = json.loads(capsys.readouterr().out)
     assert sorted(item["slug"] for item in data2) == [
         "assets",
-        "lighting_dali",
         "netbox",
     ]
 
