@@ -38,6 +38,22 @@ class EngineSpec:
     requires_schemas: tuple[str, ...] = ()
     migration_prefixes: tuple[str, ...] = ()
     aliases: tuple[str, ...] = ()
+    tool_count: int = 0
+    route_count: int = 0
+    description: str | None = None
+    name: str | None = None
+    optional_dependencies: tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        deps = self.optional_dependencies or self.optional_deps
+        if self.optional_dependencies != deps:
+            object.__setattr__(self, "optional_dependencies", deps)
+        if self.optional_deps != deps:
+            object.__setattr__(self, "optional_deps", deps)
+        if self.name is None:
+            object.__setattr__(self, "name", self.title)
+        if self.description is None:
+            object.__setattr__(self, "description", self.title)
 
 
 VALID_TYPES: frozenset[str] = frozenset(
@@ -80,6 +96,8 @@ ENGINE_REGISTRY: dict[str, EngineSpec] = {
         categories=frozenset({"commercial", "av-it-integrator"}),
         requires_schemas=(),
         aliases=(),
+        tool_count=19,
+        route_count=18,
     ),
     "procurement": EngineSpec(
         slug="procurement",
@@ -90,6 +108,8 @@ ENGINE_REGISTRY: dict[str, EngineSpec] = {
         categories=frozenset({"commercial", "enterprise-erp"}),
         requires_schemas=(),
         aliases=(),
+        tool_count=18,
+        route_count=15,
     ),
     "agreements": EngineSpec(
         slug="agreements",
@@ -100,6 +120,8 @@ ENGINE_REGISTRY: dict[str, EngineSpec] = {
         categories=frozenset({"commercial", "finance-governance"}),
         requires_schemas=("sales",),
         aliases=(),
+        tool_count=14,
+        route_count=14,
     ),
     "vendors": EngineSpec(
         slug="vendors",
@@ -110,6 +132,8 @@ ENGINE_REGISTRY: dict[str, EngineSpec] = {
         categories=frozenset({"commercial"}),
         requires_schemas=(),
         aliases=(),
+        tool_count=12,
+        route_count=11,
     ),
     "sales": EngineSpec(
         slug="sales",
@@ -120,6 +144,8 @@ ENGINE_REGISTRY: dict[str, EngineSpec] = {
         categories=frozenset({"commercial", "av-it-integrator", "enterprise-erp"}),
         requires_schemas=(),
         aliases=(),
+        tool_count=28,
+        route_count=29,
     ),
     "system_design": EngineSpec(
         slug="system_design",
@@ -130,6 +156,8 @@ ENGINE_REGISTRY: dict[str, EngineSpec] = {
         categories=frozenset({"operations-delivery", "av-it-integrator"}),
         requires_schemas=(),
         aliases=(),
+        tool_count=18,
+        route_count=17,
     ),
     "project": EngineSpec(
         slug="project",
@@ -140,6 +168,8 @@ ENGINE_REGISTRY: dict[str, EngineSpec] = {
         categories=frozenset({"operations-delivery", "av-it-integrator"}),
         requires_schemas=("sales",),
         aliases=(),
+        tool_count=23,
+        route_count=27,
     ),
     "economy": EngineSpec(
         slug="economy",
@@ -150,6 +180,8 @@ ENGINE_REGISTRY: dict[str, EngineSpec] = {
         categories=frozenset({"finance-governance", "enterprise-erp"}),
         requires_schemas=("sales", "agreements"),
         aliases=(),
+        tool_count=19,
+        route_count=22,
     ),
     "inventory": EngineSpec(
         slug="inventory",
@@ -162,6 +194,8 @@ ENGINE_REGISTRY: dict[str, EngineSpec] = {
         ),
         requires_schemas=(),
         aliases=("warehouse",),
+        tool_count=15,
+        route_count=16,
     ),
     "assets": EngineSpec(
         slug="assets",
@@ -172,6 +206,8 @@ ENGINE_REGISTRY: dict[str, EngineSpec] = {
         categories=frozenset({"service-support", "av-it-integrator", "field-service-ops"}),
         requires_schemas=("product", "inventory"),
         aliases=(),
+        tool_count=12,
+        route_count=13,
     ),
     "support": EngineSpec(
         slug="support",
@@ -182,6 +218,8 @@ ENGINE_REGISTRY: dict[str, EngineSpec] = {
         categories=frozenset({"service-support", "av-it-integrator", "field-service-ops"}),
         requires_schemas=("assets",),
         aliases=(),
+        tool_count=25,
+        route_count=22,
     ),
     "resources": EngineSpec(
         slug="resources",
@@ -192,6 +230,8 @@ ENGINE_REGISTRY: dict[str, EngineSpec] = {
         categories=frozenset({"operations-delivery", "field-service-ops"}),
         requires_schemas=(),
         aliases=("staff",),
+        tool_count=16,
+        route_count=19,
     ),
     "field_tech": EngineSpec(
         slug="field_tech",
@@ -202,6 +242,8 @@ ENGINE_REGISTRY: dict[str, EngineSpec] = {
         categories=frozenset({"operations-delivery", "av-it-integrator", "field-service-ops"}),
         requires_schemas=(),
         aliases=(),
+        tool_count=14,
+        route_count=11,
     ),
     "hr": EngineSpec(
         slug="hr",
@@ -212,6 +254,8 @@ ENGINE_REGISTRY: dict[str, EngineSpec] = {
         categories=frozenset({"finance-governance", "enterprise-erp"}),
         requires_schemas=(),
         aliases=(),
+        tool_count=12,
+        route_count=14,
     ),
     "marketing": EngineSpec(
         slug="marketing",
@@ -222,6 +266,8 @@ ENGINE_REGISTRY: dict[str, EngineSpec] = {
         categories=frozenset({"commercial"}),
         requires_schemas=(),
         aliases=(),
+        tool_count=12,
+        route_count=14,
     ),
     "business_insights": EngineSpec(
         slug="business_insights",
@@ -232,6 +278,8 @@ ENGINE_REGISTRY: dict[str, EngineSpec] = {
         categories=frozenset({"finance-governance"}),
         requires_schemas=(),
         aliases=(),
+        tool_count=6,
+        route_count=5,
     ),
     "customer_portal": EngineSpec(
         slug="customer_portal",
@@ -242,6 +290,8 @@ ENGINE_REGISTRY: dict[str, EngineSpec] = {
         categories=frozenset({"service-support", "av-it-integrator"}),
         requires_schemas=(),
         aliases=(),
+        tool_count=6,
+        route_count=3,
     ),
     "netbox": EngineSpec(
         slug="netbox",
@@ -252,6 +302,8 @@ ENGINE_REGISTRY: dict[str, EngineSpec] = {
         categories=frozenset({"av-it-integrator"}),
         requires_schemas=(),
         aliases=(),
+        tool_count=9,
+        route_count=4,
     ),
     "dynamics365": EngineSpec(
         slug="dynamics365",
@@ -262,6 +314,8 @@ ENGINE_REGISTRY: dict[str, EngineSpec] = {
         categories=frozenset({"commercial", "enterprise-erp"}),
         requires_schemas=(),
         aliases=("d365",),
+        tool_count=4,
+        route_count=5,
     ),
     "diagnostics": EngineSpec(
         slug="diagnostics",
@@ -272,6 +326,8 @@ ENGINE_REGISTRY: dict[str, EngineSpec] = {
         categories=frozenset({"service-support", "av-it-integrator"}),
         requires_schemas=(),
         aliases=("diag",),
+        tool_count=13,
+        route_count=9,
     ),
     "odoo": EngineSpec(
         slug="odoo",
@@ -282,6 +338,8 @@ ENGINE_REGISTRY: dict[str, EngineSpec] = {
         categories=frozenset({"commercial", "enterprise-erp"}),
         requires_schemas=(),
         aliases=(),
+        tool_count=6,
+        route_count=9,
     ),
     "salesforce": EngineSpec(
         slug="salesforce",
@@ -292,6 +350,8 @@ ENGINE_REGISTRY: dict[str, EngineSpec] = {
         categories=frozenset({"commercial", "enterprise-erp"}),
         requires_schemas=(),
         aliases=(),
+        tool_count=10,
+        route_count=7,
     ),
     "lighting_dali": EngineSpec(
         slug="lighting_dali",
@@ -302,8 +362,12 @@ ENGINE_REGISTRY: dict[str, EngineSpec] = {
         categories=frozenset({"operations-delivery", "av-it-integrator", "field-service-ops"}),
         requires_schemas=(),
         aliases=(),
+        tool_count=9,
+        route_count=8,
     ),
 }
+
+ENGINE_CATALOG: dict[str, EngineSpec] = ENGINE_REGISTRY
 
 
 def normalize_engine_slug(slug: str) -> str:
@@ -324,7 +388,7 @@ def normalize_engine_slug(slug: str) -> str:
 
 
 def is_engine_installed(slug: str) -> bool:
-    """Check if all spec.optional_deps can be found and spec.package succeeds find_spec."""
+    """Check if all spec.optional_dependencies can be found and spec.package succeeds find_spec."""
     canonical = normalize_engine_slug(slug)
     spec = ENGINE_REGISTRY[canonical]
 
@@ -334,7 +398,8 @@ def is_engine_installed(slug: str) -> bool:
     except (ImportError, ValueError, AttributeError):
         return False
 
-    for dep in spec.optional_deps:
+    deps = getattr(spec, "optional_dependencies", None) or getattr(spec, "optional_deps", ()) or ()
+    for dep in deps:
         try:
             if importlib.util.find_spec(dep) is None:
                 return False
