@@ -161,6 +161,81 @@ class EntraPrincipal:
             "expires_at": self.expires_at,
         }
 
+    def to_mcp_gateway_session(self) -> dict[str, Any]:
+        """Convert verified EntraPrincipal into canonical MCP gateway session contract."""
+        claims: dict[str, Any] = {
+            "oid": self.oid,
+            "tid": self.tid,
+            "upn": self.upn,
+            "roles": self.matched_roles,
+        }
+        return extract_mcp_gateway_claims(claims)
+
+
+def extract_mcp_gateway_claims(claims: dict[str, Any]) -> dict[str, Any]:
+    """Map verified Entra ID OIDC token claims into the canonical /mcp gateway session contract.
+
+    Maps:
+      - oid / sub / upn -> principal_id
+      - tid / namespace_id -> namespace_id
+      - roles / scp / scopes -> scopes
+      - nce_allowed_engines / allowed_engines -> allowed_engines (default: ['*'])
+      - nce_tool_exposure_mode / tool_exposure_mode -> tool_exposure_mode ('compact' | 'full', default: 'compact')
+    """
+    if not isinstance(claims, dict):
+        claims = {}
+
+    principal_id = str(
+        claims.get("oid")
+        or claims.get("sub")
+        or claims.get("upn")
+        or claims.get("preferred_username")
+        or "mcp-operator"
+    )
+
+    namespace_id = str(
+        claims.get("namespace_id") or claims.get("tid") or "00000000-0000-0000-0000-000000000001"
+    )
+
+    raw_scopes = claims.get("scopes") or claims.get("scp") or claims.get("roles") or []
+    if isinstance(raw_scopes, str):
+        scopes = [s.strip() for s in raw_scopes.split(" ") if s.strip()]
+    elif isinstance(raw_scopes, (list, tuple, set)):
+        scopes = [str(s).strip() for s in raw_scopes if str(s).strip()]
+    else:
+        scopes = []
+
+    raw_engines = (
+        claims.get("nce_allowed_engines") or claims.get("allowed_engines") or claims.get("engines")
+    )
+    if raw_engines is None:
+        allowed_engines = ["*"]
+    elif isinstance(raw_engines, str):
+        allowed_engines = [e.strip() for e in raw_engines.split(",") if e.strip()]
+    elif isinstance(raw_engines, (list, tuple, set)):
+        allowed_engines = [str(e).strip() for e in raw_engines if str(e).strip()]
+    else:
+        allowed_engines = ["*"]
+
+    if not allowed_engines:
+        allowed_engines = ["*"]
+
+    exposure_mode = (
+        str(claims.get("nce_tool_exposure_mode") or claims.get("tool_exposure_mode") or "compact")
+        .strip()
+        .lower()
+    )
+    if exposure_mode not in ("compact", "full"):
+        exposure_mode = "compact"
+
+    return {
+        "principal_id": principal_id,
+        "namespace_id": namespace_id,
+        "scopes": scopes,
+        "allowed_engines": allowed_engines,
+        "tool_exposure_mode": exposure_mode,
+    }
+
 
 def _decode_jwt_header_unverified(token: str) -> dict[str, Any]:
     """Decode JWT header segment to verify algorithm and token type."""

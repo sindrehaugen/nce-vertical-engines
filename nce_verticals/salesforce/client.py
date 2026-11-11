@@ -27,12 +27,8 @@ SF_TIMEOUT = httpx.Timeout(connect=4.5, read=9.5, write=4.5, pool=4.5)
 class SalesforceAPIError(RuntimeError):
     """Raised when Salesforce REST API returns an error status."""
 
-    def __init__(
-        self, status_code: int, message: str, error_code: str = "SF_API_ERROR"
-    ) -> None:
-        super().__init__(
-            f"Salesforce API Error ({status_code} {error_code}): {message}"
-        )
+    def __init__(self, status_code: int, message: str, error_code: str = "SF_API_ERROR") -> None:
+        super().__init__(f"Salesforce API Error ({status_code} {error_code}): {message}")
         self.status_code = status_code
         self.error_code = error_code
 
@@ -50,9 +46,7 @@ class SalesforceClient:
     ) -> None:
         self.instance_url = instance_url.rstrip("/")
         self.access_token = access_token
-        self.api_version = (
-            api_version if api_version.startswith("v") else f"v{api_version}"
-        )
+        self.api_version = api_version if api_version.startswith("v") else f"v{api_version}"
         self._external_client = http_client
 
     @property
@@ -114,20 +108,14 @@ class SalesforceClient:
                 err_code = str(err_json[0].get("errorCode") or err_code)
             elif isinstance(err_json, dict):
                 err_msg = str(
-                    err_json.get("message")
-                    or err_json.get("error_description")
-                    or err_msg
+                    err_json.get("message") or err_json.get("error_description") or err_msg
                 )
-                err_code = str(
-                    err_json.get("errorCode") or err_json.get("error") or err_code
-                )
+                err_code = str(err_json.get("errorCode") or err_json.get("error") or err_code)
         except Exception:
             pass
         raise SalesforceAPIError(resp.status_code, err_msg, error_code=err_code)
 
-    async def query(
-        self, soql: str, *, include_deleted: bool = False
-    ) -> dict[str, Any]:
+    async def query(self, soql: str, *, include_deleted: bool = False) -> dict[str, Any]:
         """Execute a single SOQL query page (`/query` or `/queryAll`)."""
         endpoint = "queryAll" if include_deleted else "query"
         return await self._request(
@@ -194,10 +182,14 @@ class SalesforceClient:
             params=params,
         )
 
-    async def create_sobject(
-        self, sobject: str, payload: dict[str, Any]
-    ) -> dict[str, Any]:
+    async def create_sobject(self, sobject: str, payload: dict[str, Any]) -> dict[str, Any]:
         """Create a new SObject record (`POST /sobjects/{SObject}`)."""
+        from nce_verticals.replay_fence import ReplaySandboxFenceError, check_replay_sandbox_env
+
+        if check_replay_sandbox_env(payload) or check_replay_sandbox_env():
+            raise ReplaySandboxFenceError(
+                f"Salesforce create {sobject} blocked: replay sandbox mode active"
+            )
         safe_obj = urllib.parse.quote(sobject, safe="")
         return await self._request(
             "POST",
@@ -212,6 +204,12 @@ class SalesforceClient:
         payload: dict[str, Any],
     ) -> dict[str, Any]:
         """Update an existing SObject record (`PATCH /sobjects/{SObject}/{id}`)."""
+        from nce_verticals.replay_fence import ReplaySandboxFenceError, check_replay_sandbox_env
+
+        if check_replay_sandbox_env(payload) or check_replay_sandbox_env():
+            raise ReplaySandboxFenceError(
+                f"Salesforce update {sobject}/{record_id} blocked: replay sandbox mode active"
+            )
         safe_obj = urllib.parse.quote(sobject, safe="")
         safe_id = urllib.parse.quote(record_id, safe="")
         res = await self._request(
@@ -229,6 +227,12 @@ class SalesforceClient:
         payload: dict[str, Any],
     ) -> dict[str, Any]:
         """Idempotent upsert by External ID (`PATCH /sobjects/{SObject}/{field}/{value}`)."""
+        from nce_verticals.replay_fence import ReplaySandboxFenceError, check_replay_sandbox_env
+
+        if check_replay_sandbox_env(payload) or check_replay_sandbox_env():
+            raise ReplaySandboxFenceError(
+                f"Salesforce upsert {sobject} blocked: replay sandbox mode active"
+            )
         safe_obj = urllib.parse.quote(sobject, safe="")
         safe_field = urllib.parse.quote(external_id_field, safe="")
         safe_val = urllib.parse.quote(external_id_value, safe="")
@@ -240,6 +244,12 @@ class SalesforceClient:
 
     async def delete_sobject(self, sobject: str, record_id: str) -> dict[str, Any]:
         """Delete an SObject record (`DELETE /sobjects/{SObject}/{id}`)."""
+        from nce_verticals.replay_fence import ReplaySandboxFenceError, check_replay_sandbox_env
+
+        if check_replay_sandbox_env():
+            raise ReplaySandboxFenceError(
+                f"Salesforce delete {sobject}/{record_id} blocked: replay sandbox mode active"
+            )
         safe_obj = urllib.parse.quote(sobject, safe="")
         safe_id = urllib.parse.quote(record_id, safe="")
         res = await self._request(
@@ -251,6 +261,4 @@ class SalesforceClient:
     async def describe_sobject(self, sobject: str) -> dict[str, Any]:
         """Retrieve SObject schema metadata (`/sobjects/{SObject}/describe`)."""
         safe_obj = urllib.parse.quote(sobject, safe="")
-        return await self._request(
-            "GET", f"{self.base_data_path}/sobjects/{safe_obj}/describe"
-        )
+        return await self._request("GET", f"{self.base_data_path}/sobjects/{safe_obj}/describe")

@@ -22,9 +22,10 @@ jobs:
           python-version: "3.12"
           cache: pip
 
-      - name: Build Wheel
+      - name: Build Wheelhouse & Wheel
         run: |
-          python -m pip install --upgrade pip build
+          python -m pip install --upgrade pip build wheel
+          python -m pip wheel --no-deps --wheel-dir /tmp/wheelhouse "git+https://github.com/sindrehaugen/neuro-cognitive-engine.git@v3.3.0"
           python -m build --wheel
 
       - name: Verify Single-Engine Wheel in Clean Venv (/tmp/venv_single)
@@ -32,7 +33,7 @@ jobs:
           python -m venv /tmp/venv_single
           /tmp/venv_single/bin/pip install --upgrade pip pytest pytest-asyncio
           WHEEL_PATH=$(ls "$GITHUB_WORKSPACE"/dist/nce_vertical_engines-*.whl)
-          /tmp/venv_single/bin/pip install "${WHEEL_PATH}[odoo]"
+          /tmp/venv_single/bin/pip install --find-links /tmp/wheelhouse "${WHEEL_PATH}[odoo]"
           cd /tmp
           NCE_ENABLED_ENGINES=odoo /tmp/venv_single/bin/python -c "
           from nce_verticals.plugin import VerticalEnginesPlugin
@@ -56,9 +57,10 @@ jobs:
           python-version: "3.12"
           cache: pip
 
-      - name: Build Wheel
+      - name: Build Wheelhouse & Wheel
         run: |
-          python -m pip install --upgrade pip build
+          python -m pip install --upgrade pip build wheel
+          python -m pip wheel --no-deps --wheel-dir /tmp/wheelhouse "git+https://github.com/sindrehaugen/neuro-cognitive-engine.git@v3.3.0"
           python -m build --wheel
 
       - name: Verify Type-Filter Wheel in Clean Venv (/tmp/venv_type)
@@ -66,7 +68,7 @@ jobs:
           python -m venv /tmp/venv_type
           /tmp/venv_type/bin/pip install --upgrade pip pytest pytest-asyncio
           WHEEL_PATH=$(ls "$GITHUB_WORKSPACE"/dist/nce_vertical_engines-*.whl)
-          /tmp/venv_type/bin/pip install "${WHEEL_PATH}[type-erp-crm]"
+          /tmp/venv_type/bin/pip install --find-links /tmp/wheelhouse "${WHEEL_PATH}[type-erp-crm]"
           cd /tmp
           NCE_ENGINE_TYPE_FILTER=erp-crm /tmp/venv_type/bin/python -c "
           from nce_verticals.plugin import VerticalEnginesPlugin
@@ -88,9 +90,10 @@ jobs:
           python-version: "3.12"
           cache: pip
 
-      - name: Build Wheel
+      - name: Build Wheelhouse & Wheel
         run: |
-          python -m pip install --upgrade pip build
+          python -m pip install --upgrade pip build wheel
+          python -m pip wheel --no-deps --wheel-dir /tmp/wheelhouse "git+https://github.com/sindrehaugen/neuro-cognitive-engine.git@v3.3.0"
           python -m build --wheel
 
       - name: Verify Category & Intersection Wheel in Clean Venv (/tmp/venv_cat)
@@ -98,7 +101,7 @@ jobs:
           python -m venv /tmp/venv_cat
           /tmp/venv_cat/bin/pip install --upgrade pip pytest pytest-asyncio
           WHEEL_PATH=$(ls "$GITHUB_WORKSPACE"/dist/nce_vertical_engines-*.whl)
-          /tmp/venv_cat/bin/pip install "${WHEEL_PATH}[cat-av-it-integrator]"
+          /tmp/venv_cat/bin/pip install --find-links /tmp/wheelhouse "${WHEEL_PATH}[cat-av-it-integrator]"
           cd /tmp
           NCE_ENGINE_CATEGORY_FILTER=av-it-integrator /tmp/venv_cat/bin/python -c "
           from nce_verticals.plugin import VerticalEnginesPlugin
@@ -127,21 +130,22 @@ jobs:
 
       - name: Install Full Suite & Dev Dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install -e ".[all,dev]"
+          python -m pip install --upgrade pip wheel
+          python -m pip wheel --no-deps --wheel-dir /tmp/wheelhouse "git+https://github.com/sindrehaugen/neuro-cognitive-engine.git@v3.3.0"
+          pip install --find-links /tmp/wheelhouse -e ".[all,dev]"
 
       - name: Ruff Format & Lint
         run: |
-          ruff format --check nce_verticals/registry.py nce_verticals/plugin.py nce_verticals/cli.py nce_verticals/security/ nce_verticals/servers/ tests/test_registry_filters.py tests/unit/test_entra_salesforce.py tests/test_enterprise_23_engines_contract.py
-          ruff check nce_verticals/ tests/test_registry_filters.py tests/unit/test_entra_salesforce.py tests/test_enterprise_23_engines_contract.py
+          ruff format --check nce_verticals/registry.py nce_verticals/plugin.py nce_verticals/cli.py nce_verticals/replay_fence.py nce_verticals/security/ nce_verticals/servers/ tests/test_registry_filters.py tests/unit/test_entra_salesforce.py tests/test_enterprise_23_engines_contract.py tests/security/test_v33_vertical_security.py
+          ruff check nce_verticals/ tests/test_registry_filters.py tests/unit/test_entra_salesforce.py tests/test_enterprise_23_engines_contract.py tests/security/test_v33_vertical_security.py
 
       - name: Mypy Typecheck
         run: |
-          mypy nce_verticals/registry.py nce_verticals/cli.py nce_verticals/security/
+          mypy nce_verticals/registry.py nce_verticals/cli.py nce_verticals/replay_fence.py nce_verticals/security/
 
       - name: Run Modular & Vertical Unit Tests
         run: |
-          pytest tests/test_registry_filters.py tests/unit/test_entra_salesforce.py tests/test_enterprise_23_engines_contract.py -q
+          pytest tests/test_registry_filters.py tests/unit/test_entra_salesforce.py tests/test_enterprise_23_engines_contract.py tests/security/test_v33_vertical_security.py -q
 
       - name: Build & Verify Full Wheel in Clean Venv (/tmp/venv_all)
         run: |
@@ -149,11 +153,11 @@ jobs:
           python -m venv /tmp/venv_all
           /tmp/venv_all/bin/pip install --upgrade pip pytest pytest-asyncio
           WHEEL_PATH=$(ls "$GITHUB_WORKSPACE"/dist/nce_vertical_engines-*.whl)
-          /tmp/venv_all/bin/pip install "${WHEEL_PATH}[all]"
+          /tmp/venv_all/bin/pip install --find-links /tmp/wheelhouse "${WHEEL_PATH}[all]"
           cd /tmp
           NCE_ENABLED_ENGINES=all /tmp/venv_all/bin/python -c "
           from nce_verticals.plugin import VerticalEnginesPlugin
           p = VerticalEnginesPlugin()
           assert len(p.sub_plugins) >= 22, f'Expected >=22 plugins, got {len(p.sub_plugins)}'
           "
-          /tmp/venv_all/bin/pytest "$GITHUB_WORKSPACE/tests/test_registry_filters.py" -q
+          /tmp/venv_all/bin/pytest "$GITHUB_WORKSPACE/tests/test_registry_filters.py" "$GITHUB_WORKSPACE/tests/security/test_v33_vertical_security.py" -q

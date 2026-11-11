@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.3.0] - 2026-11-10
+
+### Added
+- **Entra ID MCP Gateway Claims Mapper (`nce_verticals/security/entra_id.py`):** Added `extract_mcp_gateway_claims` and `to_mcp_gateway_session` on `EntraPrincipal` mapping verified OIDC claims (`oid`/`sub`/`upn`, `tid`/`namespace_id`, `roles`/`scp`, `nce_allowed_engines`, `nce_tool_exposure_mode`) to canonical `/mcp` gateway sessions.
+- **Replay Sandbox Fencing:** Added strict external mutation gating preventing outbound ERP/CRM side effects during memory simulation and replay runs.
+- **Contributor License Agreement (`CLA.md`):** Formally codified vertical engines contributor intellectual property, copyright, and patent licensing terms.
+
+### Changed
+- **Canonical Dual-Axis Taxonomy Alignment:** Preserved and validated dual-axis classifications across 5 system types (`core-domain`, `erp-crm`, `infra-iot`, `observability`, `portal`) and 7 business categories (`commercial`, `operations-delivery`, `finance-governance`, `service-support`, `av-it-integrator`, `enterprise-erp`, `field-service-ops`).
+
+---
+
 ## [3.1.0] - 2026-11-10
 
 ### Added
