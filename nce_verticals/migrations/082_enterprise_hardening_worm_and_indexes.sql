@@ -129,5 +129,49 @@ BEGIN
         CREATE INDEX IF NOT EXISTS idx_projects_ns_status
             ON projects (namespace_id, status);
     END IF;
+
+    -- Ensure least-privilege nce_app role holds DML grants on vertical RLS tables
+    -- whose migrations defined FOR ALL TO nce_app policies without explicit GRANTs.
+    IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'nce_app') THEN
+        DECLARE
+            v_tbl TEXT;
+        BEGIN
+            FOREACH v_tbl IN ARRAY ARRAY[
+                'agreement_parties',
+                'agreement_templates',
+                'agreements',
+                'document_links',
+                'document_shares',
+                'documents',
+                'economy_billing_candidate_lines',
+                'economy_billing_candidates',
+                'economy_billing_runs',
+                'economy_customer_invoices',
+                'legal_entities',
+                'notification_subscriptions',
+                'notifications',
+                'reminders',
+                'sales_contacts',
+                'sales_customers',
+                'sales_deals',
+                'sales_leads',
+                'sales_quotes',
+                'sites',
+                'source_mode_heartbeat',
+                'system_design_design_requests'
+            ]
+            LOOP
+                IF EXISTS (
+                    SELECT 1 FROM information_schema.tables
+                    WHERE table_schema = 'public' AND table_name = v_tbl
+                ) THEN
+                    EXECUTE format(
+                        'GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE %I TO nce_app',
+                        v_tbl
+                    );
+                END IF;
+            END LOOP;
+        END;
+    END IF;
 END;
 $$;

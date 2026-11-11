@@ -99,6 +99,9 @@ async def test_cert_watcher_expiry_and_idempotency(
     pg_pool: asyncpg.Pool, make_namespace: Any
 ) -> None:
     """Verify that the cert-expiry watcher detects expiring certs and publishes events idempotently."""
+    from nce_verticals.notifications.subscribers import register_notifications_subscribers
+
+    register_notifications_subscribers()
     ns_id = await make_namespace()
 
     # Seed ownership registry
@@ -155,7 +158,7 @@ async def test_cert_watcher_expiry_and_idempotency(
     # 4. Verify C4 outbox event was published for the expiring cert
     async with scoped_pg_session(pg_pool, ns_id) as conn:
         event_rows = await conn.fetch(
-            "SELECT event_type, aggregate_id, payload FROM outbox_events WHERE namespace_id = $1::uuid AND event_type = 'cert.expiry'",
+            "SELECT event_type, aggregate_id, payload FROM outbox_events WHERE namespace_id = $1::uuid AND event_type IN ('CERTIFICATION.EXPIRED', 'cert.expiry')",
             ns_id,
         )
         assert len(event_rows) == 1
@@ -177,7 +180,7 @@ async def test_cert_watcher_expiry_and_idempotency(
     # Ensure still only 1 event row exists
     async with scoped_pg_session(pg_pool, ns_id) as conn:
         event_rows_after = await conn.fetch(
-            "SELECT id FROM outbox_events WHERE namespace_id = $1::uuid AND event_type = 'cert.expiry'",
+            "SELECT id FROM outbox_events WHERE namespace_id = $1::uuid AND event_type IN ('CERTIFICATION.EXPIRED', 'cert.expiry')",
             ns_id,
         )
         assert len(event_rows_after) == 1

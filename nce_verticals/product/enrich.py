@@ -693,9 +693,16 @@ async def do_enrich_product(
 
     # --- Resolve cognitive provider for this tenant ---
     if provider is None:
-        row = await conn.fetchrow(
-            "SELECT metadata FROM namespaces WHERE id = $1::uuid",
-            uuid.UUID(str(namespace_id)),
+        can_read_ns = await conn.fetchval(
+            "SELECT has_table_privilege(current_user, 'public.namespaces', 'SELECT')"
+        )
+        row = (
+            await conn.fetchrow(
+                "SELECT metadata FROM namespaces WHERE id = $1::uuid",
+                uuid.UUID(str(namespace_id)),
+            )
+            if can_read_ns
+            else None
         )
         metadata = (
             json.loads(row["metadata"])

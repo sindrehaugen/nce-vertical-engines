@@ -25,7 +25,7 @@ jobs:
       - name: Build Wheelhouse & Wheel
         run: |
           python -m pip install --upgrade pip build wheel
-          python -m pip wheel --no-deps --wheel-dir /tmp/wheelhouse "git+https://github.com/sindrehaugen/neuro-cognitive-engine.git@v3.4.0"
+          python -m pip wheel --no-deps --wheel-dir /tmp/wheelhouse "git+https://github.com/sindrehaugen/neuro-cognitive-engine.git@v3.4.1"
           python -m build --wheel
 
       - name: Verify Single-Engine Wheel in Clean Venv (/tmp/venv_single)
@@ -60,7 +60,7 @@ jobs:
       - name: Build Wheelhouse & Wheel
         run: |
           python -m pip install --upgrade pip build wheel
-          python -m pip wheel --no-deps --wheel-dir /tmp/wheelhouse "git+https://github.com/sindrehaugen/neuro-cognitive-engine.git@v3.4.0"
+          python -m pip wheel --no-deps --wheel-dir /tmp/wheelhouse "git+https://github.com/sindrehaugen/neuro-cognitive-engine.git@v3.4.1"
           python -m build --wheel
 
       - name: Verify Type-Filter Wheel in Clean Venv (/tmp/venv_type)
@@ -93,7 +93,7 @@ jobs:
       - name: Build Wheelhouse & Wheel
         run: |
           python -m pip install --upgrade pip build wheel
-          python -m pip wheel --no-deps --wheel-dir /tmp/wheelhouse "git+https://github.com/sindrehaugen/neuro-cognitive-engine.git@v3.4.0"
+          python -m pip wheel --no-deps --wheel-dir /tmp/wheelhouse "git+https://github.com/sindrehaugen/neuro-cognitive-engine.git@v3.4.1"
           python -m build --wheel
 
       - name: Verify Category & Intersection Wheel in Clean Venv (/tmp/venv_cat)
@@ -131,7 +131,7 @@ jobs:
       - name: Install Full Suite & Dev Dependencies
         run: |
           python -m pip install --upgrade pip wheel
-          python -m pip wheel --no-deps --wheel-dir /tmp/wheelhouse "git+https://github.com/sindrehaugen/neuro-cognitive-engine.git@v3.4.0"
+          python -m pip wheel --no-deps --wheel-dir /tmp/wheelhouse "git+https://github.com/sindrehaugen/neuro-cognitive-engine.git@v3.4.1"
           pip install --find-links /tmp/wheelhouse -e ".[all,dev]"
 
       - name: Ruff Format & Lint

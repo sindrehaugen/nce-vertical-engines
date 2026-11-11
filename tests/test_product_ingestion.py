@@ -85,8 +85,9 @@ class TestDoIngestSpec:
                 spec_text=_SAMPLE_SPEC,
             )
 
-        assert "memory_id" in result, f"Expected memory_id in result, got: {result}"
-        memory_id = result["memory_id"]
+        payload = result["result"] if isinstance(result, dict) and "result" in result else result
+        assert "memory_id" in payload, f"Expected memory_id in result, got: {result}"
+        memory_id = payload["memory_id"]
 
         row = await pg_admin_conn.fetchrow(
             "SELECT id, namespace_id, embedding, content_fts, payload_ref, agent_id "
@@ -123,7 +124,8 @@ class TestDoIngestSpec:
                 source="datasheet",
                 trigger="webhook",
             )
-        memory_id = result["memory_id"]
+        payload = result["result"] if isinstance(result, dict) and "result" in result else result
+        memory_id = payload["memory_id"]
 
         ledger_row = await pg_admin_conn.fetchrow(
             "SELECT memory_id, namespace_id, tlx_scores FROM v3_cognitive_ledger "
@@ -159,7 +161,8 @@ class TestDoIngestSpec:
                 product_id=product_id,
                 spec_text=_SAMPLE_SPEC,
             )
-        memory_id = result["memory_id"]
+        payload = result["result"] if isinstance(result, dict) and "result" in result else result
+        memory_id = payload["memory_id"]
 
         # Querying as namespace B must return no row (RLS isolation).
         async with pg_app_conn.transaction():
@@ -187,7 +190,8 @@ class TestDoIngestSpec:
                 product_id="sku-empty",
                 spec_text="   ",
             )
-        assert result.get("skipped") == "empty spec_text"
+        payload = result["result"] if isinstance(result, dict) and "result" in result else result
+        assert payload.get("skipped") == "empty spec_text"
 
     async def test_degraded_embedding_still_writes_row(
         self, pg_pool: asyncpg.Pool, pg_admin_conn: asyncpg.Connection, ns_a: uuid.UUID
@@ -221,12 +225,13 @@ class TestDoIngestSpec:
                     spec_text=_SAMPLE_SPEC,
                 )
 
-        assert "memory_id" in result, (
+        payload = result["result"] if isinstance(result, dict) and "result" in result else result
+        assert "memory_id" in payload, (
             f"Expected memory_id even in degraded mode: {result}"
         )
-        assert result["degraded"] is True
+        assert payload["degraded"] is True
 
-        memory_id = result["memory_id"]
+        memory_id = payload["memory_id"]
 
         row = await pg_admin_conn.fetchrow(
             "SELECT embedding, metadata FROM memories WHERE id = $1::uuid",

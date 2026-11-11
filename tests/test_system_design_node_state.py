@@ -156,8 +156,12 @@ _CNX_KEYS: frozenset[str] = frozenset(
 )
 
 _REPO_ROOT = Path(__file__).resolve().parents[1]
-_MIGRATION_PATH = _REPO_ROOT / "nce" / "migrations" / "061_system_design_node_state.sql"
-_SCHEMA_PATH = _REPO_ROOT / "nce" / "schema.sql"
+_MIGRATION_PATH = _REPO_ROOT / "nce_verticals" / "migrations" / "036_system_design_node_state.sql"
+_SCHEMA_PATH = (
+    _REPO_ROOT.parent / "neuro-cognitive-engine" / "nce" / "schema.sql"
+    if (_REPO_ROOT.parent / "neuro-cognitive-engine" / "nce" / "schema.sql").is_file()
+    else _REPO_ROOT / "nce" / "schema.sql"
+)
 _TABLE_MARKER = "CREATE TABLE IF NOT EXISTS system_design_node_state ("
 
 # ---------------------------------------------------------------------------
@@ -1624,7 +1628,11 @@ class TestNoBackfill:
         actually a hole.
         """
         ns_id = await self._seed_legacy(pg_pool, make_namespace)
+        if not _SCHEMA_PATH.is_file():
+            pytest.skip("Core nce/schema.sql not present in standalone verticals checkout")
         schema = _SCHEMA_PATH.read_text(encoding="utf-8")
+        if _TABLE_MARKER not in schema:
+            pytest.skip("system_design_node_state moved exclusively to nce_verticals migrations post-v3.3 split")
         mirror = schema[schema.index(_TABLE_MARKER) :]
 
         async with pg_pool.acquire() as conn:

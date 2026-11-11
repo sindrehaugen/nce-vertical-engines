@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.4.1] - 2026-11-11
+
+### Fixed
+- **Overlay Container Healthchecks (`docker-compose.verticals.yml`):** Updated `nce-odoo` (`8011`) and `nce-salesforce` (`8012`) container healthchecks to probe `/healthz` (`200 OK`) matching standalone server routes.
+- **`nce_app` Non-Superuser RLS Table & Sequence Grants (`017`, `082`):** Added explicit `GRANT USAGE, SELECT ON SEQUENCE sales_read_model_id_seq TO nce_app` and idempotent `GRANT SELECT, INSERT, UPDATE, DELETE` across vertical tenant RLS tables for strict non-superuser runtime execution.
+- **Product Enrichment Namespace Privilege Guard (`nce_verticals/product/enrich.py`):** Guarded optional `public.namespaces` metadata lookup with `has_table_privilege(current_user, 'public.namespaces', 'SELECT')` so `nce_app` transactions never abort on `InsufficientPrivilegeError`.
+- **Live Integration Suite Alignment:** Updated post-split integration tests and aligned PEP 508 Core floor to `neuro-cognitive-engine>=3.4.1,<4.0.0`.
+
+---
+
 ## [3.4.0] - 2026-11-11
 
 ### Added
