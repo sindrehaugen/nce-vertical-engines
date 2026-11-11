@@ -179,9 +179,7 @@ class DataverseClient:
             }
 
         while True:
-            page = await self._send(
-                "GET", url, params=params, headers_extra=headers_extra
-            )
+            page = await self._send("GET", url, params=params, headers_extra=headers_extra)
             for rec in page.get("value", []):
                 if "@removed" in rec:
                     rid = rec.get("id")
@@ -193,9 +191,7 @@ class DataverseClient:
             if next_link:
                 url = next_link
                 params = None  # the continuation URL is complete; don't reset its query
-                headers_extra = (
-                    None  # the continuation URL carries the tracking context
-                )
+                headers_extra = None  # the continuation URL carries the tracking context
                 continue
             new_delta = page.get("@odata.deltaLink")
             break
@@ -221,13 +217,23 @@ class DataverseClient:
         json_body: dict[str, Any] | None = None,
         headers_extra: dict[str, str] | None = None,
     ) -> dict[str, Any]:
+        if method.upper() in ("POST", "PATCH", "PUT", "DELETE"):
+            from nce_verticals.replay_fence import ReplaySandboxFenceError, check_replay_sandbox_env
+
+            if (
+                check_replay_sandbox_env(json_body)
+                or check_replay_sandbox_env(headers_extra)
+                or check_replay_sandbox_env()
+            ):
+                raise ReplaySandboxFenceError(
+                    f"Dynamics 365 mutation {method.upper()} {url} blocked: replay sandbox mode active"
+                )
+
         headers = self._auth_headers()
         if headers_extra:
             headers = {**headers, **headers_extra}
         if self._client is not None:
-            return await self._do_request(
-                self._client, method, url, headers, params, json_body
-            )
+            return await self._do_request(self._client, method, url, headers, params, json_body)
         async with httpx.AsyncClient(timeout=30.0) as tmp:
             return await self._do_request(tmp, method, url, headers, params, json_body)
 

@@ -37,7 +37,11 @@ class _TimeoutServerProxy(xmlrpc.client.ServerProxy):
     """XML-RPC ServerProxy with explicit socket timeout (<5s)."""
 
     def __init__(self, uri: str, timeout: float = 4.5) -> None:
-        transport = xmlrpc.client.SafeTransport() if uri.startswith("https://") else xmlrpc.client.Transport()
+        transport = (
+            xmlrpc.client.SafeTransport()
+            if uri.startswith("https://")
+            else xmlrpc.client.Transport()
+        )
         orig_make_conn = transport.make_connection
 
         def _make_conn_with_timeout(host: Any) -> Any:
@@ -79,7 +83,10 @@ class OdooClient:
             )
 
         if not uid or not isinstance(uid, int):
-            raise OdooAPIError("Odoo authentication failed: invalid username, database, or API key", code="AUTH_FAILED")
+            raise OdooAPIError(
+                "Odoo authentication failed: invalid username, database, or API key",
+                code="AUTH_FAILED",
+            )
 
         self._uid = uid
         self.config.uid = uid
@@ -87,7 +94,9 @@ class OdooClient:
 
     def _xmlrpc_authenticate(self) -> int:
         common = _TimeoutServerProxy(f"{self.config.url}/xmlrpc/2/common", timeout=4.5)
-        uid = common.authenticate(self.config.db_name, self.config.username, self.config.api_key, {})
+        uid = common.authenticate(
+            self.config.db_name, self.config.username, self.config.api_key, {}
+        )
         return int(uid) if uid else 0
 
     def _xmlrpc_execute_kw(
@@ -204,9 +213,23 @@ class OdooClient:
         Execute any Odoo ORM or workflow method on `model` via the configured protocol
         (`jsonrpc`, `xmlrpc`, or `rest_oauth2`).
         """
-        uid = await self.authenticate()
         call_args = args if args is not None else []
         call_kwargs = kwargs if kwargs is not None else {}
+
+        # Replay sandbox fence for mutation methods
+        _MUTATION_METHODS = {"create", "write", "unlink", "action_", "button_"}
+        is_mutation = method in _MUTATION_METHODS or any(
+            method.startswith(p) for p in ("action_", "button_")
+        )
+        if is_mutation:
+            from nce_verticals.replay_fence import ReplaySandboxFenceError, check_replay_sandbox_env
+
+            if check_replay_sandbox_env(call_kwargs) or check_replay_sandbox_env():
+                raise ReplaySandboxFenceError(
+                    f"Odoo mutation {model}.{method} blocked: replay sandbox mode active"
+                )
+
+        uid = await self.authenticate()
 
         if self.config.protocol == "xmlrpc":
             return await asyncio.to_thread(

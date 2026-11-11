@@ -19,7 +19,7 @@ isodate==0.7.2
 lxml==6.1.3
 more-itertools==11.2.1
 msal==1.39.0
-nce @ git+https://github.com/sindrehaugen/neuro-cognitive-engine.git@df0d8d3821e9682809a2c01479c55056bbf04ccf
+neuro-cognitive-engine==3.3.0
 numpy==2.4.6
 opentelemetry-api==1.45.2
 packaging==26.3
