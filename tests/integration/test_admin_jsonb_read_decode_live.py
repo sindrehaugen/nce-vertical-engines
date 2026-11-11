@@ -64,13 +64,13 @@ import asyncpg
 import httpx
 import pytest
 from nce import admin_state
-from nce.admin_handlers import product as product_handlers
 from nce.engine_registry import populate_engine_modules
 from nce.orchestrator import NCEEngine
 from starlette.applications import Starlette
 from starlette.routing import Route
 
 from nce_verticals.admin_handlers import d365 as d365_handlers
+from nce_verticals.admin_handlers import product as product_handlers
 
 pytestmark = pytest.mark.integration
 

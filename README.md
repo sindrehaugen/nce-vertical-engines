@@ -3,9 +3,9 @@
 > 22 operational business engines, enterprise IT/ERP integrations, and domain modules built on the Neuro-Cognitive Engine (NCE) substrate.
 
 <p>
-  <img alt="version" src="https://img.shields.io/badge/version-3.4.0-blue">
+  <img alt="version" src="https://img.shields.io/badge/version-3.4.1-blue">
   <img alt="python" src="https://img.shields.io/badge/python-3.10%2B-3776ab">
-  <img alt="substrate" src="https://img.shields.io/badge/substrate-NCE%20v3.4.0-6e40c9">
+  <img alt="substrate" src="https://img.shields.io/badge/substrate-NCE%20v3.4.1-6e40c9">
   <img alt="license" src="https://img.shields.io/badge/license-AGPL--3.0-blue">
 </p>
 
@@ -176,7 +176,7 @@ Filters engines based on organizational departments, operational workflows, and 
 
 ## 5 Installation & Runtime Activation Modes
 
-> **Substrate Requirement:** Requires Core `neuro-cognitive-engine>=3.4.0,<4.0.0`. For enterprise identity and token verification, install with the `entra_id` extra: `pip install "nce-vertical-engines[entra_id]"`.
+> **Substrate Requirement:** Requires Core `neuro-cognitive-engine>=3.4.1,<4.0.0`. For enterprise identity and token verification, install with the `entra_id` extra: `pip install "nce-vertical-engines[entra_id]"`.
 
 Deployments can activate vertical engines through 5 flexible modes:
 

@@ -44,6 +44,7 @@ BEGIN
     IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'nce_app') THEN
         REVOKE ALL ON TABLE sales_read_model FROM nce_app;
         GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE sales_read_model TO nce_app;
+        GRANT USAGE, SELECT ON SEQUENCE sales_read_model_id_seq TO nce_app;
     END IF;
 END $$;
 

@@ -27,7 +27,7 @@ import pytest_asyncio
 # ---------------------------------------------------------------------------
 
 _MIGRATION_PATH = (
-    pathlib.Path(__file__).parent.parent / "nce" / "migrations" / "025_diagnostics.sql"
+    pathlib.Path(__file__).parent.parent / "nce_verticals" / "migrations" / "004_diagnostics.sql"
 )
 
 

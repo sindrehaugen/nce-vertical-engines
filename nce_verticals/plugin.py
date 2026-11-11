@@ -4596,3 +4596,16 @@ class VerticalEnginesPlugin:
     def get_migration_dir(self) -> Path | None:
         mdir = self.get_migrations_dir()
         return mdir if mdir.is_dir() else None
+
+    def get_unmanaged_pg_sites(self) -> frozenset[str]:
+        """Audited global reference-table call sites owned by Vertical Engines."""
+        return frozenset(
+            {
+                "geodata.n50.import",
+                "geodata.n50.bbox_query",
+                "geodata.osm.import",
+                "geodata.osm.bbox_query",
+                "geodata.place_names.import",
+                "geodata.place_names.nearest",
+            }
+        )
