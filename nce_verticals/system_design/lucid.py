@@ -48,6 +48,8 @@ from nce.config import resolve_secret
 from nce.db_utils import scoped_pg_session
 from nce.http_resilience import request_with_retry
 
+from nce_verticals.security.http_guard import validate_outbound_url
+
 if TYPE_CHECKING:
     from nce.orchestrator import NCEEngine
 
@@ -250,7 +252,7 @@ async def do_publish_design_docs(
     nodes = await _read_design_nodes(engine, namespace_id, design_id)
     payload = _build_lucid_payload(design_id, nodes)
 
-    url = f"{base_url.rstrip('/')}{_LUCID_DIAGRAMS_PATH}"
+    url = validate_outbound_url(f"{base_url.rstrip('/')}{_LUCID_DIAGRAMS_PATH}")
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",

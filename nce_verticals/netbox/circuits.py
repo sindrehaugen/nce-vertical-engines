@@ -20,6 +20,8 @@ from typing import TYPE_CHECKING, Any
 import httpx
 from nce.causal.correlation import CausalGraph, DoCalculusEngine
 
+from nce_verticals.security.http_guard import validate_outbound_url
+
 if TYPE_CHECKING:
     from nce.orchestrator import NCEEngine
 
@@ -34,7 +36,7 @@ class NetBoxCircuitsClient:
     def __init__(
         self, base_url: str, token: str, client: httpx.AsyncClient | None = None
     ):
-        self.base_url = base_url.rstrip("/")
+        self.base_url = validate_outbound_url(base_url).rstrip("/")
         self.headers = {
             "Authorization": f"Token {token}",
             "Accept": "application/json",
@@ -43,7 +45,7 @@ class NetBoxCircuitsClient:
 
     async def fetch_circuits(self) -> list[dict[str, Any]]:
         """Fetch all circuit records from NetBox."""
-        url = f"{self.base_url}/api/circuits/circuits/"
+        url = validate_outbound_url(f"{self.base_url}/api/circuits/circuits/")
         if self._client is not None:
             return await self._send_get(self._client, url)
 

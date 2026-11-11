@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import json
 from contextlib import asynccontextmanager, contextmanager
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -85,7 +85,14 @@ def _frozen_today(fixed_date: date):
         def today(cls) -> date:  # type: ignore[override]
             return fixed
 
-    with patch("nce_verticals.hr.compliance.date", _FrozenDate):
+    class _FrozenDatetime(datetime):
+        @classmethod
+        def now(cls, tz=None) -> datetime:  # type: ignore[override]
+            return datetime(fixed.year, fixed.month, fixed.day, tzinfo=tz or timezone.utc)
+
+    with patch("nce_verticals.hr.compliance.date", _FrozenDate), patch(
+        "nce_verticals.hr.compliance.datetime", _FrozenDatetime
+    ):
         yield
 
 
@@ -438,15 +445,15 @@ async def test_register_sick_absence_initializes_compliance():
         "employee_id": _EMP_A,
         "namespace_id": _NS_A,
         "type": "sick_leave",
-        "start_date": date.today(),
-        "end_date": date.today() + timedelta(days=5),
+        "start_date": datetime.now(timezone.utc).date(),
+        "end_date": datetime.now(timezone.utc).date() + timedelta(days=5),
         "days": 6.0,
         "reason": "Recovering from respiratory infection",
         "status": "approved",
         "compliance_state": "normal",
         "hr_source_id": "SIMPLOYER-100",
         "raw": json.dumps({"compliance": {"milestones": {}}}),
-        "created_at": date.today(),
+        "created_at": datetime.now(timezone.utc).date(),
     }
     engine = _make_engine(fetchrow_val=mock_inserted)
 
@@ -456,8 +463,8 @@ async def test_register_sick_absence_initializes_compliance():
             "namespace_id": _NS_A,
             "employee_id": _EMP_A,
             "absence_type": "sick_leave",
-            "start_date": date.today().isoformat(),
-            "end_date": (date.today() + timedelta(days=5)).isoformat(),
+            "start_date": datetime.now(timezone.utc).date().isoformat(),
+            "end_date": (datetime.now(timezone.utc).date() + timedelta(days=5)).isoformat(),
             "reason": "Recovering from respiratory infection",
         },
     )
@@ -477,15 +484,15 @@ async def test_query_absences_privacy_scoping():
             "employee_id": _EMP_A,
             "namespace_id": _NS_A,
             "type": "sick_leave",
-            "start_date": date.today(),
-            "end_date": date.today() + timedelta(days=5),
+            "start_date": datetime.now(timezone.utc).date(),
+            "end_date": datetime.now(timezone.utc).date() + timedelta(days=5),
             "days": 6.0,
             "reason": "Highly sensitive private medical reason",
             "status": "approved",
             "compliance_state": "normal",
             "hr_source_id": None,
             "raw": json.dumps({}),
-            "created_at": date.today(),
+            "created_at": datetime.now(timezone.utc).date(),
         }
     ]
     engine = _make_engine(fetch_val=mock_rows)

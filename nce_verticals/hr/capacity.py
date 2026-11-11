@@ -15,7 +15,7 @@ Constraints:
 from __future__ import annotations
 
 import logging
-from datetime import date, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
 from uuid import UUID
 
@@ -65,7 +65,7 @@ async def do_capacity(engine: Any, params: dict[str, Any]) -> dict[str, Any]:
     department = params.get("department")
     horizon_days = max(1, min(90, int(params.get("horizon_days") or 14)))
 
-    today = date.today()
+    today = datetime.now(timezone.utc).date()
     horizon_end = today + timedelta(days=horizon_days)
 
     # Base work capacity: 7.5 hours per business day (~5 business days per 7 calendar days)

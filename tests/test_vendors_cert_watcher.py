@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import os
-from datetime import date, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 import asyncpg  # type: ignore[import-untyped]
@@ -45,7 +45,7 @@ async def test_cert_upsert_and_relationships(
 
     contractor_id = "CONTRACTOR:TECH_JOHN"
     cert_name = "SAFETY_101"
-    expiry_date_val = date.today() + timedelta(days=60)
+    expiry_date_val = datetime.now(timezone.utc).date() + timedelta(days=60)
 
     params = {
         "namespace_id": ns_id,
@@ -110,7 +110,7 @@ async def test_cert_watcher_expiry_and_idempotency(
     mongo_client: AsyncIOMotorClient | None = AsyncIOMotorClient(mongo_uri)
     engine = EngineStub(pg_pool, mongo_client)
 
-    today = date.today()
+    today = datetime.now(timezone.utc).date()
     expiring_date = today + timedelta(days=15)  # within 30-day default window
     valid_date = today + timedelta(days=45)  # outside 30-day default window
 

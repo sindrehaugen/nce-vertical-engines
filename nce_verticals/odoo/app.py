@@ -14,6 +14,7 @@ from nce_verticals.admin_handlers import entra_id as entra_handlers
 from nce_verticals.admin_handlers import odoo as odoo_handlers
 from nce_verticals.admin_handlers.odoo import JSONResponse
 from nce_verticals.plugin import Route
+from nce_verticals.security.http_guard import BoundedBodyMiddleware
 
 try:
     from starlette.applications import Starlette
@@ -36,7 +37,7 @@ async def healthz(request: Any) -> JSONResponse:
     )
 
 
-def create_standalone_odoo_app() -> Starlette:
+def create_standalone_odoo_app(lifespan: Any = None) -> Starlette:
     routes = [
         Route("/healthz", endpoint=healthz, methods=["GET"]),
         Route("/api/admin/entra/config", endpoint=entra_handlers.api_admin_entra_config, methods=["GET"]),
@@ -54,4 +55,7 @@ def create_standalone_odoo_app() -> Starlette:
         Route("/api/admin/odoo/crosstalk", endpoint=odoo_handlers.api_admin_odoo_crosstalk, methods=["POST"]),
         Route("/api/webhooks/odoo", endpoint=odoo_handlers.api_odoo_webhook_ingest, methods=["POST"]),
     ]
-    return Starlette(debug=False, routes=routes)
+    app = Starlette(debug=False, routes=routes, lifespan=lifespan)
+    if hasattr(app, "add_middleware"):
+        app.add_middleware(BoundedBodyMiddleware)
+    return app

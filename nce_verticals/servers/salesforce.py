@@ -7,7 +7,10 @@ Run with: `uvicorn nce_verticals.servers.salesforce:app --host 0.0.0.0 --port 80
 
 from __future__ import annotations
 
+import logging
 import os
+from contextlib import asynccontextmanager
+from typing import Any
 
 from nce_verticals.salesforce.app import create_standalone_salesforce_app
 from nce_verticals.security.entra_id import (
@@ -15,6 +18,9 @@ from nce_verticals.security.entra_id import (
     EntraPrincipal,
     require_entra_identity,
 )
+from nce_verticals.security.http_guard import verify_entra_id_schema_gate
+
+log = logging.getLogger("nce_verticals.servers.salesforce")
 
 __all__ = [
     "EntraIDAuthenticator",
@@ -22,9 +28,27 @@ __all__ = [
     "app",
     "main",
     "require_entra_identity",
+    "verify_entra_id_schema_gate",
 ]
 
-app = create_standalone_salesforce_app()
+
+@asynccontextmanager
+async def salesforce_lifespan(app: Any):
+    try:
+        from nce.orchestrator import NCEEngine
+
+        engine = NCEEngine()
+        await engine.connect()
+        if getattr(engine, "pg_pool", None) is not None:
+            async with engine.pg_pool.acquire(timeout=5.0) as conn:
+                await verify_entra_id_schema_gate(conn)
+        await engine.disconnect()
+    except Exception as exc:
+        log.debug("Salesforce server startup schema gate check: %s", exc)
+    yield
+
+
+app = create_standalone_salesforce_app(lifespan=salesforce_lifespan)
 
 
 def main() -> None:

@@ -20,6 +20,7 @@ from nce.orchestrator import NCEEngine
 from starlette.applications import Starlette
 
 from nce_verticals.customer_portal.app import build_customer_portal_app
+from nce_verticals.security.http_guard import verify_entra_id_schema_gate
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("nce.portal_server")
@@ -35,6 +36,9 @@ async def portal_lifespan(app: Starlette):
         await engine.connect()
         app.state.engine = engine
         log.info("Customer Portal server: NCEEngine connected.")
+        if getattr(engine, "pg_pool", None) is not None:
+            async with engine.pg_pool.acquire(timeout=5.0) as conn:
+                await verify_entra_id_schema_gate(conn)
     except Exception as exc:
         log.warning("Customer Portal server: NCEEngine connect failed or offline: %s", exc)
         app.state.engine = engine

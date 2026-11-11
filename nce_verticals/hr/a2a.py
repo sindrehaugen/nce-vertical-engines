@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import json
 import logging
-from datetime import date, datetime, timezone
+from datetime import datetime, timezone
 from typing import Any
 
 from nce.db_utils import scoped_pg_session
@@ -503,7 +503,7 @@ async def get_morning_brief_hr_slice(
             """,
             ns_uuid,
         )
-        today = date.today()
+        today = datetime.now(timezone.utc).date()
         open_compliance_count = 0
         milestone_pending_counts: dict[str, int] = {
             COMPLIANCE_STATE_PLAN_4W_PENDING: 0,

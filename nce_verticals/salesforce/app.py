@@ -13,6 +13,7 @@ from nce_verticals.admin_handlers import entra_id as entra_handlers
 from nce_verticals.admin_handlers import salesforce as sf_handlers
 from nce_verticals.admin_handlers.salesforce import JSONResponse
 from nce_verticals.plugin import Route
+from nce_verticals.security.http_guard import BoundedBodyMiddleware
 
 try:
     from starlette.applications import Starlette
@@ -36,7 +37,7 @@ async def healthz(request: Any) -> JSONResponse:
     )
 
 
-def create_standalone_salesforce_app() -> Starlette:
+def create_standalone_salesforce_app(lifespan: Any = None) -> Starlette:
     routes = [
         Route("/healthz", endpoint=healthz, methods=["GET"]),
         Route(
@@ -105,4 +106,7 @@ def create_standalone_salesforce_app() -> Starlette:
             methods=["POST"],
         ),
     ]
-    return Starlette(debug=False, routes=routes)
+    app = Starlette(debug=False, routes=routes, lifespan=lifespan)
+    if hasattr(app, "add_middleware"):
+        app.add_middleware(BoundedBodyMiddleware)
+    return app

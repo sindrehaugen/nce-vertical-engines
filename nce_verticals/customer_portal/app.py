@@ -27,6 +27,7 @@ from nce_verticals.customer_portal.sessions import (
     PortalSessionStore,
     default_session_store,
 )
+from nce_verticals.security.http_guard import BoundedBodyMiddleware
 
 log = logging.getLogger("nce_verticals.customer_portal.app")
 
@@ -837,6 +838,7 @@ def build_customer_portal_app(engine: Any = None, lifespan: Any = None) -> Starl
     ]
 
     middleware = [
+        Middleware(BoundedBodyMiddleware),
         Middleware(CustomerRateLimitMiddleware, max_requests_per_minute=120),
         Middleware(CustomerPortalAuthMiddleware),
     ]

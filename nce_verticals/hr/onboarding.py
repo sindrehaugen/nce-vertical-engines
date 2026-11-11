@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import json
 import logging
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from typing import Any
 from uuid import UUID
 
@@ -227,7 +227,7 @@ def _parse_date(val: Any) -> date:
     try:
         return date.fromisoformat(str(val).strip())
     except Exception:
-        return date.today()
+        return datetime.now(timezone.utc).date()
 
 
 def _get_template_stages(role: str) -> list[dict[str, Any]]:
@@ -346,10 +346,10 @@ async def do_build_onboarding_quest(
             )
 
     # Apply task completions / uncompletions
-    now_iso = datetime.utcnow().isoformat()
+    now_iso = datetime.now(timezone.utc).isoformat()
     total_tasks = 0
     completed_count = 0
-    today = date.today()
+    today = datetime.now(timezone.utc).date()
 
     for stage in stages_data:
         stage_completed_tasks = 0

@@ -262,7 +262,7 @@ async def do_propose_customer_invoice(
     vat_amount = _quantise_money(subtotal * rate / Decimal("100"))
     total_amount = subtotal + vat_amount
 
-    issue_date = datetime.date.today()
+    issue_date = datetime.datetime.now(datetime.timezone.utc).date()
     due_date = issue_date + datetime.timedelta(days=due_date_days)
 
     invoice_id = uuid4()

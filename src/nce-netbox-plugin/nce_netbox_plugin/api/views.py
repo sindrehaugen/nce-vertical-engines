@@ -38,9 +38,7 @@ class NceCognitiveStatsView(View):
         default_slug = getattr(settings, "NCE_DEFAULT_NAMESPACE_SLUG", "default")
         if not namespace_slug:
             if object_type and object_id:
-                namespace_slug = (
-                    self._resolve_tenant_slug(object_type, object_id) or default_slug
-                )
+                namespace_slug = self._resolve_tenant_slug(object_type, object_id) or default_slug
             else:
                 namespace_slug = default_slug
 
@@ -68,24 +66,18 @@ class NceCognitiveStatsView(View):
                 return JsonResponse(data)
             except Exception as err:
                 # Fallback to simulated data if query fails
-                return JsonResponse(
-                    generate_simulated_data(namespace_slug, as_of, error=str(err))
-                )
+                return JsonResponse(generate_simulated_data(namespace_slug, as_of, error=str(err)))
         else:
             remote_data = self._fetch_remote_nce_data(namespace_slug, as_of)
             if remote_data is not None:
                 return JsonResponse(remote_data)
             return JsonResponse(generate_simulated_data(namespace_slug, as_of))
 
-    def _fetch_remote_nce_data(
-        self, namespace_slug: str, as_of: datetime
-    ) -> dict[str, Any] | None:
+    def _fetch_remote_nce_data(self, namespace_slug: str, as_of: datetime) -> dict[str, Any] | None:
         """Fetches cognitive telemetry from the configured remote NCE Admin API."""
         plugins_cfg = getattr(settings, "PLUGINS_CONFIG", {}) or {}
         plugin_cfg = (
-            plugins_cfg.get("nce_netbox_plugin", {})
-            if isinstance(plugins_cfg, dict)
-            else {}
+            plugins_cfg.get("nce_netbox_plugin", {}) if isinstance(plugins_cfg, dict) else {}
         )
         if not isinstance(plugin_cfg, dict):
             plugin_cfg = {}
@@ -111,9 +103,13 @@ class NceCognitiveStatsView(View):
         if api_key:
             headers["Authorization"] = f"Bearer {api_key}"
 
+        parsed = urllib.parse.urlsplit(url)
+        if parsed.scheme not in {"http", "https"}:
+            return None
+
         try:
-            req = urllib.request.Request(url, headers=headers, method="GET")
-            with urllib.request.urlopen(req, timeout=3.0) as resp:
+            req = urllib.request.Request(url, headers=headers, method="GET")  # noqa: S310
+            with urllib.request.urlopen(req, timeout=3.0) as resp:  # noqa: S310
                 status = getattr(resp, "status", 200)
                 if status != 200:
                     return None
@@ -159,9 +155,7 @@ class NceCognitiveStatsView(View):
             found = {row[0] for row in cursor.fetchall()}
             return len(found) == len(self.REQUIRED_NCE_TABLES)
 
-    def _fetch_real_nce_data(
-        self, namespace_slug: str, as_of: datetime
-    ) -> dict[str, Any]:
+    def _fetch_real_nce_data(self, namespace_slug: str, as_of: datetime) -> dict[str, Any]:
         """Queries the raw NCE core tables bounded by RLS and temporal limits."""
         with transaction.atomic():
             with connection.cursor() as cursor:
@@ -181,9 +175,7 @@ class NceCognitiveStatsView(View):
                 ns_slug = ns_row[1] if len(ns_row) > 1 else namespace_slug
 
                 # Set PostgreSQL session-level RLS context (restricted to this transaction)
-                cursor.execute(
-                    "SELECT set_config('nce.namespace_id', %s, true);", [str(ns_id)]
-                )
+                cursor.execute("SELECT set_config('nce.namespace_id', %s, true);", [str(ns_id)])
 
                 # 2. Fetch events occurred_at <= as_of
                 cursor.execute(
@@ -208,9 +200,7 @@ class NceCognitiveStatsView(View):
                             if hasattr(r[3], "isoformat")
                             else str(r[3]),
                             "agent_id": r[4],
-                            "params": json.loads(r[5])
-                            if isinstance(r[5], str)
-                            else r[5],
+                            "params": json.loads(r[5]) if isinstance(r[5], str) else r[5],
                         }
                     )
 
@@ -230,11 +220,7 @@ class NceCognitiveStatsView(View):
                     tensor_raw = r[0]
                     tensor = []
                     if isinstance(tensor_raw, str):
-                        tensor = [
-                            float(x)
-                            for x in tensor_raw.strip("[]").split(",")
-                            if x.strip()
-                        ]
+                        tensor = [float(x) for x in tensor_raw.strip("[]").split(",") if x.strip()]
                     elif tensor_raw is not None:
                         tensor = [float(x) for x in tensor_raw]
 
@@ -296,9 +282,7 @@ class NceCognitiveStatsView(View):
                     "fault_nodes": self._derive_fault_nodes_from_db(ns_id, as_of),
                 }
 
-    def _derive_fault_nodes_from_db(
-        self, ns_id: Any, as_of: datetime
-    ) -> list[dict[str, Any]]:
+    def _derive_fault_nodes_from_db(self, ns_id: Any, as_of: datetime) -> list[dict[str, Any]]:
         """Extracts active predictive fault nodes in NCE core topology."""
         # Check if topology_graph or similar exists. Fallback if empty
         with connection.cursor() as cursor:

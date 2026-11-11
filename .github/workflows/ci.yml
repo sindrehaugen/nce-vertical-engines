@@ -25,7 +25,7 @@ jobs:
       - name: Build Wheelhouse & Wheel
         run: |
           python -m pip install --upgrade pip build wheel
-          python -m pip wheel --no-deps --wheel-dir /tmp/wheelhouse "git+https://github.com/sindrehaugen/neuro-cognitive-engine.git@v3.3.0"
+          python -m pip wheel --no-deps --wheel-dir /tmp/wheelhouse "git+https://github.com/sindrehaugen/neuro-cognitive-engine.git@v3.4.0"
           python -m build --wheel
 
       - name: Verify Single-Engine Wheel in Clean Venv (/tmp/venv_single)
@@ -60,7 +60,7 @@ jobs:
       - name: Build Wheelhouse & Wheel
         run: |
           python -m pip install --upgrade pip build wheel
-          python -m pip wheel --no-deps --wheel-dir /tmp/wheelhouse "git+https://github.com/sindrehaugen/neuro-cognitive-engine.git@v3.3.0"
+          python -m pip wheel --no-deps --wheel-dir /tmp/wheelhouse "git+https://github.com/sindrehaugen/neuro-cognitive-engine.git@v3.4.0"
           python -m build --wheel
 
       - name: Verify Type-Filter Wheel in Clean Venv (/tmp/venv_type)
@@ -93,7 +93,7 @@ jobs:
       - name: Build Wheelhouse & Wheel
         run: |
           python -m pip install --upgrade pip build wheel
-          python -m pip wheel --no-deps --wheel-dir /tmp/wheelhouse "git+https://github.com/sindrehaugen/neuro-cognitive-engine.git@v3.3.0"
+          python -m pip wheel --no-deps --wheel-dir /tmp/wheelhouse "git+https://github.com/sindrehaugen/neuro-cognitive-engine.git@v3.4.0"
           python -m build --wheel
 
       - name: Verify Category & Intersection Wheel in Clean Venv (/tmp/venv_cat)
@@ -131,21 +131,21 @@ jobs:
       - name: Install Full Suite & Dev Dependencies
         run: |
           python -m pip install --upgrade pip wheel
-          python -m pip wheel --no-deps --wheel-dir /tmp/wheelhouse "git+https://github.com/sindrehaugen/neuro-cognitive-engine.git@v3.3.0"
+          python -m pip wheel --no-deps --wheel-dir /tmp/wheelhouse "git+https://github.com/sindrehaugen/neuro-cognitive-engine.git@v3.4.0"
           pip install --find-links /tmp/wheelhouse -e ".[all,dev]"
 
       - name: Ruff Format & Lint
         run: |
-          ruff format --check nce_verticals/registry.py nce_verticals/plugin.py nce_verticals/cli.py nce_verticals/replay_fence.py nce_verticals/security/ nce_verticals/servers/ tests/test_registry_filters.py tests/unit/test_entra_salesforce.py tests/test_enterprise_23_engines_contract.py tests/security/test_v33_vertical_security.py
-          ruff check nce_verticals/ tests/test_registry_filters.py tests/unit/test_entra_salesforce.py tests/test_enterprise_23_engines_contract.py tests/security/test_v33_vertical_security.py
+          ruff format --check nce_verticals/registry.py nce_verticals/plugin.py nce_verticals/cli.py nce_verticals/replay_fence.py nce_verticals/security/ nce_verticals/servers/ src/nce-netbox-plugin/ tests/test_registry_filters.py tests/unit/test_entra_salesforce.py tests/test_enterprise_23_engines_contract.py tests/security/test_v33_vertical_security.py tests/security/test_v34_vertical_hardening.py tests/test_migration_sequence.py
+          ruff check nce_verticals/ src/nce-netbox-plugin/ tests/test_registry_filters.py tests/unit/test_entra_salesforce.py tests/test_enterprise_23_engines_contract.py tests/security/test_v33_vertical_security.py tests/security/test_v34_vertical_hardening.py tests/test_migration_sequence.py
 
       - name: Mypy Typecheck
         run: |
-          mypy nce_verticals/registry.py nce_verticals/cli.py nce_verticals/replay_fence.py nce_verticals/security/
+          mypy nce_verticals/registry.py nce_verticals/cli.py nce_verticals/replay_fence.py nce_verticals/security/ src/nce-netbox-plugin/
 
       - name: Run Modular & Vertical Unit Tests
         run: |
-          pytest tests/test_registry_filters.py tests/unit/test_entra_salesforce.py tests/test_enterprise_23_engines_contract.py tests/security/test_v33_vertical_security.py -q
+          pytest tests/test_registry_filters.py tests/unit/test_entra_salesforce.py tests/test_enterprise_23_engines_contract.py tests/security/test_v33_vertical_security.py tests/security/test_v34_vertical_hardening.py tests/test_migration_sequence.py -q
 
       - name: Build & Verify Full Wheel in Clean Venv (/tmp/venv_all)
         run: |

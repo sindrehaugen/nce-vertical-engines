@@ -10,7 +10,7 @@ Functions:
 from __future__ import annotations
 
 import logging
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from typing import Any
 from uuid import UUID
 
@@ -167,11 +167,11 @@ def validate_technician_regulatory_compliance(
     - ATEX/IECEx courses valid for maximum 1825 days (5 years).
     """
     if ref_date is None:
-        ref_date = date.today()
+        ref_date = datetime.now(timezone.utc).date()
     elif isinstance(ref_date, datetime):
         ref_date = ref_date.date()
     elif isinstance(ref_date, str):
-        ref_date = _parse_date_safe(ref_date) or date.today()
+        ref_date = _parse_date_safe(ref_date) or datetime.now(timezone.utc).date()
 
     norm_scope = str(regulatory_scope or "").strip().lower()
     req_groups = _SCOPE_REQUIREMENTS.get(norm_scope)
@@ -336,7 +336,7 @@ async def do_cert_status(engine: Any, params: dict[str, Any]) -> dict[str, Any]:
     warn_days = max(1, min(365, int(params.get("warn_days") or 90)))
     status_filter = str(params.get("status") or "all").strip().lower()
 
-    today = date.today()
+    today = datetime.now(timezone.utc).date()
     warn_threshold = today + timedelta(days=warn_days)
 
     query = [
@@ -451,7 +451,7 @@ async def do_check_hr_cert_expiry(
         else:
             ref_date = date.fromisoformat(str(ref_date_raw).split("T")[0])
     else:
-        ref_date = date.today()
+        ref_date = datetime.now(timezone.utc).date()
 
     query = """
         SELECT c.id, c.cert_id, c.employee_id, c.name, c.valid_to, c.status

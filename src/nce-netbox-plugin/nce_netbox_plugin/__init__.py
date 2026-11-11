@@ -15,14 +15,12 @@ class NceCognitiveDashboardConfig(PluginConfig):
 
     name = "nce_netbox_plugin"
     verbose_name = "NCE Cognitive Dashboard"
-    description = (
-        "Integrates NCE operator stress, incidents, and fault maps into NetBox"
-    )
+    description = "Integrates NCE operator stress, incidents, and fault maps into NetBox"
     version = "0.1.0"
     author = "NCE Architecture Team"
     author_email = "support@example.com"
     base_url = "nce-cognitive-dashboard"
-    required_settings = []
+    required_settings: list[str] = []
     default_settings = {
         "nce_admin_api_url": "http://localhost:8003",
     }

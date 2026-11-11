@@ -306,6 +306,11 @@ class AgreementsPlugin:
         mdir = Path(__file__).parent / "migrations"
         return mdir if mdir.is_dir() else None
 
+    async def verify_schema_prerequisites(self, conn: Any) -> bool:
+        from nce_verticals.security.http_guard import verify_entra_id_schema_gate
+
+        return await verify_entra_id_schema_gate(conn)
+
 
 class AssetsPlugin:
     plugin_id: str = "assets"
@@ -582,6 +587,11 @@ class AssetsPlugin:
         mdir = Path(__file__).parent / "migrations"
         return mdir if mdir.is_dir() else None
 
+    async def verify_schema_prerequisites(self, conn: Any) -> bool:
+        from nce_verticals.security.http_guard import verify_entra_id_schema_gate
+
+        return await verify_entra_id_schema_gate(conn)
+
 
 class BusinessInsightsPlugin:
     plugin_id: str = "business_insights"
@@ -735,6 +745,11 @@ class BusinessInsightsPlugin:
         mdir = Path(__file__).parent / "migrations"
         return mdir if mdir.is_dir() else None
 
+    async def verify_schema_prerequisites(self, conn: Any) -> bool:
+        from nce_verticals.security.http_guard import verify_entra_id_schema_gate
+
+        return await verify_entra_id_schema_gate(conn)
+
 
 class CustomerPortalPlugin:
     plugin_id: str = "customer_portal"
@@ -848,6 +863,11 @@ class CustomerPortalPlugin:
         mdir = Path(__file__).parent / "migrations"
         return mdir if mdir.is_dir() else None
 
+    async def verify_schema_prerequisites(self, conn: Any) -> bool:
+        from nce_verticals.security.http_guard import verify_entra_id_schema_gate
+
+        return await verify_entra_id_schema_gate(conn)
+
 
 class DiagnosticsPlugin:
     plugin_id: str = "diagnostics"
@@ -892,6 +912,11 @@ class DiagnosticsPlugin:
     def get_migration_dir(self) -> Path | None:
         mdir = Path(__file__).parent / "migrations"
         return mdir if mdir.is_dir() else None
+
+    async def verify_schema_prerequisites(self, conn: Any) -> bool:
+        from nce_verticals.security.http_guard import verify_entra_id_schema_gate
+
+        return await verify_entra_id_schema_gate(conn)
 
 
 class Dynamics365Plugin:
@@ -941,6 +966,11 @@ class Dynamics365Plugin:
     def get_migration_dir(self) -> Path | None:
         mdir = Path(__file__).parent / "migrations"
         return mdir if mdir.is_dir() else None
+
+    async def verify_schema_prerequisites(self, conn: Any) -> bool:
+        from nce_verticals.security.http_guard import verify_entra_id_schema_gate
+
+        return await verify_entra_id_schema_gate(conn)
 
 
 class EconomyPlugin:
@@ -1144,6 +1174,11 @@ class EconomyPlugin:
         mdir = Path(__file__).parent / "migrations"
         return mdir if mdir.is_dir() else None
 
+    async def verify_schema_prerequisites(self, conn: Any) -> bool:
+        from nce_verticals.security.http_guard import verify_entra_id_schema_gate
+
+        return await verify_entra_id_schema_gate(conn)
+
 
 class FieldTechPlugin:
     plugin_id: str = "field_tech"
@@ -1308,6 +1343,11 @@ class FieldTechPlugin:
         mdir = Path(__file__).parent / "migrations"
         return mdir if mdir.is_dir() else None
 
+    async def verify_schema_prerequisites(self, conn: Any) -> bool:
+        from nce_verticals.security.http_guard import verify_entra_id_schema_gate
+
+        return await verify_entra_id_schema_gate(conn)
+
 
 class GeodataPlugin:
     plugin_id: str = "geodata"
@@ -1374,6 +1414,11 @@ class GeodataPlugin:
     def get_migration_dir(self) -> Path | None:
         mdir = Path(__file__).parent / "migrations"
         return mdir if mdir.is_dir() else None
+
+    async def verify_schema_prerequisites(self, conn: Any) -> bool:
+        from nce_verticals.security.http_guard import verify_entra_id_schema_gate
+
+        return await verify_entra_id_schema_gate(conn)
 
 
 class HRPlugin:
@@ -1571,6 +1616,11 @@ class HRPlugin:
     def get_migration_dir(self) -> Path | None:
         mdir = Path(__file__).parent / "migrations"
         return mdir if mdir.is_dir() else None
+
+    async def verify_schema_prerequisites(self, conn: Any) -> bool:
+        from nce_verticals.security.http_guard import verify_entra_id_schema_gate
+
+        return await verify_entra_id_schema_gate(conn)
 
 
 class InventoryPlugin:
@@ -1791,6 +1841,11 @@ class InventoryPlugin:
         mdir = Path(__file__).parent / "migrations"
         return mdir if mdir.is_dir() else None
 
+    async def verify_schema_prerequisites(self, conn: Any) -> bool:
+        from nce_verticals.security.http_guard import verify_entra_id_schema_gate
+
+        return await verify_entra_id_schema_gate(conn)
+
 
 class LegalEntitiesPlugin:
     plugin_id: str = "legal_entities"
@@ -1826,6 +1881,11 @@ class LegalEntitiesPlugin:
     def get_migration_dir(self) -> Path | None:
         mdir = Path(__file__).parent / "migrations"
         return mdir if mdir.is_dir() else None
+
+    async def verify_schema_prerequisites(self, conn: Any) -> bool:
+        from nce_verticals.security.http_guard import verify_entra_id_schema_gate
+
+        return await verify_entra_id_schema_gate(conn)
 
 
 class MarketingPlugin:
@@ -1963,6 +2023,11 @@ class MarketingPlugin:
         mdir = Path(__file__).parent / "migrations"
         return mdir if mdir.is_dir() else None
 
+    async def verify_schema_prerequisites(self, conn: Any) -> bool:
+        from nce_verticals.security.http_guard import verify_entra_id_schema_gate
+
+        return await verify_entra_id_schema_gate(conn)
+
 
 class NetboxPlugin:
     plugin_id: str = "netbox"
@@ -1992,6 +2057,11 @@ class NetboxPlugin:
         mdir = Path(__file__).parent / "migrations"
         return mdir if mdir.is_dir() else None
 
+    async def verify_schema_prerequisites(self, conn: Any) -> bool:
+        from nce_verticals.security.http_guard import verify_entra_id_schema_gate
+
+        return await verify_entra_id_schema_gate(conn)
+
 
 class NotificationsPlugin:
     plugin_id: str = "notifications"
@@ -2018,6 +2088,11 @@ class NotificationsPlugin:
     def get_migration_dir(self) -> Path | None:
         mdir = Path(__file__).parent / "migrations"
         return mdir if mdir.is_dir() else None
+
+    async def verify_schema_prerequisites(self, conn: Any) -> bool:
+        from nce_verticals.security.http_guard import verify_entra_id_schema_gate
+
+        return await verify_entra_id_schema_gate(conn)
 
 
 class ProcurementPlugin:
@@ -2161,6 +2236,11 @@ class ProcurementPlugin:
         mdir = Path(__file__).parent / "migrations"
         return mdir if mdir.is_dir() else None
 
+    async def verify_schema_prerequisites(self, conn: Any) -> bool:
+        from nce_verticals.security.http_guard import verify_entra_id_schema_gate
+
+        return await verify_entra_id_schema_gate(conn)
+
 
 class ProductPlugin:
     plugin_id: str = "product"
@@ -2249,6 +2329,11 @@ class ProductPlugin:
     def get_migration_dir(self) -> Path | None:
         mdir = Path(__file__).parent / "migrations"
         return mdir if mdir.is_dir() else None
+
+    async def verify_schema_prerequisites(self, conn: Any) -> bool:
+        from nce_verticals.security.http_guard import verify_entra_id_schema_gate
+
+        return await verify_entra_id_schema_gate(conn)
 
 
 class ProjectPlugin:
@@ -2416,6 +2501,11 @@ class ProjectPlugin:
     def get_migration_dir(self) -> Path | None:
         mdir = Path(__file__).parent / "migrations"
         return mdir if mdir.is_dir() else None
+
+    async def verify_schema_prerequisites(self, conn: Any) -> bool:
+        from nce_verticals.security.http_guard import verify_entra_id_schema_gate
+
+        return await verify_entra_id_schema_gate(conn)
 
 
 class ResourcesPlugin:
@@ -2592,6 +2682,11 @@ class ResourcesPlugin:
     def get_migration_dir(self) -> Path | None:
         mdir = Path(__file__).parent / "migrations"
         return mdir if mdir.is_dir() else None
+
+    async def verify_schema_prerequisites(self, conn: Any) -> bool:
+        from nce_verticals.security.http_guard import verify_entra_id_schema_gate
+
+        return await verify_entra_id_schema_gate(conn)
 
 
 class SalesPlugin:
@@ -2861,6 +2956,11 @@ class SalesPlugin:
         mdir = Path(__file__).parent / "migrations"
         return mdir if mdir.is_dir() else None
 
+    async def verify_schema_prerequisites(self, conn: Any) -> bool:
+        from nce_verticals.security.http_guard import verify_entra_id_schema_gate
+
+        return await verify_entra_id_schema_gate(conn)
+
 
 class SitesPlugin:
     plugin_id: str = "sites"
@@ -2891,6 +2991,11 @@ class SitesPlugin:
     def get_migration_dir(self) -> Path | None:
         mdir = Path(__file__).parent / "migrations"
         return mdir if mdir.is_dir() else None
+
+    async def verify_schema_prerequisites(self, conn: Any) -> bool:
+        from nce_verticals.security.http_guard import verify_entra_id_schema_gate
+
+        return await verify_entra_id_schema_gate(conn)
 
 
 class SupportPlugin:
@@ -3139,6 +3244,11 @@ class SupportPlugin:
     def get_migration_dir(self) -> Path | None:
         mdir = Path(__file__).parent / "migrations"
         return mdir if mdir.is_dir() else None
+
+    async def verify_schema_prerequisites(self, conn: Any) -> bool:
+        from nce_verticals.security.http_guard import verify_entra_id_schema_gate
+
+        return await verify_entra_id_schema_gate(conn)
 
 
 class SystemDesignPlugin:
@@ -3784,6 +3894,11 @@ class SystemDesignPlugin:
         mdir = Path(__file__).parent / "migrations"
         return mdir if mdir.is_dir() else None
 
+    async def verify_schema_prerequisites(self, conn: Any) -> bool:
+        from nce_verticals.security.http_guard import verify_entra_id_schema_gate
+
+        return await verify_entra_id_schema_gate(conn)
+
 
 class VendorsPlugin:
     plugin_id: str = "vendors"
@@ -3942,6 +4057,11 @@ class VendorsPlugin:
         mdir = Path(__file__).parent / "migrations"
         return mdir if mdir.is_dir() else None
 
+    async def verify_schema_prerequisites(self, conn: Any) -> bool:
+        from nce_verticals.security.http_guard import verify_entra_id_schema_gate
+
+        return await verify_entra_id_schema_gate(conn)
+
 
 class EntraIDPlugin:
     """Microsoft Entra ID Identification Point & Company Allowlist Gate Plugin."""
@@ -4037,6 +4157,11 @@ class EntraIDPlugin:
     def get_migration_dir(self) -> Path | None:
         mdir = Path(__file__).parent / "migrations"
         return mdir if mdir.is_dir() else None
+
+    async def verify_schema_prerequisites(self, conn: Any) -> bool:
+        from nce_verticals.security.http_guard import verify_entra_id_schema_gate
+
+        return await verify_entra_id_schema_gate(conn)
 
 
 class SalesforcePlugin:
@@ -4195,6 +4320,11 @@ class SalesforcePlugin:
         mdir = Path(__file__).parent / "migrations"
         return mdir if mdir.is_dir() else None
 
+    async def verify_schema_prerequisites(self, conn: Any) -> bool:
+        from nce_verticals.security.http_guard import verify_entra_id_schema_gate
+
+        return await verify_entra_id_schema_gate(conn)
+
 
 class OdooPlugin:
     """Standalone & Integrated Super-Intelligent Odoo Vertical Engine + LLM Cross-Talker Plugin."""
@@ -4313,6 +4443,11 @@ class OdooPlugin:
     def get_migration_dir(self) -> Path | None:
         mdir = Path(__file__).parent / "migrations"
         return mdir if mdir.is_dir() else None
+
+    async def verify_schema_prerequisites(self, conn: Any) -> bool:
+        from nce_verticals.security.http_guard import verify_entra_id_schema_gate
+
+        return await verify_entra_id_schema_gate(conn)
 
 
 class VerticalEnginesPlugin:

@@ -73,14 +73,17 @@ except ImportError:
                 req_headers.setdefault("Content-Type", "application/x-www-form-urlencoded")
 
             def _sync_call() -> _CompatResponse:
-                req = urllib.request.Request(
+                parsed = urllib.parse.urlsplit(full_url)
+                if parsed.scheme not in {"http", "https"}:
+                    raise ValueError(f"Disallowed URL scheme: {parsed.scheme}")
+                req = urllib.request.Request(  # noqa: S310
                     full_url,
                     data=body_bytes,
                     headers=req_headers,
                     method=method.upper(),
                 )
                 try:
-                    with urllib.request.urlopen(req, timeout=self._timeout) as resp:
+                    with urllib.request.urlopen(req, timeout=self._timeout) as resp:  # noqa: S310
                         return _CompatResponse(resp.status, resp.read())
                 except urllib.error.HTTPError as err:
                     return _CompatResponse(err.code, err.read())

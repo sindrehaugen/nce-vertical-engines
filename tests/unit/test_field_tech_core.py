@@ -1241,7 +1241,7 @@ def test_contractor_compliance_ekom_dnv_and_iso() -> None:
 @pytest.mark.asyncio
 async def test_dispatch_regulatory_scope_disqualification_and_ranking() -> None:
     """do_dispatch disqualifies non-compliant candidates and records them in disqualified_candidates."""
-    from datetime import date, timedelta
+    from datetime import datetime, timedelta, timezone
 
     conn = AsyncMock()
     conn.fetchrow.return_value = {
@@ -1255,7 +1255,7 @@ async def test_dispatch_regulatory_scope_disqualification_and_ranking() -> None:
     conn.fetch.side_effect = [[], []]
     pool = _make_mock_pool(conn)
 
-    today = date.today()
+    today = datetime.now(timezone.utc).date()
 
     candidates = [
         # 1. Compliant Employee
