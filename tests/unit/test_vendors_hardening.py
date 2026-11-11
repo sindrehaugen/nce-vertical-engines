@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import json
 from contextlib import asynccontextmanager
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
@@ -945,8 +945,8 @@ class TestVendorsPerformance:
         engine = _MockEngine(pg_pool=MagicMock())
         conn = _make_mock_conn()
         rows = [
-            {"tlx_scores": json.dumps({"rating": 4.5}), "created_at": datetime.now()},
-            {"tlx_scores": json.dumps({"rating": 5.0}), "created_at": datetime.now()},
+            {"tlx_scores": json.dumps({"rating": 4.5}), "created_at": datetime.now(timezone.utc)},
+            {"tlx_scores": json.dumps({"rating": 5.0}), "created_at": datetime.now(timezone.utc)},
         ]
         conn.fetch = AsyncMock(return_value=rows)
 
@@ -967,7 +967,7 @@ class TestVendorsPerformance:
         conn = _make_mock_conn()
 
         rows = [
-            {"tlx_scores": json.dumps({"rating": 4.0}), "created_at": datetime.now()}
+            {"tlx_scores": json.dumps({"rating": 4.0}), "created_at": datetime.now(timezone.utc)}
             for _ in range(5)
         ]
         conn.fetch = AsyncMock(return_value=rows)
@@ -1098,7 +1098,7 @@ class TestVendorsContractorsAndPartnerView:
                 "skills": [],
                 "availability": {},
                 "performance_score": 90.0,
-                "updated_at": datetime.now(),
+                "updated_at": datetime.now(timezone.utc),
             }
         )
 

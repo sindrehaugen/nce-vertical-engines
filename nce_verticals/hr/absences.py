@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import json
 import logging
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -116,7 +116,7 @@ async def do_register_absence(engine: Any, params: dict[str, Any]) -> dict[str, 
     comp_eval = evaluate_absence_compliance(
         absence_type=absence_type,
         start_date=start_d,
-        as_of_date=date.today(),
+        as_of_date=datetime.now(timezone.utc).date(),
         existing_compliance=raw.get("compliance"),
     )
     compliance_state = comp_eval["compliance_state"]

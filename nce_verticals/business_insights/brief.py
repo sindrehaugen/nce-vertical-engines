@@ -16,7 +16,7 @@ Contract:
 from __future__ import annotations
 
 import logging
-from datetime import date, datetime, timezone
+from datetime import datetime, timezone
 from typing import Any
 from uuid import UUID
 
@@ -61,7 +61,7 @@ async def do_morning_brief(engine: Any, params: dict[str, Any]) -> dict[str, Any
     assert_exec_or_board_role(principal_role)
 
     actor = params.get("actor", "system")
-    briefing_date = params.get("date") or date.today().isoformat()
+    briefing_date = params.get("date") or datetime.now(timezone.utc).date().isoformat()
     simulate_unprovenanced = params.get("simulate_unprovenanced_claim", False)
 
     overrides = (

@@ -13,11 +13,27 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import xmlrpc.client
+import xmlrpc.client  # nosec B411
 from typing import Any
+
+from defusedxml import xmlrpc as defused_xmlrpc
+from defusedxml.common import DefusedXmlException, DTDForbidden, EntitiesForbidden
 
 from nce_verticals.entra_id._http_compat import httpx
 from nce_verticals.odoo.auth import OdooAuthConfig
+from nce_verticals.security.http_guard import validate_outbound_url
+
+# Monkey patch stdlib xmlrpc.client to use defusedxml expat parser
+# mitigating Billion Laughs and XML DTD entity expansion vulnerabilities.
+defused_xmlrpc.monkey_patch()
+
+__all__ = [
+    "DTDForbidden",
+    "DefusedXmlException",
+    "EntitiesForbidden",
+    "OdooAPIError",
+    "OdooClient",
+]
 
 log = logging.getLogger("nce_verticals.odoo.client")
 
@@ -34,12 +50,13 @@ class OdooAPIError(RuntimeError):
 
 
 class _TimeoutServerProxy(xmlrpc.client.ServerProxy):
-    """XML-RPC ServerProxy with explicit socket timeout (<5s)."""
+    """XML-RPC ServerProxy with explicit socket timeout (<5s) and defusedxml protection."""
 
     def __init__(self, uri: str, timeout: float = 4.5) -> None:
+        validated_uri = validate_outbound_url(uri)
         transport = (
             xmlrpc.client.SafeTransport()
-            if uri.startswith("https://")
+            if validated_uri.startswith("https://")
             else xmlrpc.client.Transport()
         )
         orig_make_conn = transport.make_connection
@@ -50,13 +67,15 @@ class _TimeoutServerProxy(xmlrpc.client.ServerProxy):
             return conn
 
         transport.make_connection = _make_conn_with_timeout  # type: ignore[method-assign]
-        super().__init__(uri, transport=transport, allow_none=True)
+        super().__init__(validated_uri, transport=transport, allow_none=True)
 
 
 class OdooClient:
     """Async multi-protocol Odoo client supporting JSON-RPC 2.0, XML-RPC, and REST/OAuth2."""
 
     def __init__(self, config: OdooAuthConfig, *, http_client: Any = None) -> None:
+        if config.url:
+            config.url = validate_outbound_url(config.url).rstrip("/")
         self.config = config
         self._http_client = http_client
         self._uid: int | None = config.uid
@@ -69,6 +88,8 @@ class OdooClient:
 
         if not self.config.url:
             raise OdooAPIError("Odoo URL is not configured", code="ODOO_NOT_CONFIGURED")
+
+        self.config.url = validate_outbound_url(self.config.url).rstrip("/")
 
         protocol = self.config.protocol
         if protocol == "xmlrpc":

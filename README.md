@@ -3,9 +3,9 @@
 > 22 operational business engines, enterprise IT/ERP integrations, and domain modules built on the Neuro-Cognitive Engine (NCE) substrate.
 
 <p>
-  <img alt="version" src="https://img.shields.io/badge/version-3.1.0-blue">
+  <img alt="version" src="https://img.shields.io/badge/version-3.4.0-blue">
   <img alt="python" src="https://img.shields.io/badge/python-3.10%2B-3776ab">
-  <img alt="substrate" src="https://img.shields.io/badge/substrate-NCE%20v3.1.0-6e40c9">
+  <img alt="substrate" src="https://img.shields.io/badge/substrate-NCE%20v3.4.0-6e40c9">
   <img alt="license" src="https://img.shields.io/badge/license-AGPL--3.0-blue">
 </p>
 
@@ -176,6 +176,8 @@ Filters engines based on organizational departments, operational workflows, and 
 
 ## 5 Installation & Runtime Activation Modes
 
+> **Substrate Requirement:** Requires Core `neuro-cognitive-engine>=3.4.0,<4.0.0`. For enterprise identity and token verification, install with the `entra_id` extra: `pip install "nce-vertical-engines[entra_id]"`.
+
 Deployments can activate vertical engines through 5 flexible modes:
 
 ### Mode 1: Single Engine
@@ -272,6 +274,17 @@ Enterprise authentication across standalone servers and admin endpoints is gover
 - **Allowed Algorithms**: Strictly limited to `RS256` and `ES256`.
 - **Claim Checking**: Validates `iss`, `aud`, `exp`, `nbf`, `tid`, and `oid`.
 - **Security Groups & App Roles**: Verifies Microsoft Graph group object IDs and Enterprise Application App Roles before granting administrative access.
+- **Migration `075` Security Gate**: Schema gate `075_entra_id_security_gate.sql` validates tenant identity bindings, app role claims, and cryptographic JWKS signatures before mounting Salesforce and Entra-protected routes.
+
+### HTTP Ingress & Egress Guards (`nce_verticals.security.http_guard`)
+Enterprise communication paths are protected by strict boundary guards:
+- **`BoundedBodyMiddleware` (HTTP 413):** All standalone ASGI servers (`nce-portal-server`, `nce-odoo-server`, `nce-salesforce-server`) enforce `BoundedBodyMiddleware` (`NCE_MAX_HTTP_BODY_BYTES`, default 10 MiB), rejecting oversized payloads with HTTP `413 Payload Too Large`.
+- **SSRF Egress Guard (`validate_outbound_url`):** External outbound requests across Odoo, Salesforce, NetBox, and geodata adapters are validated to block private subnets, loopback, Carrier-Grade NAT (`100.64.0.0/10`), and IPv4-mapped IPv6 metadata traversal (`::ffff:169.254.169.254`).
+
+### Odoo XML-RPC Hardening (`defusedxml.xmlrpc`)
+The Odoo connector wraps XML-RPC communication via `defusedxml.xmlrpc`:
+- **Billion Laughs & DTD Entity Protection:** Rejects XML entity expansion, recursive entity nesting, and quadratic blowup payloads.
+- **XXE Prevention:** Completely disables external entity parsing and file disclosure vulnerabilities during remote XML-RPC interactions.
 
 ### Workplace Telemetry Opt-In Gate (`NCE_ENABLE_WORKPLACE_TELEMETRY=false`)
 In adherence to privacy regulations and labor laws (e.g. GDPR, *Arbeidsmiljøloven* § 13), **longitudinal operator stress tracking is strictly disabled by default**:
@@ -362,7 +375,7 @@ pytest tests/integration/ -m integration
 
 Comprehensive guides, specifications, and reference materials are maintained in the [`docs/`](docs/) directory:
 
-- **Dual-Axis Architecture**: [`docs/DUAL_AXIS_ARCHITECTURE.md`](docs/DUAL_AXIS_ARCHITECTURE.md) — Comprehensive spec on the Dual-Axis Resolver, topological schema graph, and Core `@v3.0.0` contracts.
+- **Dual-Axis Architecture**: [`docs/DUAL_AXIS_ARCHITECTURE.md`](docs/DUAL_AXIS_ARCHITECTURE.md) — Comprehensive spec on the Dual-Axis Resolver, topological schema graph, and Core `@v3.4.0` contracts.
 - **Engine Specifications**: [`docs/vertical_engines/`](docs/vertical_engines/) — In-depth architectural specs for all engines.
 - **User & Admin Guides**: [`docs/engines/`](docs/engines/) — Operational guides for end users and system administrators.
 - **Integration References**:

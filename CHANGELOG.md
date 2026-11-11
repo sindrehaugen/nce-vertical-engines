@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.4.0] - 2026-11-11
+
+### Added
+- **ASGI Ingress Cap (`BoundedBodyMiddleware`):** Integrated `BoundedBodyMiddleware` (`NCE_MAX_HTTP_BODY_BYTES`, default 10 MiB) across all standalone servers (`nce-portal-server`, `nce-odoo-server`, `nce-salesforce-server`), rejecting oversized payloads with HTTP `413 Payload Too Large`.
+- **SSRF Outbound Egress Guard (`validate_outbound_url`):** Hardened external integration endpoints across Odoo, Salesforce, NetBox, Lucid, and geodata against private subnets, Carrier-Grade NAT (`100.64.0.0/10`), and IPv4-mapped IPv6 metadata traversal (`::ffff:169.254.169.254`).
+- **Odoo XML-RPC Defusal (`defusedxml.xmlrpc`):** Replaced standard XML-RPC parsing with `defusedxml.xmlrpc` in the Odoo ERP connector, mitigating Billion Laughs entity expansion and XXE attacks.
+- **Migration `075` Entra ID Security Gate:** Enforced schema gate `075_entra_id_security_gate.sql` ensuring verified tenant claims, app roles, and JWKS algorithm restrictions before runtime initialization.
+- **`entra_id` Packaging Extra:** Added dedicated `entra_id` dependency extra to `pyproject.toml` for modular enterprise identity verification.
+
+### Changed
+- **Substrate Requirement Alignment:** Aligned Core substrate dependency to `neuro-cognitive-engine>=3.4.0,<4.0.0`.
+- **Dual-Axis Classification Consistency:** Maintained exact canonical taxonomy across 5 system types (`core-domain`, `erp-crm`, `infra-iot`, `observability`, `portal`) and 7 business categories (`commercial`, `operations-delivery`, `finance-governance`, `service-support`, `av-it-integrator`, `enterprise-erp`, `field-service-ops`).
+
+### Security
+- **Inherited Core Security Architecture:** Full operational alignment with NCE Core v3.4.0 WORM advisory locks, KEK/DEK envelope encryption, and CI security gates.
+
+---
+
 ## [3.3.0] - 2026-11-10
 
 ### Added

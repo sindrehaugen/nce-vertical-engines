@@ -6,6 +6,7 @@ Reliability radar and scorecard weight calibration (Batch 104).
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 from pathlib import Path
@@ -389,8 +390,8 @@ async def do_calibrate_weights(
 
         # 4. Overwrite vendor-scorecard-weights.json config file
         weights_path = _CONFIG_DATA_DIR / "vendor-scorecard-weights.json"
-        if weights_path.exists():
-            try:
+        if await asyncio.to_thread(weights_path.exists):
+            def _sync_write():
                 with open(weights_path, encoding="utf-8") as f:
                     orig_json = json.load(f)
 
@@ -402,6 +403,9 @@ async def do_calibrate_weights(
 
                 with open(weights_path, "w", encoding="utf-8") as f:
                     json.dump(write_json, f, indent=2, ensure_ascii=False)
+
+            try:
+                await asyncio.to_thread(_sync_write)
             except Exception as e:
                 log.error("Failed to write calibrated weights: %s", e)
 

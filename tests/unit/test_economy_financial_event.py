@@ -428,9 +428,9 @@ def test_stored_timestamptz_round_trip_verifies() -> None:
 @pytest.mark.parametrize(
     "event_overrides",
     [
-        {"occurred_at": datetime(2026, 4, 18, 10, 0, 0)},
-        {"payload": {"approved_at": datetime(2026, 4, 18, 10, 0, 0)}},
-        {"payload": {"lines": [{"due": datetime(2026, 4, 18, 10, 0, 0)}]}},
+        {"occurred_at": datetime(2026, 4, 18, 10, 0, 0)},  # noqa: DTZ001 — intentional test of naive rejection
+        {"payload": {"approved_at": datetime(2026, 4, 18, 10, 0, 0)}},  # noqa: DTZ001 — intentional test of naive rejection
+        {"payload": {"lines": [{"due": datetime(2026, 4, 18, 10, 0, 0)}]}},  # noqa: DTZ001 — intentional test of naive rejection
     ],
 )
 def test_naive_datetime_is_rejected(event_overrides: dict) -> None:

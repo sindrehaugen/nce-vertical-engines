@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import json
 import logging
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from typing import Any
 from uuid import UUID
 
@@ -179,7 +179,7 @@ async def do_record_certification(
 
     issued_raw = params.get("issued")
     if issued_raw is None or str(issued_raw).strip() == "":
-        issued_date = date.today()
+        issued_date = datetime.now(timezone.utc).date()
     elif isinstance(issued_raw, (date, datetime)):
         issued_date = (
             issued_raw.date() if isinstance(issued_raw, datetime) else issued_raw

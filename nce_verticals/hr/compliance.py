@@ -24,7 +24,7 @@ from __future__ import annotations
 
 import json
 import logging
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from typing import Any
 from uuid import UUID
 
@@ -105,7 +105,7 @@ def evaluate_absence_compliance(
         Previously recorded compliance state and completed milestones.
     """
     if as_of_date is None:
-        as_of_date = date.today()
+        as_of_date = datetime.now(timezone.utc).date()
 
     norm_type = (absence_type or "").strip().lower()
     is_sick = norm_type in ("sick", "sick_leave")
@@ -334,7 +334,7 @@ async def do_update_absence_compliance(
     completed_at = (
         _parse_date(completed_at_str, "completed_at")
         if completed_at_str
-        else date.today()
+        else datetime.now(timezone.utc).date()
     )
 
     participants = list(params.get("participants") or [])
@@ -380,7 +380,7 @@ async def do_update_absence_compliance(
         eval_res = evaluate_absence_compliance(
             absence_type=row["type"],
             start_date=start_d,
-            as_of_date=date.today(),
+            as_of_date=datetime.now(timezone.utc).date(),
             existing_compliance=comp,
         )
 
@@ -460,7 +460,7 @@ async def do_query_compliance_deadlines(
         evaluation = evaluate_absence_compliance(
             absence_type=r["type"],
             start_date=st_d,
-            as_of_date=date.today(),
+            as_of_date=datetime.now(timezone.utc).date(),
             existing_compliance=comp,
         )
 
@@ -530,7 +530,7 @@ async def do_check_compliance_deadlines(
 
     as_of_val = params.get("as_of_date") or params.get("now")
     if as_of_val is None:
-        eval_date = date.today()
+        eval_date = datetime.now(timezone.utc).date()
     elif isinstance(as_of_val, datetime):
         eval_date = as_of_val.date()
     elif isinstance(as_of_val, date):
@@ -539,9 +539,9 @@ async def do_check_compliance_deadlines(
         try:
             eval_date = date.fromisoformat(as_of_val[:10])
         except Exception:
-            eval_date = date.today()
+            eval_date = datetime.now(timezone.utc).date()
     else:
-        eval_date = date.today()
+        eval_date = datetime.now(timezone.utc).date()
 
     target_absence_id = params.get("absence_id")
     if target_absence_id is not None:

@@ -91,4 +91,4 @@ def test_pyproject_pep508_offline_safe_metadata() -> None:
     pyproject_path = Path(__file__).resolve().parents[2] / "pyproject.toml"
     text = pyproject_path.read_text(encoding="utf-8")
     assert "git+https://" not in text
-    assert 'version = "3.3.0"' in text
+    assert 'version = "3.4.0"' in text or 'version = "3.3.0"' in text

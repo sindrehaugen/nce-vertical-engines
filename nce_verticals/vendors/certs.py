@@ -7,7 +7,7 @@ Certification modeling and watcher for the Vendors Engine (Batch 101).
 from __future__ import annotations
 
 import logging
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from typing import Any
 from uuid import UUID
 
@@ -57,14 +57,14 @@ def validate_contractor_regulatory_compliance(
       ISO 14001, ISO 45001) is active and not expired.
     """
     if ref_date is None:
-        ref_date = date.today()
+        ref_date = datetime.now(timezone.utc).date()
     elif isinstance(ref_date, datetime):
         ref_date = ref_date.date()
     elif isinstance(ref_date, str):
         try:
             ref_date = date.fromisoformat(ref_date.split("T")[0])
         except Exception:
-            ref_date = date.today()
+            ref_date = datetime.now(timezone.utc).date()
 
     norm_scope = str(regulatory_scope or "electrical_lv").strip().lower()
     reasons: list[str] = []
@@ -372,7 +372,7 @@ async def do_check_cert_expiry(
         else:
             ref_date = date.fromisoformat(str(ref_date_raw))
     else:
-        ref_date = date.today()
+        ref_date = datetime.now(timezone.utc).date()
 
     # Calculate warning date threshold
     warn_date = ref_date + timedelta(days=NCE_VENDORS_CERT_EXPIRY_WARN_DAYS)

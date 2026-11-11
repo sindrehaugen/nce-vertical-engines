@@ -13,7 +13,7 @@ Enforces the Three Red Lines:
 from __future__ import annotations
 
 import logging
-from datetime import date
+from datetime import datetime, timezone
 from typing import Any
 from uuid import UUID
 
@@ -85,7 +85,7 @@ async def do_log_one_on_one(engine: Any, params: dict[str, Any]) -> dict[str, An
     redacted_notes = redact_hr_text(raw_notes)
 
     action_items = list(params.get("action_items") or [])
-    session_date = str(params.get("session_date") or date.today().isoformat()).strip()
+    session_date = str(params.get("session_date") or datetime.now(timezone.utc).date().isoformat()).strip()
     hr_source_id = params.get("hr_source_id")
 
     # RL-2: Objective overload check (no sentiment analysis)

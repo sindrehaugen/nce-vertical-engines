@@ -14,7 +14,7 @@ import json
 import logging
 import re
 import unicodedata
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from functools import lru_cache
 from typing import TYPE_CHECKING, Any
 from uuid import UUID
@@ -431,7 +431,7 @@ async def dashboard_aggregate_helper(
     today: date | None = None,
 ) -> dict[str, Any]:
     ns_str = str(namespace_id)
-    d0 = today or date.today()
+    d0 = today or datetime.now(timezone.utc).date()
     iso_today = d0.isoformat()
     iso_30 = (d0 + timedelta(days=30)).isoformat()
 
@@ -680,7 +680,7 @@ async def manager_dashboard_helper(
     offset: int = 0,
 ) -> dict[str, Any]:
     ns_str = str(namespace_id)
-    d0 = today or date.today()
+    d0 = today or datetime.now(timezone.utc).date()
     key, start, end = _period_range(period, d0, offset)
     iso_today = d0.isoformat()
     warnings: list[str] = []
@@ -1154,7 +1154,7 @@ async def stats_dashboard_helper(
     offset: int = 0,
 ) -> dict[str, Any]:
     ns_str = str(namespace_id)
-    d0 = today or date.today()
+    d0 = today or datetime.now(timezone.utc).date()
     key, start, end = _period_range(period, d0, offset)
     warnings: list[str] = []
 
@@ -1505,7 +1505,7 @@ async def do_sales_dashboard(
         elif isinstance(today_val, date):
             today_date = today_val
         else:
-            today_date = date.today()
+            today_date = datetime.now(timezone.utc).date()
 
         data = await dashboard_aggregate_helper(
             conn, namespace_id, owner, team=team, today=today_date
@@ -1513,7 +1513,7 @@ async def do_sales_dashboard(
         data["scope"] = "team" if team else "mine"
         data["user"] = slug
         data["owner"] = owner
-        data["generatedAt"] = datetime.now().isoformat()
+        data["generatedAt"] = datetime.now(timezone.utc).isoformat()
         return data
 
 
@@ -1533,13 +1533,13 @@ async def do_sales_stats(engine: NCEEngine, params: dict[str, Any]) -> dict[str,
     elif isinstance(today_val, date):
         today_date = today_val
     else:
-        today_date = date.today()
+        today_date = datetime.now(timezone.utc).date()
 
     async with scoped_pg_session(engine.pg_pool, namespace_id) as conn:
         data = await stats_dashboard_helper(
             conn, namespace_id, period, today=today_date, offset=offset
         )
-        data["generatedAt"] = datetime.now().isoformat()
+        data["generatedAt"] = datetime.now(timezone.utc).isoformat()
         return data
 
 
@@ -1559,13 +1559,13 @@ async def do_sales_manager(engine: NCEEngine, params: dict[str, Any]) -> dict[st
     elif isinstance(today_val, date):
         today_date = today_val
     else:
-        today_date = date.today()
+        today_date = datetime.now(timezone.utc).date()
 
     async with scoped_pg_session(engine.pg_pool, namespace_id) as conn:
         data = await manager_dashboard_helper(
             conn, namespace_id, period, today=today_date, offset=offset
         )
-        data["generatedAt"] = datetime.now().isoformat()
+        data["generatedAt"] = datetime.now(timezone.utc).isoformat()
         return data
 
 

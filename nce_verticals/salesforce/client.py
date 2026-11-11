@@ -18,6 +18,7 @@ from collections.abc import AsyncIterator
 from typing import Any
 
 from nce_verticals.entra_id._http_compat import httpx
+from nce_verticals.security.http_guard import validate_outbound_url
 
 log = logging.getLogger("nce_verticals.salesforce.client")
 
@@ -44,7 +45,7 @@ class SalesforceClient:
         api_version: str = "v60.0",
         http_client: httpx.AsyncClient | None = None,
     ) -> None:
-        self.instance_url = instance_url.rstrip("/")
+        self.instance_url = validate_outbound_url(instance_url).rstrip("/")
         self.access_token = access_token
         self.api_version = api_version if api_version.startswith("v") else f"v{api_version}"
         self._external_client = http_client
@@ -73,6 +74,7 @@ class SalesforceClient:
             if path_or_url.startswith("http://") or path_or_url.startswith("https://")
             else f"{self.instance_url}{path_or_url}"
         )
+        url = validate_outbound_url(url)
 
         if self._external_client is not None:
             resp = await self._external_client.request(

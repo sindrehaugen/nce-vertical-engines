@@ -17,7 +17,7 @@ Verifies:
 
 from __future__ import annotations
 
-from datetime import date, datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone
 from typing import get_args
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
@@ -467,7 +467,7 @@ async def test_get_morning_brief_hr_slice() -> None:
             {
                 "id": uuid4(),
                 "employee_id": "EMP-010",
-                "start_date": date.today() - timedelta(days=25),
+                "start_date": datetime.now(timezone.utc).date() - timedelta(days=25),
                 "raw": {"compliance_completed_milestones": []},
             }
         ],
@@ -637,7 +637,7 @@ async def test_morning_brief_hr_slice_compliance_milestones_and_thresholds() -> 
             {
                 "id": uuid4(),
                 "employee_id": "EMP-100",
-                "start_date": date.today() - timedelta(days=50),
+                "start_date": datetime.now(timezone.utc).date() - timedelta(days=50),
                 "raw": json.dumps(
                     {
                         "compliance": {
@@ -652,7 +652,7 @@ async def test_morning_brief_hr_slice_compliance_milestones_and_thresholds() -> 
             {
                 "id": uuid4(),
                 "employee_id": "EMP-101",
-                "start_date": date.today() - timedelta(days=175),
+                "start_date": datetime.now(timezone.utc).date() - timedelta(days=175),
                 "raw": json.dumps(
                     {
                         "compliance": {

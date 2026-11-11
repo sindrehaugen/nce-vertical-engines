@@ -43,7 +43,7 @@ from __future__ import annotations
 
 import json
 import uuid
-from datetime import date, timedelta
+from datetime import datetime, timedelta, timezone
 
 import asyncpg
 import pytest
@@ -85,7 +85,7 @@ async def _create_sick_leave(
     days_ago: int,
     raw: dict,
 ) -> None:
-    start = date.today() - timedelta(days=days_ago)
+    start = datetime.now(timezone.utc).date() - timedelta(days=days_ago)
     async with pg_pool.acquire() as conn:
         await conn.execute(
             """

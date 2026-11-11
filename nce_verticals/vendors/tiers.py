@@ -160,7 +160,7 @@ async def do_get_tier_status(
 
     # 4. Calculate YTD volume (real spend) for this vendor
     # We query match outcomes / match decisions from v3_cognitive_ledger in the current year
-    today = datetime.date.today()
+    today = datetime.datetime.now(datetime.timezone.utc).date()
     start_of_year = datetime.datetime(
         today.year, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc
     )

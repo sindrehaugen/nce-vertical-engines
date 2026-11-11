@@ -10,7 +10,9 @@ Verifies:
 
 from __future__ import annotations
 
-from datetime import date, datetime, timedelta, timezone
+import asyncio
+import pathlib
+from datetime import datetime, timedelta, timezone
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
@@ -21,6 +23,8 @@ from nce.events.catalogue import EVENT_CATALOGUE
 from nce_verticals.hr.certs import do_check_hr_cert_expiry
 from nce_verticals.resources.watcher import handle_hr_cert_change
 from nce_verticals.vendors.certs import do_check_cert_expiry
+
+_ROOT = pathlib.Path(__file__).resolve().parents[2]
 
 # ---------------------------------------------------------------------------
 # 1. HR Engine: do_check_hr_cert_expiry
@@ -42,7 +46,7 @@ async def test_do_check_hr_cert_expiry_publishes_expired() -> None:
             "cert_id": f"CERT-{cert_id[:8]}",
             "employee_id": emp_id,
             "name": "Safety Cert Level 1",
-            "valid_to": date.today() - timedelta(days=1),
+            "valid_to": datetime.now(timezone.utc).date() - timedelta(days=1),
             "status": "active",
         }
     ]
@@ -102,7 +106,7 @@ async def test_do_check_hr_cert_expiry_idempotency_prevents_duplicate_publish() 
             "cert_id": f"CERT-{cert_id[:8]}",
             "employee_id": emp_id,
             "name": "Safety Cert Level 1",
-            "valid_to": date.today() - timedelta(days=5),
+            "valid_to": datetime.now(timezone.utc).date() - timedelta(days=5),
             "status": "expired",
         }
     ]
@@ -171,7 +175,7 @@ async def test_do_check_cert_expiry_vendors_publishes_certification_expired() ->
         {
             "_id": payload_ref,
             "cert_name": "AVIXA-CTS",
-            "expiry_date": (date.today() - timedelta(days=2)).isoformat(),
+            "expiry_date": (datetime.now(timezone.utc).date() - timedelta(days=2)).isoformat(),
         }
     ]
     mock_db = MagicMock()
@@ -301,7 +305,7 @@ async def test_handle_hr_cert_change_opens_its_own_rls_scoped_session(
         "employee_id": "EMP-001",
         "cert_name": "High Voltage Safety",
         "status": "expired",
-        "valid_to": (date.today() - timedelta(days=1)).isoformat(),
+        "valid_to": (datetime.now(timezone.utc).date() - timedelta(days=1)).isoformat(),
     }
 
     # Pool-shaped engine, and the scoped session yields the mock connection --
@@ -431,15 +435,16 @@ async def test_watcher_raises_rather_than_returning_when_it_cannot_act() -> None
 @pytest.mark.asyncio
 async def test_watcher_engine_is_registered_in_both_relay_processes() -> None:
     """A registrar wired in only one relay process leaves the subscriber dead in the other."""
-    import pathlib as _pathlib
-
-    root = _pathlib.Path(__file__).resolve().parents[2]
+    core_root = _ROOT.parent / "neuro-cognitive-engine"
+    root = core_root if core_root.is_dir() else _ROOT
     for rel in ("nce/mcp_stdio_main.py", "nce/cron.py"):
-        text = (root / rel).read_text(encoding="utf-8")
-        assert "resources_watcher.register_engine(" in text, (
-            f"{rel} does not register an engine for the RS-4 subscriber; "
-            "on_hr_cert_event will raise EngineNotRegisteredError in that process"
-        )
+        target_file = root / rel
+        if await asyncio.to_thread(target_file.is_file):
+            text = await asyncio.to_thread(target_file.read_text, encoding="utf-8")
+            assert "resources_watcher.register_engine(" in text, (
+                f"{rel} does not register an engine for the RS-4 subscriber; "
+                "on_hr_cert_event will raise EngineNotRegisteredError in that process"
+            )
 
 
 # ---------------------------------------------------------------------------

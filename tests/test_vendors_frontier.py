@@ -6,6 +6,7 @@ Integration tests for Batch 104 — Module 4.Wave 11 (reliability-frontier).
 
 from __future__ import annotations
 
+import asyncio
 import json
 import uuid
 from typing import Any
@@ -399,9 +400,9 @@ async def test_calibrate_weights(
         assert abs(total_sum - 1.0) < 1e-9
 
         # Ensure the config file was overwritten
-        assert weights_file.exists()
-        with open(weights_file, encoding="utf-8") as f:
-            updated_json = json.load(f)
+        assert await asyncio.to_thread(weights_file.exists)
+        raw_text = await asyncio.to_thread(weights_file.read_text, encoding="utf-8")
+        updated_json = json.loads(raw_text)
 
         # Verify comment is preserved
         assert (

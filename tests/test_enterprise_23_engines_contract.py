@@ -10,6 +10,7 @@ Comprehensive enterprise contract tests for NCE Vertical Engines:
 from __future__ import annotations
 
 import ast
+import asyncio
 import base64
 import json
 import os
@@ -39,6 +40,10 @@ from nce_verticals.security.entra_id import (
 os.environ.setdefault(
     "NCE_MASTER_KEY",
     "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6a7b8c9d0e1f2",
+)
+
+_PROJ_HANDLERS_PATH = (
+    Path(__file__).resolve().parent.parent / "nce_verticals" / "admin_handlers" / "project.py"
 )
 
 # ===========================================================================
@@ -285,10 +290,8 @@ async def test_sales_project_live_bridge_opt_in_seams():
         assert res_baseline == fake_baseline
 
     # 3. Project Admin Handlers exist as async handlers in nce_verticals/admin_handlers/project.py
-    proj_handlers_path = (
-        Path(__file__).resolve().parent.parent / "nce_verticals" / "admin_handlers" / "project.py"
-    )
-    tree = ast.parse(proj_handlers_path.read_text(encoding="utf-8"))
+    raw_content = await asyncio.to_thread(_PROJ_HANDLERS_PATH.read_text, encoding="utf-8")
+    tree = ast.parse(raw_content)
     async_funcs = {node.name for node in ast.walk(tree) if isinstance(node, ast.AsyncFunctionDef)}
     assert "api_project_suggest_pl" in async_funcs
     assert "api_project_record_outcome" in async_funcs

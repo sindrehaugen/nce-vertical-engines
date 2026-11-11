@@ -44,7 +44,7 @@ def parse_date(val: Any) -> datetime.date | None:
     except ValueError:
         for fmt in ("%Y-%m-%d", "%Y/%m/%d"):
             try:
-                return datetime.datetime.strptime(s, fmt).date()
+                return datetime.datetime.strptime(s, fmt).replace(tzinfo=datetime.timezone.utc).date()
             except ValueError:
                 continue
         return None
@@ -101,7 +101,7 @@ async def do_my_day(
         return {"ok": False, "error": f"do_my_day: invalid namespace_id: {exc}"}
 
     ref_date_raw = params.get("reference_date") or params.get("current_date")
-    reference_date = parse_date(ref_date_raw) or datetime.date.today()
+    reference_date = parse_date(ref_date_raw) or datetime.datetime.now(datetime.timezone.utc).date()
 
     try:
         async with scoped_pg_session(engine.pg_pool, ns_uuid) as conn:

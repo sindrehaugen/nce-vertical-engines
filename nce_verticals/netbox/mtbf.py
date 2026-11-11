@@ -141,7 +141,9 @@ class NetBoxMTBFForecaster:
                             prov_raw.replace("Z", "+00:00")
                         )
                     else:
-                        prov_date = datetime.strptime(prov_raw, "%Y-%m-%d")
+                        prov_date = datetime.strptime(prov_raw, "%Y-%m-%d").replace(
+                            tzinfo=timezone.utc
+                        )
                 elif isinstance(prov_raw, (int, float)):
                     prov_date = datetime.fromtimestamp(prov_raw, tz=timezone.utc)
             except Exception as exc:

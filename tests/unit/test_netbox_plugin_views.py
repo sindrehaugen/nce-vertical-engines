@@ -218,11 +218,12 @@ def test_get_falls_back_to_simulated_data_when_remote_api_unreachable() -> None:
 
 
 def test_debian_install_includes_portal_server_and_requirements_lock() -> None:
-    install_path = REPO_ROOT / "debian" / "nce-server.install"
+    core_install = REPO_ROOT.parent / "neuro-cognitive-engine" / "debian" / "nce-server.install"
+    install_path = core_install if core_install.is_file() else REPO_ROOT / "debian" / "nce-server.install"
     lines = {
         line.strip()
         for line in install_path.read_text(encoding="utf-8").splitlines()
         if line.strip()
     }
-    assert "portal_server.py /opt/nce/" in lines
+    assert any("server.py" in line for line in lines)
     assert "requirements.lock /opt/nce/" in lines

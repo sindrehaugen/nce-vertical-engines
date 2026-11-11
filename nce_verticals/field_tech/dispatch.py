@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import json
 import logging
-from datetime import date
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 from uuid import UUID
@@ -202,7 +202,7 @@ async def do_dispatch(engine: Any, params: dict[str, Any]) -> dict[str, Any]:
                 t_eval = validate_technician_regulatory_compliance(
                     certs=c_certs,
                     regulatory_scope=reg_scope,
-                    ref_date=date.today(),
+                    ref_date=datetime.now(timezone.utc).date(),
                 )
                 if not t_eval["compliant"]:
                     c_reasons.extend(t_eval["reasons"])
