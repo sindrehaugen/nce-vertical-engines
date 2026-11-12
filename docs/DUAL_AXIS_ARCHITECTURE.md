@@ -1,6 +1,6 @@
 # Dual-Axis Modular Architecture & Engine Resolver
 
-> Architectural specification for Dual-Axis Engine Resolution, Topological SQL Schema Dependency Management, and NCE Core `@v3.4.0` Plugin Contracts in `nce-vertical-engines`.
+> Architectural specification for Dual-Axis Engine Resolution, Topological SQL Schema Dependency Management, and NCE Core `@v3.4.2` Plugin Contracts in `nce-vertical-engines`.
 
 ---
 
@@ -112,10 +112,10 @@ Every engine specifies its dual-axis classification, optional Python SDK depende
 | `marketing` | Marketing & Case Studies | `core-domain` | `commercial` | `marketing` | `042_marketing_engine` |
 | `business_insights`| Business Insights | `observability`, `core-domain`| `commercial`, `finance-governance` | `business_insights` | `045_business_insights_engine` |
 | `customer_portal` | Customer Portal | `portal` | `service-support`, `commercial` | `portal` | `046_customer_portal_engine` |
-| `netbox` | NetBox DCIM / IPAM | `infra-iot`, `observability` | `av-it-integrator`, `operations-delivery` | `netbox` | `001_d365_integrations_and_mappings` |
+| `netbox` | NetBox DCIM / IPAM | `infra-iot`, `observability` | `av-it-integrator`, `operations-delivery` | `netbox` | `001_d365_integrations_and_mappings` *(shared mapping table bundled in base wheel)* |
 | `dynamics365` | Dynamics 365 Sync | `erp-crm` | `enterprise-erp`, `commercial`, `service-support` | `dynamics365` | `001_d365_integrations_and_mappings`, `002_d365_sync_runs`, `003_d365_change_tracking` |
 | `diagnostics` | Diagnostics Profiler | `observability`, `infra-iot` | `service-support`, `av-it-integrator` | `diagnostics` | `004_diagnostics` |
-| `odoo` | Odoo ERP Connector | `erp-crm` | `enterprise-erp`, `commercial`, `finance-governance` | `odoo` | `081_odoo_vertical_engine` |
+| `odoo` | Odoo ERP Connector | `erp-crm` | `enterprise-erp`, `commercial`, `finance-governance` | `odoo`, `entra_id` | `075_entra_id_security_gate`, `081_odoo_vertical_engine` |
 | `salesforce` | Salesforce CRM | `erp-crm` | `commercial`, `enterprise-erp` | `salesforce`, `entra_id` | `075_entra_id_security_gate`, `076_salesforce_vertical_engine` |
 
 ---
@@ -185,7 +185,7 @@ flowchart TD
     M031 --> M054["054_assets_shell_product"]
     
     M075["075_entra_id_security_gate"] --> M076["076_salesforce_vertical_engine"]
-    M081["081_odoo_vertical_engine"]
+    M075 --> M081["081_odoo_vertical_engine"]
 ```
 
 ### Topological Execution Rules
@@ -199,7 +199,7 @@ flowchart TD
 
 ---
 
-## 6. NCE Core `@v3.4.0` Plugin Integration Contract
+## 6. NCE Core `@v3.4.2` Plugin Integration Contract
 
 `nce-vertical-engines` implements the standard NCE Core v3.4 plugin protocol via the Python entry-point mechanism:
 
@@ -275,7 +275,7 @@ flowchart LR
    - Isolation: Operates with 0 admin credentials (`NCE_MASTER_KEY=""`, `NCE_ADMIN_API_KEY=""`), non-root UID `10001:10001`, and C3 customer-scoped RLS.
 2. **`nce-odoo-server` (Port 8011)**:
    - Module: `nce_verticals.servers.odoo:app`
-   - Purpose: Odoo XML-RPC/JSON-RPC synchronization and cross-engine LLM crosstalk.
+   - Purpose: Odoo XML-RPC/JSON-RPC synchronization and cross-engine LLM crosstalk gated by Microsoft Entra ID authentication.
 3. **`nce-salesforce-server` (Port 8012)**:
    - Module: `nce_verticals.servers.salesforce:app`
    - Purpose: Salesforce REST/Bulk 2.0 sync gated by Microsoft Entra ID authentication.

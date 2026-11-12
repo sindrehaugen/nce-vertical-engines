@@ -1017,3 +1017,186 @@ def require_entra_identity(required_role: str | None = None) -> Callable:
         return wrapper
 
     return decorator
+
+
+_FORBIDDEN_ENTRA_CODES: frozenset[str] = frozenset(
+    {
+        "NOT_IN_COMPANY_ALLOWLIST",
+        "MISSING_REQUIRED_ROLE",
+        "USER_BLOCKED",
+    }
+)
+
+
+def _send_json_asgi_error(
+    status: int,
+    payload: dict[str, Any],
+    *,
+    www_authenticate: bool = False,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    raw = json.dumps(payload).encode("utf-8")
+    headers: list[tuple[bytes, bytes]] = [
+        (b"content-type", b"application/json"),
+        (b"content-length", str(len(raw)).encode("ascii")),
+    ]
+    if www_authenticate:
+        headers.append((b"www-authenticate", b"Bearer"))
+    return (
+        {"type": "http.response.start", "status": status, "headers": headers},
+        {"type": "http.response.body", "body": raw},
+    )
+
+
+class EntraIDHttpMiddleware:
+    """Pure-ASGI OIDC / JWKS Microsoft Entra ID gate for standalone vertical HTTP servers.
+
+    - Leaves liveness/readiness probes (`/healthz`, `/health`, `/ready`) and provider
+      HMAC-authenticated inbound webhook endpoints (`/api/webhooks/*`) unauthenticated.
+    - Enforces `Authorization: Bearer <jwt>` via `EntraSecurityGate` on protected routes
+      (such as `/api/admin/odoo/*`, `/api/admin/salesforce/*`, and `/api/admin/entra/*`)
+      whenever `enforce_mode == 'strict'` (or when a Bearer token is supplied and
+      `enforce_mode != 'disabled'`).
+    """
+
+    DEFAULT_EXEMPT_PATHS: frozenset[str] = frozenset({"/healthz", "/health", "/ready"})
+    DEFAULT_EXEMPT_PREFIXES: tuple[str, ...] = ("/api/webhooks/",)
+
+    def __init__(
+        self,
+        app: Any,
+        *,
+        gate: EntraSecurityGate | None = None,
+        exempt_paths: frozenset[str] | None = None,
+        exempt_prefixes: tuple[str, ...] | None = None,
+    ) -> None:
+        self.app = app
+        self._explicit_gate = gate
+        self.exempt_paths = exempt_paths if exempt_paths is not None else self.DEFAULT_EXEMPT_PATHS
+        self.exempt_prefixes = (
+            exempt_prefixes if exempt_prefixes is not None else self.DEFAULT_EXEMPT_PREFIXES
+        )
+
+    def _resolve_gate(self, scope: dict[str, Any]) -> EntraSecurityGate:
+        if self._explicit_gate is not None:
+            return self._explicit_gate
+        asgi_app = scope.get("app")
+        app_state = getattr(asgi_app, "state", None) if asgi_app is not None else None
+        state_gate = getattr(app_state, "entra_gate", None) if app_state is not None else None
+        if isinstance(state_gate, EntraSecurityGate):
+            return state_gate
+        # Build from current environment so runtime/test env overrides apply immediately
+        return EntraSecurityGate(authenticator=EntraIDAuthenticator(config=EntraConfig.from_env()))
+
+    def _is_exempt(self, path: str, method: str) -> bool:
+        if method == "OPTIONS":
+            return True
+        if path in self.exempt_paths:
+            return True
+        return any(path.startswith(prefix) for prefix in self.exempt_prefixes)
+
+    async def __call__(
+        self,
+        scope: dict[str, Any],
+        receive: Callable[[], Any],
+        send: Callable[[dict[str, Any]], Any],
+    ) -> None:
+        if scope.get("type") != "http":
+            await self.app(scope, receive, send)
+            return
+
+        path = str(scope.get("path") or "/")
+        method = str(scope.get("method") or "GET").upper()
+        if self._is_exempt(path, method):
+            await self.app(scope, receive, send)
+            return
+
+        gate = self._resolve_gate(scope)
+        enforce_mode = gate.config.enforce_mode
+
+        auth_header = ""
+        namespace_header = ""
+        for key, val in scope.get("headers", []):
+            lk = key.lower()
+            if lk == b"authorization":
+                auth_header = val.decode("latin1").strip()
+            elif lk == b"x-nce-namespace":
+                namespace_header = val.decode("latin1").strip()
+
+        if enforce_mode == "disabled":
+            await self.app(scope, receive, send)
+            return
+
+        if not auth_header:
+            if enforce_mode == "audit_only":
+                gate.record_audit(
+                    tool_or_route=f"{method} {path}",
+                    decision="AUDIT_WARN",
+                    reason="No Authorization Bearer header supplied (audit_only)",
+                    namespace_id=namespace_header or None,
+                )
+                await self.app(scope, receive, send)
+                return
+
+            gate.record_audit(
+                tool_or_route=f"{method} {path}",
+                decision="DENY",
+                reason="[ENTRA_AUTH_REQUIRED] Missing Authorization Bearer token",
+                namespace_id=namespace_header or None,
+            )
+            start_msg, body_msg = _send_json_asgi_error(
+                401,
+                {
+                    "error": "Microsoft Entra ID Bearer token required.",
+                    "error_code": "ENTRA_AUTH_REQUIRED",
+                },
+                www_authenticate=True,
+            )
+            await send(start_msg)
+            await send(body_msg)
+            return
+
+        if not auth_header.lower().startswith("bearer ") or not auth_header[7:].strip():
+            gate.record_audit(
+                tool_or_route=f"{method} {path}",
+                decision="DENY",
+                reason="[INVALID_AUTH_SCHEME] Expected Authorization: Bearer <jwt>",
+                namespace_id=namespace_header or None,
+            )
+            start_msg, body_msg = _send_json_asgi_error(
+                401,
+                {
+                    "error": "Invalid Authorization header; expected 'Bearer <jwt>'.",
+                    "error_code": "ENTRA_AUTH_REQUIRED",
+                },
+                www_authenticate=True,
+            )
+            await send(start_msg)
+            await send(body_msg)
+            return
+
+        bearer_token = auth_header[7:].strip()
+        try:
+            principal = await gate.verify_request(
+                f"{method} {path}",
+                {
+                    "entra_token": bearer_token,
+                    "namespace_id": namespace_header,
+                },
+            )
+            scope.setdefault("state", {})["entra_principal"] = principal
+        except EntraVerificationError as exc:
+            status_code = 403 if exc.code in _FORBIDDEN_ENTRA_CODES else 401
+            start_msg, body_msg = _send_json_asgi_error(
+                status_code,
+                {
+                    "error": str(exc),
+                    "error_code": exc.code,
+                    "details": exc.details,
+                },
+                www_authenticate=(status_code == 401),
+            )
+            await send(start_msg)
+            await send(body_msg)
+            return
+
+        await self.app(scope, receive, send)

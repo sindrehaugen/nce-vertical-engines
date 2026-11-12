@@ -15,7 +15,9 @@ from typing import Any
 from nce_verticals.odoo.app import create_standalone_odoo_app
 from nce_verticals.security.entra_id import (
     EntraIDAuthenticator,
+    EntraIDHttpMiddleware,
     EntraPrincipal,
+    EntraSecurityGate,
     require_entra_identity,
 )
 from nce_verticals.security.http_guard import verify_entra_id_schema_gate
@@ -24,8 +26,11 @@ log = logging.getLogger("nce_verticals.servers.odoo")
 
 __all__ = [
     "EntraIDAuthenticator",
+    "EntraIDHttpMiddleware",
     "EntraPrincipal",
+    "EntraSecurityGate",
     "app",
+    "create_standalone_odoo_app",
     "main",
     "require_entra_identity",
     "verify_entra_id_schema_gate",

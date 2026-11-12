@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.4.2] - 2026-11-12
+
+### Security
+- **Standalone `nce-odoo-server` & `nce-salesforce-server` Entra ID HTTP Gate (`EntraIDHttpMiddleware`):** Wired pure-ASGI Microsoft Entra ID OIDC/JWKS (`RS256`/`ES256`) bearer verification onto protected `/api/admin/*` routes in `nce_verticals/odoo/app.py` (`nce_verticals.servers.odoo:app`) and `nce_verticals/salesforce/app.py` while keeping `/healthz`, `/health`, and `/ready` container probes unauthenticated and preserving outermost `BoundedBodyMiddleware` HTTP `413` enforcement.
+
+### Changed
+- **Odoo & NetBox Registry & Packaging Alignment:** Added `075_entra_id_security_gate` to `odoo` `requires_schemas` in `nce_verticals/registry.py`, added `cryptography>=43.0.0` to the `odoo`, `salesforce`, `type-erp-crm`, `cat-commercial`, and `cat-enterprise-erp` extras in `pyproject.toml`, and documented `netbox`'s shared `001_d365_integrations_and_mappings.sql` wheel-bundled mapping table.
+- **Core `v3.4.2` Pin & Lockfile Sync:** Updated `pyproject.toml` to `version = "3.4.2"` and `neuro-cognitive-engine>=3.4.2,<4.0.0`, and regenerated `requirements.lock` cleanly against NCE Core `v3.4.2`.
+
+---
+
 ## [3.4.1] - 2026-11-11
 
 ### Fixed

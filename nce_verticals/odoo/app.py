@@ -14,6 +14,7 @@ from nce_verticals.admin_handlers import entra_id as entra_handlers
 from nce_verticals.admin_handlers import odoo as odoo_handlers
 from nce_verticals.admin_handlers.odoo import JSONResponse
 from nce_verticals.plugin import Route
+from nce_verticals.security.entra_id import EntraIDHttpMiddleware, EntraSecurityGate
 from nce_verticals.security.http_guard import BoundedBodyMiddleware
 
 try:
@@ -37,25 +38,85 @@ async def healthz(request: Any) -> JSONResponse:
     )
 
 
-def create_standalone_odoo_app(lifespan: Any = None) -> Starlette:
+def create_standalone_odoo_app(
+    lifespan: Any = None,
+    *,
+    entra_gate: EntraSecurityGate | None = None,
+) -> Starlette:
     routes = [
         Route("/healthz", endpoint=healthz, methods=["GET"]),
-        Route("/api/admin/entra/config", endpoint=entra_handlers.api_admin_entra_config, methods=["GET"]),
-        Route("/api/admin/entra/config", endpoint=entra_handlers.api_admin_entra_config_save, methods=["POST"]),
-        Route("/api/admin/entra/sessions", endpoint=entra_handlers.api_admin_entra_sessions, methods=["GET"]),
-        Route("/api/admin/entra/sessions/revoke", endpoint=entra_handlers.api_admin_entra_revoke_session, methods=["POST"]),
-        Route("/api/admin/entra/verify-user", endpoint=entra_handlers.api_admin_entra_verify_user, methods=["POST"]),
-        Route("/api/admin/entra/audit", endpoint=entra_handlers.api_admin_entra_audit, methods=["GET"]),
-        Route("/api/admin/odoo/config", endpoint=odoo_handlers.api_admin_odoo_config, methods=["GET"]),
-        Route("/api/admin/odoo/config", endpoint=odoo_handlers.api_admin_odoo_config_save, methods=["POST"]),
-        Route("/api/admin/odoo/records", endpoint=odoo_handlers.api_admin_odoo_records, methods=["GET"]),
-        Route("/api/admin/odoo/execute", endpoint=odoo_handlers.api_admin_odoo_execute, methods=["POST"]),
-        Route("/api/admin/odoo/intelligence", endpoint=odoo_handlers.api_admin_odoo_intelligence, methods=["GET"]),
-        Route("/api/admin/odoo/crosstalk", endpoint=odoo_handlers.api_admin_odoo_crosstalk_history, methods=["GET"]),
-        Route("/api/admin/odoo/crosstalk", endpoint=odoo_handlers.api_admin_odoo_crosstalk, methods=["POST"]),
-        Route("/api/webhooks/odoo", endpoint=odoo_handlers.api_odoo_webhook_ingest, methods=["POST"]),
+        Route("/health", endpoint=healthz, methods=["GET"]),
+        Route("/ready", endpoint=healthz, methods=["GET"]),
+        Route(
+            "/api/admin/entra/config",
+            endpoint=entra_handlers.api_admin_entra_config,
+            methods=["GET"],
+        ),
+        Route(
+            "/api/admin/entra/config",
+            endpoint=entra_handlers.api_admin_entra_config_save,
+            methods=["POST"],
+        ),
+        Route(
+            "/api/admin/entra/sessions",
+            endpoint=entra_handlers.api_admin_entra_sessions,
+            methods=["GET"],
+        ),
+        Route(
+            "/api/admin/entra/sessions/revoke",
+            endpoint=entra_handlers.api_admin_entra_revoke_session,
+            methods=["POST"],
+        ),
+        Route(
+            "/api/admin/entra/verify-user",
+            endpoint=entra_handlers.api_admin_entra_verify_user,
+            methods=["POST"],
+        ),
+        Route(
+            "/api/admin/entra/audit", endpoint=entra_handlers.api_admin_entra_audit, methods=["GET"]
+        ),
+        Route(
+            "/api/admin/odoo/config", endpoint=odoo_handlers.api_admin_odoo_config, methods=["GET"]
+        ),
+        Route(
+            "/api/admin/odoo/config",
+            endpoint=odoo_handlers.api_admin_odoo_config_save,
+            methods=["POST"],
+        ),
+        Route(
+            "/api/admin/odoo/records",
+            endpoint=odoo_handlers.api_admin_odoo_records,
+            methods=["GET"],
+        ),
+        Route(
+            "/api/admin/odoo/execute",
+            endpoint=odoo_handlers.api_admin_odoo_execute,
+            methods=["POST"],
+        ),
+        Route(
+            "/api/admin/odoo/intelligence",
+            endpoint=odoo_handlers.api_admin_odoo_intelligence,
+            methods=["GET"],
+        ),
+        Route(
+            "/api/admin/odoo/crosstalk",
+            endpoint=odoo_handlers.api_admin_odoo_crosstalk_history,
+            methods=["GET"],
+        ),
+        Route(
+            "/api/admin/odoo/crosstalk",
+            endpoint=odoo_handlers.api_admin_odoo_crosstalk,
+            methods=["POST"],
+        ),
+        Route(
+            "/api/webhooks/odoo", endpoint=odoo_handlers.api_odoo_webhook_ingest, methods=["POST"]
+        ),
     ]
     app = Starlette(debug=False, routes=routes, lifespan=lifespan)
+    if entra_gate is not None and hasattr(app, "state"):
+        app.state.entra_gate = entra_gate
     if hasattr(app, "add_middleware"):
+        # LIFO order: BoundedBodyMiddleware added last so HTTP 413 runs outermost before auth
+        app.add_middleware(EntraIDHttpMiddleware, gate=entra_gate)
         app.add_middleware(BoundedBodyMiddleware)
     return app

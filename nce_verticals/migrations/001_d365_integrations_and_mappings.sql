@@ -1,5 +1,8 @@
 -- 001_d365_integrations_and_mappings.sql
--- Dynamics 365 / Dataverse and NetBox mapping foundation schema.
+-- Shared Dynamics 365 / Dataverse and NetBox mapping foundation schema.
+-- Note: Bundled in the base `nce-vertical-engines` wheel so standalone
+-- `pip install "nce-vertical-engines[netbox]"` deployments resolve
+-- `d365_netbox_mappings` cleanly without requiring the `dynamics365` SDK extra.
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS d365_integrations (

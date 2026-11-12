@@ -13,6 +13,7 @@ from nce_verticals.admin_handlers import entra_id as entra_handlers
 from nce_verticals.admin_handlers import salesforce as sf_handlers
 from nce_verticals.admin_handlers.salesforce import JSONResponse
 from nce_verticals.plugin import Route
+from nce_verticals.security.entra_id import EntraIDHttpMiddleware, EntraSecurityGate
 from nce_verticals.security.http_guard import BoundedBodyMiddleware
 
 try:
@@ -20,9 +21,7 @@ try:
 except ImportError:
 
     class Starlette:  # type: ignore[no-redef]
-        def __init__(
-            self, debug: bool = False, routes: list[Any] | None = None
-        ) -> None:
+        def __init__(self, debug: bool = False, routes: list[Any] | None = None) -> None:
             self.debug = debug
             self.routes = routes or []
 
@@ -37,9 +36,15 @@ async def healthz(request: Any) -> JSONResponse:
     )
 
 
-def create_standalone_salesforce_app(lifespan: Any = None) -> Starlette:
+def create_standalone_salesforce_app(
+    lifespan: Any = None,
+    *,
+    entra_gate: EntraSecurityGate | None = None,
+) -> Starlette:
     routes = [
         Route("/healthz", endpoint=healthz, methods=["GET"]),
+        Route("/health", endpoint=healthz, methods=["GET"]),
+        Route("/ready", endpoint=healthz, methods=["GET"]),
         Route(
             "/api/admin/entra/config",
             endpoint=entra_handlers.api_admin_entra_config,
@@ -107,6 +112,10 @@ def create_standalone_salesforce_app(lifespan: Any = None) -> Starlette:
         ),
     ]
     app = Starlette(debug=False, routes=routes, lifespan=lifespan)
+    if entra_gate is not None and hasattr(app, "state"):
+        app.state.entra_gate = entra_gate
     if hasattr(app, "add_middleware"):
+        # LIFO order: BoundedBodyMiddleware added last so HTTP 413 runs outermost before auth
+        app.add_middleware(EntraIDHttpMiddleware, gate=entra_gate)
         app.add_middleware(BoundedBodyMiddleware)
     return app
