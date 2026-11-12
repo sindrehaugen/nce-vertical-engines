@@ -1,6 +1,6 @@
 # Dual-Axis Modular Architecture & Engine Resolver
 
-> Architectural specification for Dual-Axis Engine Resolution, Topological SQL Schema Dependency Management, and NCE Core `@v3.4.2` Plugin Contracts in `nce-vertical-engines`.
+> Architectural specification for Dual-Axis Engine Resolution, Topological SQL Schema Dependency Management, and NCE Core `@v3.4.3` Plugin Contracts in `nce-vertical-engines`.
 
 ---
 
@@ -199,7 +199,7 @@ flowchart TD
 
 ---
 
-## 6. NCE Core `@v3.4.2` Plugin Integration Contract
+## 6. NCE Core `@v3.4.3` Plugin Integration Contract
 
 `nce-vertical-engines` implements the standard NCE Core v3.4 plugin protocol via the Python entry-point mechanism:
 

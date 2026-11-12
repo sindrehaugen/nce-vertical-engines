@@ -19,7 +19,6 @@ from uuid import UUID, uuid4
 
 import pytest
 from nce import admin_state
-from nce.event_log import EXPECTED_TENANT_RLS_TABLES
 from nce.resource_surface import (
     ResourceSpec,
     get_resource_spec,
@@ -64,9 +63,7 @@ def _reset_env():
 
 
 def _client_for_spec(spec: ResourceSpec) -> TestClient:
-    app = Starlette(
-        routes=make_resource_routes(spec), middleware=VERIFIED_TIER_TEST_MIDDLEWARE
-    )
+    app = Starlette(routes=make_resource_routes(spec), middleware=VERIFIED_TIER_TEST_MIDDLEWARE)
     return TestClient(app, raise_server_exceptions=False)
 
 
@@ -239,9 +236,7 @@ async def test_create_and_fire_pending_reminders():
     conn.fetch.return_value = [fake_reminder]
     conn.execute.return_value = "UPDATE 1"
 
-    with patch(
-        "nce_verticals.notifications.reminders.publish", new_callable=AsyncMock
-    ) as mock_pub:
+    with patch("nce_verticals.notifications.reminders.publish", new_callable=AsyncMock) as mock_pub:
         fired = await fire_pending_reminders(conn, namespace_id=_NS_A, now=now)
 
         assert len(fired) == 1
@@ -515,9 +510,14 @@ def test_register_notifications_subscribers_idempotency():
 
 def test_schema_rls_pins():
     """Verify that notifications, reminders, and notification_subscriptions have RLS enforced."""
-    assert "notifications" in EXPECTED_TENANT_RLS_TABLES
-    assert "reminders" in EXPECTED_TENANT_RLS_TABLES
-    assert "notification_subscriptions" in EXPECTED_TENANT_RLS_TABLES
+    from nce_verticals.plugin import NotificationsPlugin, VerticalEnginesPlugin
+
+    plugin_tables = VerticalEnginesPlugin().get_tenant_rls_tables()
+    notif_tables = NotificationsPlugin().get_tenant_rls_tables()
+    assert len(plugin_tables) == 96
+    for tbl in ("notifications", "reminders", "notification_subscriptions"):
+        assert plugin_tables.get(tbl) == "namespace_id"
+        assert notif_tables.get(tbl) == "namespace_id"
 
 
 def test_c12_resource_specs_registered():
@@ -571,9 +571,7 @@ def test_negative_rls_isolation_between_tenants():
     assert read_b.status_code == 404
 
     # 4. Tenant B list does not leak Tenant A's notification
-    list_b = client.get(
-        f"/api/notifications/notifications?namespace_id={_NS_B}", headers=emp
-    )
+    list_b = client.get(f"/api/notifications/notifications?namespace_id={_NS_B}", headers=emp)
     assert list_b.status_code == 200
     items_b = list_b.json()["items"]
     assert not any(item["id"] == item_id for item in items_b)

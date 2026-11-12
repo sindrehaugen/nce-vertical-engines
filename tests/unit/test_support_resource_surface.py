@@ -30,7 +30,6 @@ from uuid import UUID, uuid4
 import pytest
 from nce import admin_state
 from nce.admin_app import build_admin_routes
-from nce.event_log import EXPECTED_TENANT_RLS_TABLES
 from nce.mcp_errors import MCP_SCOPE_FORBIDDEN, McpError
 from nce.mcp_stdio_tools import TOOLS
 from nce.resource_surface import (
@@ -46,6 +45,7 @@ from nce.tool_registry import (
 )
 
 from nce_verticals.admin_handlers import support as support_admin_mod
+from nce_verticals.plugin import SupportPlugin, VerticalEnginesPlugin
 from nce_verticals.support._guard import SupportDisabledError
 from nce_verticals.support.mcp_handlers import (
     handle_support_log_ticket_action,
@@ -59,8 +59,10 @@ from nce_verticals.support.tickets import (
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-MIGRATION_FILE = REPO_ROOT / "nce" / "migrations" / "091_support_ticket_actions.sql"
-SCHEMA_FILE = REPO_ROOT / "nce" / "schema.sql"
+MIGRATION_FILE = REPO_ROOT / "nce_verticals" / "migrations" / "058_support_ticket_actions.sql"
+APPEND_ONLY_MIGRATION_FILE = (
+    REPO_ROOT / "nce_verticals" / "migrations" / "073_support_ticket_actions_append_only.sql"
+)
 
 _NAMESPACE_ID = "00000000-0000-4000-8000-000000000001"
 _TICKET_ID = "11111111-1111-4111-8111-111111111111"
@@ -78,9 +80,7 @@ def test_ticket_and_ticket_action_registered_in_all_resource_specs():
     specs = get_all_resource_specs()
     node_types = {spec.node_type for spec in specs}
     assert "TICKET" in node_types, "TICKET missing from get_all_resource_specs()"
-    assert "TICKET_ACTION" in node_types, (
-        "TICKET_ACTION missing from get_all_resource_specs()"
-    )
+    assert "TICKET_ACTION" in node_types, "TICKET_ACTION missing from get_all_resource_specs()"
 
     ticket_spec = next(s for s in specs if s.node_type == "TICKET")
     assert ticket_spec.entity == "tickets"
@@ -125,9 +125,7 @@ def test_c12_generated_support_tools_in_registry():
         "support_get_ticket_actions",
     }
     for tool_name in expected_generated_tools:
-        assert tool_name in TOOL_REGISTRY, (
-            f"C12 tool {tool_name} missing from TOOL_REGISTRY"
-        )
+        assert tool_name in TOOL_REGISTRY, f"C12 tool {tool_name} missing from TOOL_REGISTRY"
     for removed_tool in (
         "support_archive_tickets",
         "support_archive_ticket_actions",
@@ -295,9 +293,7 @@ async def test_handle_support_ticket_timeline_success():
         "ticket_summary": "System outage",
         "ticket_status": "OPEN",
         "created_at": "2026-09-18T12:00:00+00:00",
-        "actions": [
-            {"id": _ACTION_ID, "action_type": "NOTE", "action_summary": "Investigating"}
-        ],
+        "actions": [{"id": _ACTION_ID, "action_type": "NOTE", "action_summary": "Investigating"}],
         "total_actions": 1,
         "latest_outcome": None,
     }
@@ -327,9 +323,7 @@ async def test_handle_support_ticket_timeline_success():
 def test_routes_mounted_in_admin_app():
     """Routes /api/support/tickets/{id}/actions and /timeline must be mounted."""
     routes = build_admin_routes()
-    action_route = next(
-        (r for r in routes if r.path == "/api/support/tickets/{id}/actions"), None
-    )
+    action_route = next((r for r in routes if r.path == "/api/support/tickets/{id}/actions"), None)
     assert action_route is not None, "Missing POST /api/support/tickets/{id}/actions"
     assert "POST" in action_route.methods
 
@@ -364,9 +358,7 @@ async def test_api_support_tickets_log_action_success():
 
     with (
         patch.object(admin_state, "engine", engine),
-        patch(
-            "nce_verticals.admin_handlers.support.require_support_enabled", AsyncMock()
-        ),
+        patch("nce_verticals.admin_handlers.support.require_support_enabled", AsyncMock()),
         patch(
             "nce_verticals.admin_handlers.support.do_log_ticket_action",
             AsyncMock(return_value=mock_res),
@@ -397,9 +389,7 @@ async def test_api_support_tickets_timeline_success():
 
     with (
         patch.object(admin_state, "engine", engine),
-        patch(
-            "nce_verticals.admin_handlers.support.require_support_enabled", AsyncMock()
-        ),
+        patch("nce_verticals.admin_handlers.support.require_support_enabled", AsyncMock()),
         patch(
             "nce_verticals.admin_handlers.support.do_get_ticket_timeline",
             AsyncMock(return_value=mock_res),
@@ -620,16 +610,19 @@ def test_migration_091_structure_and_security():
 
 
 def test_support_ticket_actions_in_schema_sql():
-    """support_ticket_actions DDL and policies must be present in nce/schema.sql."""
-    assert SCHEMA_FILE.is_file(), f"Schema file missing: {SCHEMA_FILE}"
-    content = SCHEMA_FILE.read_text(encoding="utf-8")
-
-    assert "CREATE TABLE IF NOT EXISTS support_ticket_actions" in content
-    assert "ALTER TABLE support_ticket_actions FORCE ROW LEVEL SECURITY" in content
-    assert "CREATE POLICY tenant_isolation_policy ON support_ticket_actions" in content
+    """Append-only migration 073 must revoke UPDATE/DELETE on support_ticket_actions."""
+    assert APPEND_ONLY_MIGRATION_FILE.is_file(), (
+        f"Append-only migration file missing: {APPEND_ONLY_MIGRATION_FILE}"
+    )
+    content = APPEND_ONLY_MIGRATION_FILE.read_text(encoding="utf-8")
+    assert "REVOKE UPDATE, DELETE ON TABLE support_ticket_actions FROM nce_app" in content
 
 
 def test_support_ticket_actions_in_expected_tenant_rls_tables():
-    """support_ticket_actions must be registered in EXPECTED_TENANT_RLS_TABLES."""
-    assert "support_ticket_actions" in EXPECTED_TENANT_RLS_TABLES
-    assert EXPECTED_TENANT_RLS_TABLES["support_ticket_actions"] == "namespace_id"
+    """support_ticket_actions must be registered in VerticalEnginesPlugin RLS tables."""
+    plugin_tables = VerticalEnginesPlugin().get_tenant_rls_tables()
+    engine_tables = SupportPlugin().get_tenant_rls_tables()
+    assert len(plugin_tables) == 96
+    assert "support_ticket_actions" in plugin_tables
+    assert plugin_tables["support_ticket_actions"] == "namespace_id"
+    assert engine_tables.get("support_ticket_actions") == "namespace_id"

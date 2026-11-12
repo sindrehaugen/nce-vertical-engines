@@ -15,25 +15,29 @@ from pathlib import Path
 
 import asyncpg
 import pytest
-from nce.event_log import EXPECTED_TENANT_RLS_TABLES
+
+from nce_verticals.plugin import FieldTechPlugin, VerticalEnginesPlugin
 
 MIGRATION_PATH = (
     Path(__file__).resolve().parents[2]
-    / "nce"
+    / "nce_verticals"
     / "migrations"
-    / "067_field_tech_work_orders.sql"
+    / "040_field_tech_work_orders.sql"
 )
-SCHEMA_SQL_PATH = Path(__file__).resolve().parents[2] / "nce" / "schema.sql"
 
 REQUIRED_TABLES = ("work_orders", "checklists", "time_entries")
 
 
 def test_field_tech_tables_declared_in_expected_tenant_rls_tables() -> None:
+    plugin_tables = VerticalEnginesPlugin().get_tenant_rls_tables()
+    engine_tables = FieldTechPlugin().get_tenant_rls_tables()
+    assert len(plugin_tables) == 96
     for tbl in REQUIRED_TABLES:
-        assert tbl in EXPECTED_TENANT_RLS_TABLES, (
-            f"{tbl} missing from EXPECTED_TENANT_RLS_TABLES"
+        assert tbl in plugin_tables, (
+            f"{tbl} missing from VerticalEnginesPlugin().get_tenant_rls_tables()"
         )
-        assert EXPECTED_TENANT_RLS_TABLES[tbl] == "namespace_id"
+        assert plugin_tables[tbl] == "namespace_id"
+        assert engine_tables.get(tbl) == "namespace_id"
 
 
 def test_field_tech_migration_file_exists() -> None:
@@ -45,14 +49,7 @@ def test_field_tech_migration_file_exists() -> None:
         assert f"ALTER TABLE {tbl} ENABLE ROW LEVEL SECURITY" in content
         assert f"ALTER TABLE {tbl} FORCE ROW LEVEL SECURITY" in content
         assert f"CREATE POLICY tenant_isolation_policy ON {tbl}" in content
-
-
-def test_field_tech_schema_sql_contains_tables() -> None:
-    schema_sql = SCHEMA_SQL_PATH.read_text(encoding="utf-8")
-    for tbl in REQUIRED_TABLES:
-        assert f"CREATE TABLE IF NOT EXISTS {tbl}" in schema_sql
-        assert f"ALTER TABLE {tbl} ENABLE ROW LEVEL SECURITY" in schema_sql
-        assert f"ALTER TABLE {tbl} FORCE ROW LEVEL SECURITY" in schema_sql
+        assert "REFERENCES namespaces(id) ON DELETE CASCADE" in content
 
 
 @pytest.mark.asyncio
@@ -64,9 +61,7 @@ async def test_field_tech_schema_scratch_db_inspection() -> None:
     try:
         conn = await asyncpg.connect(dsn, timeout=5.0)
     except Exception as exc:
-        pytest.skip(
-            f"Scratch DB not accessible ({exc}); skipping live catalog verification"
-        )
+        pytest.skip(f"Scratch DB not accessible ({exc}); skipping live catalog verification")
         return
 
     try:

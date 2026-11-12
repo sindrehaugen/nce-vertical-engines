@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.4.3] - 2026-11-12
+
+### Added
+- **Dynamic Plugin Forced-RLS, Global Tables & Namespace Seeding Hooks (`nce_verticals/plugin.py`):** Registered explicit per-engine `TENANT_RLS_TABLES` (`78` per-engine + `18` shared-spine = `96` vertical forced-RLS tables), `get_active_engine_rls_tables()`, `get_global_tables()` (`5` vertical global tables), `get_capabilities()`, and `on_namespace_created(conn, namespace_id)` seeding `node_ownership_registry` via SAVEPOINT on `VerticalEnginesPlugin` and all 27 sub-plugins.
+- **Migrated Vertical Integration Suites (`tests/`):** Adopted 19 vertical-specific integration test modules (`node_ownership_registry`, `entity_resolver`, `entity_merge_queue`, `source_mode_*`, `price_resolution`, `d365_rls_isolation_integration`, etc.) cleanly decoupled from Pure Core.
+
+### Changed
+- **Core `v3.4.3` Pin & Lockfile Sync:** Updated `pyproject.toml` to `version = "3.4.3"` and `neuro-cognitive-engine>=3.4.3,<4.0.0`, aligned CI matrix refs to `@v3.4.3`, and refreshed `requirements.lock` against NCE Core `v3.4.3`.
+
+---
+
 ## [3.4.2] - 2026-11-12
 
 ### Security

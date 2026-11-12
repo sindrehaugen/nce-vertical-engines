@@ -350,3 +350,18 @@ async def test_workplace_telemetry_disabled_by_default(
     d365_report = json.loads(d365_raw) if isinstance(d365_raw, str) else d365_raw
     assert d365_report["telemetry_enabled"] is False
     assert d365_report["burnout_alert"] is False
+
+
+def test_v343_dynamic_rls_tables_and_namespace_hook() -> None:
+    plugin = VerticalEnginesPlugin(enabled_engines="odoo")
+    rls_tables = plugin.get_tenant_rls_tables()
+    assert len(rls_tables) == 96
+    assert rls_tables["node_ownership_registry"] == "namespace_id"
+    assert rls_tables["agreements"] == "namespace_id"
+    assert rls_tables["entra_id_configs"] == "namespace_id"
+    global_tables = plugin.get_global_tables()
+    assert len(global_tables) == 5
+    assert "product_catalog" in global_tables
+    caps = plugin.get_capabilities()
+    assert len(caps.tenant_rls_tables) == 96
+    assert callable(plugin.on_namespace_created)

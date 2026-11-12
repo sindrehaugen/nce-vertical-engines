@@ -80,8 +80,67 @@ def _mount_routes(app: Any, routes: list[Route]) -> None:
                 existing.add(rk)
 
 
-class AgreementsPlugin:
+SHARED_SPINE_TENANT_RLS_TABLES: tuple[str, ...] = (
+    "node_ownership_registry",
+    "entity_merge_queue",
+    "source_mode_config",
+    "divergence_log",
+    "source_mode_heartbeat",
+    "decision_feedback",
+    "notifications",
+    "reminders",
+    "notification_subscriptions",
+    "documents",
+    "document_links",
+    "document_shares",
+    "legal_entities",
+    "sites",
+    "bom_line_content",
+    "entra_id_audit_log",
+    "entra_id_configs",
+    "entra_id_sessions",
+)
+
+VERTICAL_GLOBAL_TABLES: frozenset[str] = frozenset(
+    {
+        "product_catalog",
+        "geodata_osm_elements",
+        "geodata_n50_land_cover",
+        "geodata_place_names",
+        "pricing_fx_rates",
+    }
+)
+
+
+@dataclass(frozen=True)
+class _FallbackPluginCapabilities:
+    tenant_rls_tables: dict[str, str]
+    global_tables: frozenset[str]
+    unmanaged_pg_sites: frozenset[str]
+
+
+class _EngineRLSPluginMixin:
+    """Shared RLS and global table capability mixin for vertical engine plugins."""
+
+    TENANT_RLS_TABLES: tuple[str, ...] = ()
+    GLOBAL_TABLES: frozenset[str] = frozenset()
+
+    def get_tenant_rls_tables(self) -> dict[str, str]:
+        return {tbl: "namespace_id" for tbl in self.TENANT_RLS_TABLES}
+
+    def get_global_tables(self) -> set[str]:
+        return set(self.GLOBAL_TABLES)
+
+
+class AgreementsPlugin(_EngineRLSPluginMixin):
     plugin_id: str = "agreements"
+    TENANT_RLS_TABLES: tuple[str, ...] = (
+        "agreement_review_queue",
+        "agreement_extraction_runs",
+        "agreements",
+        "agreement_parties",
+        "agreement_templates",
+    )
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.agreements import mcp_handlers as agreements_mcp_handlers
@@ -312,8 +371,9 @@ class AgreementsPlugin:
         return await verify_entra_id_schema_gate(conn)
 
 
-class AssetsPlugin:
+class AssetsPlugin(_EngineRLSPluginMixin):
     plugin_id: str = "assets"
+    TENANT_RLS_TABLES: tuple[str, ...] = ("assets", "telemetry_samples")
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.assets import mcp_handlers as assets_mcp_handlers
@@ -593,8 +653,9 @@ class AssetsPlugin:
         return await verify_entra_id_schema_gate(conn)
 
 
-class BusinessInsightsPlugin:
+class BusinessInsightsPlugin(_EngineRLSPluginMixin):
     plugin_id: str = "business_insights"
+    TENANT_RLS_TABLES: tuple[str, ...] = ("business_insights_kpi_snapshots",)
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.business_insights import (
@@ -751,8 +812,13 @@ class BusinessInsightsPlugin:
         return await verify_entra_id_schema_gate(conn)
 
 
-class CustomerPortalPlugin:
+class CustomerPortalPlugin(_EngineRLSPluginMixin):
     plugin_id: str = "customer_portal"
+    TENANT_RLS_TABLES: tuple[str, ...] = (
+        "portal_users",
+        "portal_document_shares",
+        "portal_service_requests",
+    )
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.customer_portal import (
@@ -869,8 +935,13 @@ class CustomerPortalPlugin:
         return await verify_entra_id_schema_gate(conn)
 
 
-class DiagnosticsPlugin:
+class DiagnosticsPlugin(_EngineRLSPluginMixin):
     plugin_id: str = "diagnostics"
+    TENANT_RLS_TABLES: tuple[str, ...] = (
+        "diag_ingestions",
+        "diag_anomalies",
+        "device_health_rollup",
+    )
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.diagnostics import mcp_handlers as diag_mcp_handlers
@@ -919,8 +990,14 @@ class DiagnosticsPlugin:
         return await verify_entra_id_schema_gate(conn)
 
 
-class Dynamics365Plugin:
+class Dynamics365Plugin(_EngineRLSPluginMixin):
     plugin_id: str = "dynamics365"
+    TENANT_RLS_TABLES: tuple[str, ...] = (
+        "d365_integrations",
+        "d365_netbox_mappings",
+        "d365_sync_runs",
+        "d365_delta_tokens",
+    )
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.dynamics365 import mcp_handlers as d365_mcp_handlers
@@ -973,8 +1050,17 @@ class Dynamics365Plugin:
         return await verify_entra_id_schema_gate(conn)
 
 
-class EconomyPlugin:
+class EconomyPlugin(_EngineRLSPluginMixin):
     plugin_id: str = "economy"
+    TENANT_RLS_TABLES: tuple[str, ...] = (
+        "economy_bom_actual_costs",
+        "economy_postings",
+        "economy_contracts",
+        "economy_billing_runs",
+        "economy_billing_candidates",
+        "economy_billing_candidate_lines",
+        "economy_customer_invoices",
+    )
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.economy import mcp_handlers as economy_mcp_handlers
@@ -1180,8 +1266,9 @@ class EconomyPlugin:
         return await verify_entra_id_schema_gate(conn)
 
 
-class FieldTechPlugin:
+class FieldTechPlugin(_EngineRLSPluginMixin):
     plugin_id: str = "field_tech"
+    TENANT_RLS_TABLES: tuple[str, ...] = ("work_orders", "checklists", "time_entries")
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.field_tech import mcp_handlers as field_tech_mcp_handlers
@@ -1349,8 +1436,12 @@ class FieldTechPlugin:
         return await verify_entra_id_schema_gate(conn)
 
 
-class GeodataPlugin:
+class GeodataPlugin(_EngineRLSPluginMixin):
     plugin_id: str = "geodata"
+    TENANT_RLS_TABLES: tuple[str, ...] = ()
+    GLOBAL_TABLES: frozenset[str] = frozenset(
+        {"geodata_osm_elements", "geodata_n50_land_cover", "geodata_place_names"}
+    )
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.geodata import mcp_handlers as geodata_mcp_handlers
@@ -1421,8 +1512,9 @@ class GeodataPlugin:
         return await verify_entra_id_schema_gate(conn)
 
 
-class HRPlugin:
+class HRPlugin(_EngineRLSPluginMixin):
     plugin_id: str = "hr"
+    TENANT_RLS_TABLES: tuple[str, ...] = ("employees", "skills", "certifications", "absences")
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.hr import mcp_handlers as hr_mcp_handlers
@@ -1623,8 +1715,15 @@ class HRPlugin:
         return await verify_entra_id_schema_gate(conn)
 
 
-class InventoryPlugin:
+class InventoryPlugin(_EngineRLSPluginMixin):
     plugin_id: str = "inventory"
+    TENANT_RLS_TABLES: tuple[str, ...] = (
+        "stock_locations",
+        "inventory_items",
+        "inventory_transactions",
+        "goods_receipts",
+        "inventory_rma",
+    )
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.inventory import mcp_handlers as inventory_mcp_handlers
@@ -1847,8 +1946,9 @@ class InventoryPlugin:
         return await verify_entra_id_schema_gate(conn)
 
 
-class LegalEntitiesPlugin:
+class LegalEntitiesPlugin(_EngineRLSPluginMixin):
     plugin_id: str = "legal_entities"
+    TENANT_RLS_TABLES: tuple[str, ...] = ("legal_entities",)
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.legal_entities import (
@@ -1888,8 +1988,9 @@ class LegalEntitiesPlugin:
         return await verify_entra_id_schema_gate(conn)
 
 
-class MarketingPlugin:
+class MarketingPlugin(_EngineRLSPluginMixin):
     plugin_id: str = "marketing"
+    TENANT_RLS_TABLES: tuple[str, ...] = ("case_studies", "testimonials", "content_assets")
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.marketing import mcp_handlers as marketing_mcp_handlers
@@ -2029,8 +2130,9 @@ class MarketingPlugin:
         return await verify_entra_id_schema_gate(conn)
 
 
-class NetboxPlugin:
+class NetboxPlugin(_EngineRLSPluginMixin):
     plugin_id: str = "netbox"
+    TENANT_RLS_TABLES: tuple[str, ...] = ("d365_netbox_mappings",)
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.netbox import circuits as netbox_circuits
@@ -2063,8 +2165,13 @@ class NetboxPlugin:
         return await verify_entra_id_schema_gate(conn)
 
 
-class NotificationsPlugin:
+class NotificationsPlugin(_EngineRLSPluginMixin):
     plugin_id: str = "notifications"
+    TENANT_RLS_TABLES: tuple[str, ...] = (
+        "notifications",
+        "reminders",
+        "notification_subscriptions",
+    )
 
     def register_tools(self, registry: Any) -> None:
         pass
@@ -2095,8 +2202,13 @@ class NotificationsPlugin:
         return await verify_entra_id_schema_gate(conn)
 
 
-class ProcurementPlugin:
+class ProcurementPlugin(_EngineRLSPluginMixin):
     plugin_id: str = "procurement"
+    TENANT_RLS_TABLES: tuple[str, ...] = (
+        "procurement_bid_prices",
+        "procurement_po_lines",
+        "procurement_deal_registrations",
+    )
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.procurement import mcp_handlers as procurement_mcp_handlers
@@ -2242,8 +2354,15 @@ class ProcurementPlugin:
         return await verify_entra_id_schema_gate(conn)
 
 
-class ProductPlugin:
+class ProductPlugin(_EngineRLSPluginMixin):
     plugin_id: str = "product"
+    TENANT_RLS_TABLES: tuple[str, ...] = (
+        "product_prices",
+        "product_match_feedback",
+        "product_enrichment_log",
+        "product_packages",
+    )
+    GLOBAL_TABLES: frozenset[str] = frozenset({"product_catalog", "pricing_fx_rates"})
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.product import mcp_handlers as product_mcp_handlers
@@ -2336,8 +2455,9 @@ class ProductPlugin:
         return await verify_entra_id_schema_gate(conn)
 
 
-class ProjectPlugin:
+class ProjectPlugin(_EngineRLSPluginMixin):
     plugin_id: str = "project"
+    TENANT_RLS_TABLES: tuple[str, ...] = ()
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.project import mcp_handlers as project_mcp_handlers
@@ -2508,8 +2628,15 @@ class ProjectPlugin:
         return await verify_entra_id_schema_gate(conn)
 
 
-class ResourcesPlugin:
+class ResourcesPlugin(_EngineRLSPluginMixin):
     plugin_id: str = "resources"
+    TENANT_RLS_TABLES: tuple[str, ...] = (
+        "resources",
+        "allocations",
+        "travel_legs",
+        "stays",
+        "per_diems",
+    )
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.resources import mcp_handlers as resources_mcp_handlers
@@ -2689,8 +2816,20 @@ class ResourcesPlugin:
         return await verify_entra_id_schema_gate(conn)
 
 
-class SalesPlugin:
+class SalesPlugin(_EngineRLSPluginMixin):
     plugin_id: str = "sales"
+    TENANT_RLS_TABLES: tuple[str, ...] = (
+        "sales_read_model",
+        "sales_targets",
+        "sales_signed_baselines",
+        "sales_customers",
+        "sales_leads",
+        "sales_deals",
+        "sales_quotes",
+        "sales_contacts",
+        "sales_quote_templates",
+        "sales_deal_participants",
+    )
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.sales import mcp_handlers as sales_mcp_handlers
@@ -2962,8 +3101,9 @@ class SalesPlugin:
         return await verify_entra_id_schema_gate(conn)
 
 
-class SitesPlugin:
+class SitesPlugin(_EngineRLSPluginMixin):
     plugin_id: str = "sites"
+    TENANT_RLS_TABLES: tuple[str, ...] = ("sites",)
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.sites import mcp_handlers as sites_mcp_handlers
@@ -2998,8 +3138,14 @@ class SitesPlugin:
         return await verify_entra_id_schema_gate(conn)
 
 
-class SupportPlugin:
+class SupportPlugin(_EngineRLSPluginMixin):
     plugin_id: str = "support"
+    TENANT_RLS_TABLES: tuple[str, ...] = (
+        "service_tickets",
+        "sla_clocks",
+        "customer_health",
+        "support_ticket_actions",
+    )
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.support import mcp_handlers as support_mcp_handlers
@@ -3251,8 +3397,14 @@ class SupportPlugin:
         return await verify_entra_id_schema_gate(conn)
 
 
-class SystemDesignPlugin:
+class SystemDesignPlugin(_EngineRLSPluginMixin):
     plugin_id: str = "system_design"
+    TENANT_RLS_TABLES: tuple[str, ...] = (
+        "system_design_device_capabilities",
+        "system_design_geometry",
+        "system_design_node_state",
+        "system_design_design_requests",
+    )
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.system_design import (
@@ -3900,8 +4052,9 @@ class SystemDesignPlugin:
         return await verify_entra_id_schema_gate(conn)
 
 
-class VendorsPlugin:
+class VendorsPlugin(_EngineRLSPluginMixin):
     plugin_id: str = "vendors"
+    TENANT_RLS_TABLES: tuple[str, ...] = ("vendor_scorecards", "contractor_profiles")
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.vendors import mcp_handlers as vendors_mcp_handlers
@@ -4063,10 +4216,15 @@ class VendorsPlugin:
         return await verify_entra_id_schema_gate(conn)
 
 
-class EntraIDPlugin:
+class EntraIDPlugin(_EngineRLSPluginMixin):
     """Microsoft Entra ID Identification Point & Company Allowlist Gate Plugin."""
 
     plugin_id: str = "entra_id"
+    TENANT_RLS_TABLES: tuple[str, ...] = (
+        "entra_id_audit_log",
+        "entra_id_configs",
+        "entra_id_sessions",
+    )
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.entra_id import mcp_handlers as entra_mcp_handlers
@@ -4164,10 +4322,15 @@ class EntraIDPlugin:
         return await verify_entra_id_schema_gate(conn)
 
 
-class SalesforcePlugin:
+class SalesforcePlugin(_EngineRLSPluginMixin):
     """Standalone & Integrated Salesforce Vertical Engine Plugin."""
 
     plugin_id: str = "salesforce"
+    TENANT_RLS_TABLES: tuple[str, ...] = (
+        "salesforce_integrations",
+        "salesforce_read_model",
+        "salesforce_webhook_events",
+    )
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.salesforce import mcp_handlers as sf_mcp_handlers
@@ -4326,10 +4489,15 @@ class SalesforcePlugin:
         return await verify_entra_id_schema_gate(conn)
 
 
-class OdooPlugin:
+class OdooPlugin(_EngineRLSPluginMixin):
     """Standalone & Integrated Super-Intelligent Odoo Vertical Engine + LLM Cross-Talker Plugin."""
 
     plugin_id: str = "odoo"
+    TENANT_RLS_TABLES: tuple[str, ...] = (
+        "odoo_integrations",
+        "odoo_read_model",
+        "odoo_crosstalk_messages",
+    )
 
     def register_tools(self, registry: Any) -> None:
         from nce_verticals.odoo import mcp_handlers as odoo_mcp_handlers
@@ -4609,3 +4777,98 @@ class VerticalEnginesPlugin:
                 "geodata.place_names.nearest",
             }
         )
+
+    def get_active_engine_rls_tables(self) -> dict[str, str]:
+        """Return forced-RLS tenant tables for active sub-plugins plus shared vertical spine."""
+        tables: dict[str, str] = {tbl: "namespace_id" for tbl in SHARED_SPINE_TENANT_RLS_TABLES}
+        for sub in self.sub_plugins:
+            getter = getattr(sub, "get_tenant_rls_tables", None)
+            if callable(getter):
+                tables.update(getter())
+        return tables
+
+    def get_tenant_rls_tables(self) -> dict[str, str]:
+        """Return all 96 forced-RLS tenant tables provisioned by nce_verticals/migrations."""
+        tables: dict[str, str] = {tbl: "namespace_id" for tbl in SHARED_SPINE_TENANT_RLS_TABLES}
+        for plugin_cls in ALL_ENGINE_PLUGINS:
+            for tbl in getattr(plugin_cls, "TENANT_RLS_TABLES", ()):
+                tables[tbl] = "namespace_id"
+        for sub in self.sub_plugins:
+            getter = getattr(sub, "get_tenant_rls_tables", None)
+            if callable(getter):
+                tables.update(getter())
+        return tables
+
+    def get_global_tables(self) -> set[str]:
+        """Return the 5 global non-RLS tables provisioned by nce_verticals/migrations."""
+        return set(VERTICAL_GLOBAL_TABLES)
+
+    def get_capabilities(self) -> Any:
+        """Return structured PluginCapabilities for Core dynamic RLS and PG governance."""
+        try:
+            from nce.plugins import PluginCapabilities as _CapCls
+        except Exception:
+            _CapCls = _FallbackPluginCapabilities  # type: ignore[assignment]
+        return _CapCls(
+            tenant_rls_tables=self.get_tenant_rls_tables(),
+            global_tables=VERTICAL_GLOBAL_TABLES,
+            unmanaged_pg_sites=self.get_unmanaged_pg_sites(),
+        )
+
+    async def on_namespace_created(self, conn: Any, namespace_id: Any) -> None:
+        """Seed node_ownership_registry for newly created namespaces when vertical schema exists."""
+        try:
+            from nce_verticals.entity_resolution.ownership_seed import (  # type: ignore[import-not-found]
+                seed_node_ownership_registry,
+            )
+        except ImportError:
+            from nce.entity_resolution.ownership_seed import seed_node_ownership_registry
+
+        try:
+            tx_factory = getattr(conn, "transaction", None)
+            tx = tx_factory() if callable(tx_factory) else None
+            if tx is not None and hasattr(tx, "__aenter__"):
+                async with tx:
+                    await seed_node_ownership_registry(conn, namespace_id)
+            else:
+                await seed_node_ownership_registry(conn, namespace_id)
+        except Exception as exc:
+            sqlstate = getattr(exc, "sqlstate", None)
+            if exc.__class__.__name__ == "UndefinedTableError" or sqlstate == "42P01":
+                log.debug(
+                    "Skipping node_ownership_registry seed for namespace %s (table not created yet)",
+                    namespace_id,
+                )
+                return
+            raise
+
+
+ALL_ENGINE_PLUGINS: tuple[type[_EngineRLSPluginMixin], ...] = (
+    AgreementsPlugin,
+    AssetsPlugin,
+    BusinessInsightsPlugin,
+    CustomerPortalPlugin,
+    DiagnosticsPlugin,
+    Dynamics365Plugin,
+    EconomyPlugin,
+    FieldTechPlugin,
+    GeodataPlugin,
+    HRPlugin,
+    InventoryPlugin,
+    LegalEntitiesPlugin,
+    MarketingPlugin,
+    NetboxPlugin,
+    NotificationsPlugin,
+    ProcurementPlugin,
+    ProductPlugin,
+    ProjectPlugin,
+    ResourcesPlugin,
+    SalesPlugin,
+    SitesPlugin,
+    SupportPlugin,
+    SystemDesignPlugin,
+    VendorsPlugin,
+    EntraIDPlugin,
+    SalesforcePlugin,
+    OdooPlugin,
+)
