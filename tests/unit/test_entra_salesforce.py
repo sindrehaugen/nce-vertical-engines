@@ -382,3 +382,139 @@ class TestAuditFixesAndContracts(unittest.IsolatedAsyncioTestCase):
         summary = await sync_engine.run_sync(models=["res.partner", "sale.order"])
         self.assertEqual(summary["status"], "completed")
         self.assertGreaterEqual(summary["total_records"], 4)
+
+
+class TestStandaloneOdooServerEntraIDParity(unittest.IsolatedAsyncioTestCase):
+    async def test_odoo_server_entra_id_jwks_rejection_and_pass(self) -> None:
+        import httpx
+        import jwt
+        from cryptography.hazmat.primitives.asymmetric import rsa
+
+        from nce_verticals.servers.odoo import (
+            EntraIDAuthenticator,
+            EntraSecurityGate,
+            create_standalone_odoo_app,
+        )
+
+        private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+        public_key = private_key.public_key()
+        raw_jwk = jwt.algorithms.RSAAlgorithm.to_jwk(public_key)
+        jwk = json.loads(raw_jwk) if isinstance(raw_jwk, str) else dict(raw_jwk)
+        jwk["kid"] = "odoo-entra-rsa-1"
+        jwk["alg"] = "RS256"
+
+        tenant_id = "22222222-3333-4444-5555-666666666666"
+        client_id = "nce-odoo-standalone-client"
+        cfg = EntraConfig(
+            entra_tenant_id=tenant_id,
+            client_id=client_id,
+            enforce_mode="strict",
+            allowed_group_ids=["group-odoo-admins"],
+            allowed_app_roles=["NCE.Odoo.Admin"],
+            require_graph_check=False,
+            verify_jwt_signature=True,
+            jwks_keys=[jwk],
+        )
+        gate = EntraSecurityGate(authenticator=EntraIDAuthenticator(config=cfg))
+        odoo_app = create_standalone_odoo_app(entra_gate=gate)
+
+        now = int(time.time())
+        valid_token = jwt.encode(
+            {
+                "iss": f"https://login.microsoftonline.com/{tenant_id}/v2.0",
+                "aud": client_id,
+                "tid": tenant_id,
+                "oid": "odoo-operator-001",
+                "preferred_username": "erp.admin@company.no",
+                "name": "ERP Administrator",
+                "groups": ["group-odoo-admins"],
+                "roles": ["NCE.Odoo.Admin"],
+                "exp": now + 3600,
+                "nbf": now - 60,
+            },
+            private_key,
+            algorithm="RS256",
+            headers={"kid": "odoo-entra-rsa-1"},
+        )
+        unallowed_group_token = jwt.encode(
+            {
+                "iss": f"https://login.microsoftonline.com/{tenant_id}/v2.0",
+                "aud": client_id,
+                "tid": tenant_id,
+                "oid": "odoo-guest-999",
+                "preferred_username": "guest@company.no",
+                "groups": ["group-unrelated"],
+                "roles": [],
+                "exp": now + 3600,
+                "nbf": now - 60,
+            },
+            private_key,
+            algorithm="RS256",
+            headers={"kid": "odoo-entra-rsa-1"},
+        )
+        wrong_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+        forged_token = jwt.encode(
+            {
+                "iss": f"https://login.microsoftonline.com/{tenant_id}/v2.0",
+                "aud": client_id,
+                "tid": tenant_id,
+                "oid": "odoo-attacker",
+                "preferred_username": "attacker@company.no",
+                "groups": ["group-odoo-admins"],
+                "roles": ["NCE.Odoo.Admin"],
+                "exp": now + 3600,
+                "nbf": now - 60,
+            },
+            wrong_key,
+            algorithm="RS256",
+            headers={"kid": "odoo-entra-rsa-1"},
+        )
+
+        transport = httpx.ASGITransport(app=odoo_app)
+        async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
+            # 1. Health & readiness probes stay unauthenticated under strict Entra gate
+            for probe in ("/healthz", "/health", "/ready"):
+                r_probe = await client.get(probe)
+                self.assertEqual(r_probe.status_code, 200, probe)
+                self.assertEqual(r_probe.json()["status"], "ok")
+
+            # 2. Unauthenticated protected route -> 401 Unauthorized
+            r_no_auth = await client.get("/api/admin/odoo/config")
+            self.assertEqual(r_no_auth.status_code, 401)
+            self.assertEqual(r_no_auth.json()["error_code"], "ENTRA_AUTH_REQUIRED")
+            self.assertEqual(r_no_auth.headers.get("www-authenticate"), "Bearer")
+
+            # 3. Non-Bearer scheme -> 401 Unauthorized
+            r_bad_scheme = await client.get(
+                "/api/admin/odoo/records",
+                headers={"Authorization": "Basic dXNlcjpwYXNz"},
+            )
+            self.assertEqual(r_bad_scheme.status_code, 401)
+
+            # 4. Forged RS256 signature -> 401 Unauthorized
+            r_forged = await client.get(
+                "/api/admin/odoo/records",
+                headers={"Authorization": f"Bearer {forged_token}"},
+            )
+            self.assertEqual(r_forged.status_code, 401)
+
+            # 5. Valid signature but user outside company allowlist -> 403 Forbidden
+            r_forbidden = await client.get(
+                "/api/admin/odoo/records",
+                headers={"Authorization": f"Bearer {unallowed_group_token}"},
+            )
+            self.assertEqual(r_forbidden.status_code, 403)
+            self.assertEqual(r_forbidden.json()["error_code"], "NOT_IN_COMPANY_ALLOWLIST")
+
+            # 6. Genuine RS256 JWKS-verified Entra principal -> 200 OK
+            r_ok_cfg = await client.get(
+                "/api/admin/odoo/config",
+                headers={"Authorization": f"Bearer {valid_token}"},
+            )
+            self.assertEqual(r_ok_cfg.status_code, 200)
+
+            r_ok_rec = await client.get(
+                "/api/admin/odoo/records",
+                headers={"Authorization": f"Bearer {valid_token}"},
+            )
+            self.assertEqual(r_ok_rec.status_code, 200)

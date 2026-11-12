@@ -212,6 +212,16 @@ def test_topological_requires_schemas_resolution() -> None:
     economy_chain = resolve_schema_dependencies(["economy"])
     assert economy_chain == ["sales", "agreements", "economy"]
 
+    # odoo & salesforce declare 075_entra_id_security_gate SQL prerequisite
+    assert "075_entra_id_security_gate" in ENGINE_REGISTRY["odoo"].requires_schemas
+    assert "075_entra_id_security_gate" in ENGINE_REGISTRY["salesforce"].requires_schemas
+    assert resolve_schema_dependencies(["odoo"]) == ["odoo"]
+    assert resolve_schema_dependencies(["salesforce"]) == ["salesforce"]
+
+    # netbox references shared 001_d365_integrations_and_mappings SQL without dynamics365 SDK dep
+    assert "dynamics365" not in ENGINE_REGISTRY["netbox"].requires_schemas
+    assert "001_d365_integrations_and_mappings" in ENGINE_REGISTRY["netbox"].migration_prefixes
+
 
 def test_lazy_plugin_instantiation_and_descriptors(
     monkeypatch: pytest.MonkeyPatch,

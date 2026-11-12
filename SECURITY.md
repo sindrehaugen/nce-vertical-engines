@@ -41,7 +41,7 @@ All standalone vertical servers (`nce-portal-server`, `nce-odoo-server`, `nce-sa
 - **Strict Claims Checking:** Validation enforces `iss`, `aud`, `exp`, `nbf`, `tid`, and `oid` claims.
 - **Bounded JWKS Cache:** In-memory JWKS public keys are cached with bounded TTL (`jwks_cache_ttl_seconds`, default 3,600s) to prevent memory exhaustion and cache poisoning.
 - **Role & Group Allowlisting:** Transitive Microsoft Graph security group object IDs and Enterprise Application App Roles are enforced prior to granting access to domain commands.
-- **Migration `075` Security Gate:** Schema gate `075_entra_id_security_gate.sql` validates tenant identity bindings, app role claims, and cryptographic JWKS signatures before mounting Salesforce and Entra-protected routes.
+- **Migration `075` Security Gate:** Schema gate `075_entra_id_security_gate.sql` and `EntraIDHttpMiddleware` validate tenant identity bindings, app role claims, and cryptographic JWKS signatures (`RS256`/`ES256`) on protected `/api/admin/*` routes across both `nce-odoo-server` and `nce-salesforce-server` (while leaving `/healthz`, `/health`, `/ready` probes and HMAC-authenticated `/api/webhooks/*` ingress operational).
 
 ### 2. HTTP Ingress Protection & BoundedBodyMiddleware
 

@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import importlib.util
 import os
+import re
 from collections.abc import Iterable
 from dataclasses import dataclass
 
@@ -300,7 +301,11 @@ ENGINE_REGISTRY: dict[str, EngineSpec] = {
         plugin_class="NetboxPlugin",
         types=frozenset({"infra-iot"}),
         categories=frozenset({"av-it-integrator"}),
+        # NOTE: 001_d365_integrations_and_mappings.sql is bundled in the base
+        # nce_verticals wheel and defines the shared `d365_netbox_mappings`
+        # cross-reference table without requiring the `dynamics365` SDK extra.
         requires_schemas=(),
+        migration_prefixes=("001_d365_integrations_and_mappings",),
         aliases=(),
         tool_count=9,
         route_count=4,
@@ -313,6 +318,11 @@ ENGINE_REGISTRY: dict[str, EngineSpec] = {
         types=frozenset({"erp-crm"}),
         categories=frozenset({"commercial", "enterprise-erp"}),
         requires_schemas=(),
+        migration_prefixes=(
+            "001_d365_integrations_and_mappings",
+            "002_d365_sync_runs",
+            "003_d365_change_tracking",
+        ),
         aliases=("d365",),
         tool_count=4,
         route_count=5,
@@ -336,7 +346,8 @@ ENGINE_REGISTRY: dict[str, EngineSpec] = {
         plugin_class="OdooPlugin",
         types=frozenset({"erp-crm"}),
         categories=frozenset({"commercial", "enterprise-erp"}),
-        requires_schemas=(),
+        requires_schemas=("075_entra_id_security_gate",),
+        migration_prefixes=("075_entra_id_security_gate", "081_odoo_vertical_engine"),
         aliases=(),
         tool_count=6,
         route_count=9,
@@ -348,7 +359,8 @@ ENGINE_REGISTRY: dict[str, EngineSpec] = {
         plugin_class="SalesforcePlugin",
         types=frozenset({"erp-crm"}),
         categories=frozenset({"commercial", "enterprise-erp"}),
-        requires_schemas=(),
+        requires_schemas=("075_entra_id_security_gate",),
+        migration_prefixes=("075_entra_id_security_gate", "076_salesforce_vertical_engine"),
         aliases=(),
         tool_count=10,
         route_count=7,
@@ -421,6 +433,10 @@ def resolve_schema_dependencies(slugs: Iterable[str]) -> list[str]:
         spec = ENGINE_REGISTRY.get(slug)
         if spec is not None:
             for req in spec.requires_schemas:
+                # SQL migration stems (e.g. "075_entra_id_security_gate") are bundled
+                # SQL prerequisites rather than cross-engine Python slugs.
+                if re.match(r"^\d{3}_", req):
+                    continue
                 req_canonical = normalize_engine_slug(req)
                 visit(req_canonical)
 
