@@ -19,28 +19,32 @@ import os
 from pathlib import Path
 
 import pytest
-from nce.event_log import EXPECTED_TENANT_RLS_TABLES
+
+from nce_verticals.plugin import SupportPlugin, VerticalEnginesPlugin
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-MIGRATION_FILE = REPO_ROOT / "nce" / "migrations" / "065_support_service_tickets.sql"
-SCHEMA_FILE = REPO_ROOT / "nce" / "schema.sql"
+MIGRATION_FILE = REPO_ROOT / "nce_verticals" / "migrations" / "039_support_service_tickets.sql"
 
 SUPPORT_TABLES = ("service_tickets", "sla_clocks", "customer_health")
 
 
 def test_support_tables_in_expected_tenant_rls_tables() -> None:
-    """All three Support tables must be registered in EXPECTED_TENANT_RLS_TABLES."""
+    """All three Support tables must be registered in VerticalEnginesPlugin RLS tables."""
+    plugin_tables = VerticalEnginesPlugin().get_tenant_rls_tables()
+    engine_tables = SupportPlugin().get_tenant_rls_tables()
+    assert len(plugin_tables) == 96
     for table in SUPPORT_TABLES:
-        assert table in EXPECTED_TENANT_RLS_TABLES, (
-            f"{table} missing from EXPECTED_TENANT_RLS_TABLES"
+        assert table in plugin_tables, (
+            f"{table} missing from VerticalEnginesPlugin().get_tenant_rls_tables()"
         )
-        assert EXPECTED_TENANT_RLS_TABLES[table] == "namespace_id", (
+        assert plugin_tables[table] == "namespace_id", (
             f"{table} ownership column is not namespace_id"
         )
+        assert engine_tables.get(table) == "namespace_id"
 
 
 def test_migration_065_exists_and_declares_tables() -> None:
-    """Migration 065 must exist and contain DDL and RLS policies for all 3 tables."""
+    """Migration 039 must exist and contain DDL and RLS policies for all 3 tables."""
     assert MIGRATION_FILE.is_file(), f"Migration file missing: {MIGRATION_FILE}"
     content = MIGRATION_FILE.read_text(encoding="utf-8")
 
@@ -56,23 +60,6 @@ def test_migration_065_exists_and_declares_tables() -> None:
         )
         assert f"CREATE POLICY tenant_isolation_policy ON {table}" in content, (
             f"Policy for {table} missing"
-        )
-
-
-def test_schema_sql_declares_support_tables() -> None:
-    """nce/schema.sql must declare all three Support tables with RLS."""
-    assert SCHEMA_FILE.is_file(), f"schema.sql missing: {SCHEMA_FILE}"
-    content = SCHEMA_FILE.read_text(encoding="utf-8")
-
-    for table in SUPPORT_TABLES:
-        assert f"CREATE TABLE IF NOT EXISTS {table}" in content, (
-            f"DDL for {table} missing in schema.sql"
-        )
-        assert f"ALTER TABLE {table} ENABLE ROW LEVEL SECURITY" in content, (
-            f"ENABLE RLS for {table} missing in schema.sql"
-        )
-        assert f"ALTER TABLE {table} FORCE ROW LEVEL SECURITY" in content, (
-            f"FORCE RLS for {table} missing in schema.sql"
         )
 
 
@@ -124,9 +111,7 @@ async def test_database_catalog_has_active_rls_and_policies() -> None:
             )
             assert row is not None, f"Table {table} not found in database catalog"
             assert row["relrowsecurity"] is True, f"relrowsecurity is False on {table}"
-            assert row["relforcerowsecurity"] is True, (
-                f"relforcerowsecurity is False on {table}"
-            )
+            assert row["relforcerowsecurity"] is True, f"relforcerowsecurity is False on {table}"
 
             policies = await conn.fetch(
                 """

@@ -20,8 +20,8 @@ from uuid import uuid4
 
 import pytest
 from nce.entity_resolution.ownership import OwnershipError, assert_owner
-from nce.event_log import EXPECTED_TENANT_RLS_TABLES
 
+from nce_verticals.plugin import ProcurementPlugin, VerticalEnginesPlugin
 from nce_verticals.procurement import (
     ALLOWED_TRANSITIONS,
     POLineStatus,
@@ -126,7 +126,7 @@ def test_po_line_label_format():
 # ---------------------------------------------------------------------------
 def test_node_ownership_json_declares_procurement_po_line():
     """node-ownership.json must declare procurement as owner of PO_LINE with transitions."""
-    config_path = REPO_ROOT / "nce" / "config_data" / "node-ownership.json"
+    config_path = REPO_ROOT / "nce_verticals" / "config_data" / "node-ownership.json"
     data = json.loads(config_path.read_text(encoding="utf-8"))
 
     ownership_list = data["ownership"]
@@ -230,9 +230,7 @@ async def test_update_po_line_status_valid_transition():
 
     mock_conn.fetchrow.side_effect = fetchrow_side_effect
 
-    with patch(
-        "nce_verticals.procurement.po_line.publish", new_callable=AsyncMock
-    ) as mock_publish:
+    with patch("nce_verticals.procurement.po_line.publish", new_callable=AsyncMock) as mock_publish:
         res = await update_po_line_status(
             mock_conn,
             ns,
@@ -275,9 +273,7 @@ async def test_update_po_line_status_invalid_transition_raises():
         "bom_line_label": "BOM_LINE:BL-1",
     }
 
-    with patch(
-        "nce_verticals.procurement.po_line.publish", new_callable=AsyncMock
-    ) as mock_publish:
+    with patch("nce_verticals.procurement.po_line.publish", new_callable=AsyncMock) as mock_publish:
         with pytest.raises(ValueError, match="Invalid PO_LINE status transition"):
             await update_po_line_status(
                 mock_conn,
@@ -354,30 +350,31 @@ async def test_emitted_event_payload_satisfies_project_automation():
 # 7. Schema, Migration, and RLS registration assertions
 # ---------------------------------------------------------------------------
 def test_procurement_po_lines_registered_in_expected_tenant_rls_tables():
-    """procurement_po_lines must be registered in EXPECTED_TENANT_RLS_TABLES with namespace_id."""
-    assert "procurement_po_lines" in EXPECTED_TENANT_RLS_TABLES
-    assert EXPECTED_TENANT_RLS_TABLES["procurement_po_lines"] == "namespace_id"
+    """procurement_po_lines must be registered in VerticalEnginesPlugin RLS tables with namespace_id."""
+    plugin_tables = VerticalEnginesPlugin().get_tenant_rls_tables()
+    engine_tables = ProcurementPlugin().get_tenant_rls_tables()
+    assert len(plugin_tables) == 96
+    assert "procurement_po_lines" in plugin_tables
+    assert plugin_tables["procurement_po_lines"] == "namespace_id"
+    assert engine_tables.get("procurement_po_lines") == "namespace_id"
 
 
 def test_migration_074_and_schema_sql_contain_po_lines_table():
-    """Migration 074 and schema.sql must both define procurement_po_lines with RLS enabled."""
-    mig_file = REPO_ROOT / "nce" / "migrations" / "074_procurement_po_lines.sql"
-    schema_file = REPO_ROOT / "nce" / "schema.sql"
+    """Migration 047 must define procurement_po_lines with RLS enabled and forced."""
+    mig_file = REPO_ROOT / "nce_verticals" / "migrations" / "047_procurement_po_lines.sql"
 
     assert mig_file.exists(), f"Missing migration file: {mig_file}"
     mig_text = mig_file.read_text(encoding="utf-8")
-    schema_text = schema_file.read_text(encoding="utf-8")
 
-    for text, src in [
-        (mig_text, "074_procurement_po_lines.sql"),
-        (schema_text, "schema.sql"),
-    ]:
-        assert "CREATE TABLE IF NOT EXISTS procurement_po_lines" in text, (
-            f"Table DDL missing in {src}"
-        )
-        assert "ALTER TABLE procurement_po_lines ENABLE ROW LEVEL SECURITY" in text, (
-            f"RLS enable missing in {src}"
-        )
-        assert "tenant_isolation_policy ON procurement_po_lines" in text, (
-            f"Policy missing in {src}"
-        )
+    assert "CREATE TABLE IF NOT EXISTS procurement_po_lines" in mig_text, (
+        "Table DDL missing in 047_procurement_po_lines.sql"
+    )
+    assert "ALTER TABLE procurement_po_lines ENABLE ROW LEVEL SECURITY" in mig_text, (
+        "RLS enable missing in 047_procurement_po_lines.sql"
+    )
+    assert "ALTER TABLE procurement_po_lines FORCE ROW LEVEL SECURITY" in mig_text, (
+        "FORCE RLS missing in 047_procurement_po_lines.sql"
+    )
+    assert "tenant_isolation_policy ON procurement_po_lines" in mig_text, (
+        "Policy missing in 047_procurement_po_lines.sql"
+    )

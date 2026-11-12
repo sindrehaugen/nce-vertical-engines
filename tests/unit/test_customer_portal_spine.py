@@ -13,9 +13,9 @@ from __future__ import annotations
 from pathlib import Path
 from uuid import UUID
 
-from nce.event_log import EXPECTED_TENANT_RLS_TABLES
 from starlette.testclient import TestClient
 
+from nce_verticals.plugin import CustomerPortalPlugin, VerticalEnginesPlugin
 from tests.expected_tenant_rls_table_count import EXPECTED_TENANT_RLS_TABLE_COUNT
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -27,53 +27,48 @@ _ROOM_ID = "11111111-1111-4111-8111-111111111111"
 
 
 def test_customer_portal_tables_registered_in_expected_tenant_rls_tables():
-    """All 3 Customer Portal tables must be registered in EXPECTED_TENANT_RLS_TABLES."""
+    """All 3 Customer Portal tables must be registered in VerticalEnginesPlugin RLS tables."""
+    plugin_tables = VerticalEnginesPlugin().get_tenant_rls_tables()
+    engine_tables = CustomerPortalPlugin().get_tenant_rls_tables()
     expected = {
         "portal_users": "namespace_id",
         "portal_document_shares": "namespace_id",
         "portal_service_requests": "namespace_id",
     }
     for table, col in expected.items():
-        assert table in EXPECTED_TENANT_RLS_TABLES, (
-            f"Table {table!r} missing from EXPECTED_TENANT_RLS_TABLES"
+        assert table in plugin_tables, (
+            f"Table {table!r} missing from VerticalEnginesPlugin().get_tenant_rls_tables()"
         )
-        assert EXPECTED_TENANT_RLS_TABLES[table] == col, (
-            f"Table {table!r} has namespace column {EXPECTED_TENANT_RLS_TABLES[table]!r}, expected {col!r}"
+        assert plugin_tables[table] == col, (
+            f"Table {table!r} has namespace column {plugin_tables[table]!r}, expected {col!r}"
         )
+        assert engine_tables.get(table) == col
 
 
 def test_expected_tenant_rls_tables_total_count():
-    """Total tenant RLS table count -- see tests/expected_tenant_rls_table_count.py
-    for the single source of truth this pin defers to (K-consolidation)."""
-    assert len(EXPECTED_TENANT_RLS_TABLES) == EXPECTED_TENANT_RLS_TABLE_COUNT, (
-        f"Expected {EXPECTED_TENANT_RLS_TABLE_COUNT} tenant RLS tables, "
-        f"got {len(EXPECTED_TENANT_RLS_TABLES)}"
+    """Total vertical tenant RLS table count -- see tests/expected_tenant_rls_table_count.py."""
+    plugin_tables = VerticalEnginesPlugin().get_tenant_rls_tables()
+    assert len(plugin_tables) == EXPECTED_TENANT_RLS_TABLE_COUNT, (
+        f"Expected {EXPECTED_TENANT_RLS_TABLE_COUNT} vertical tenant RLS tables, "
+        f"got {len(plugin_tables)}"
     )
 
 
 def test_migration_and_schema_sql_contain_portal_tables():
-    """Both migration 073 and schema.sql must define portal tables with RLS and external policy."""
-    migration_file = REPO_ROOT / "nce" / "migrations" / "073_customer_portal_engine.sql"
-    schema_file = REPO_ROOT / "nce" / "schema.sql"
+    """Migration 046 must define portal tables with RLS and external policy."""
+    migration_file = REPO_ROOT / "nce_verticals" / "migrations" / "046_customer_portal_engine.sql"
 
     assert migration_file.exists(), f"Migration file missing: {migration_file}"
 
     mig_text = migration_file.read_text(encoding="utf-8")
-    schema_text = schema_file.read_text(encoding="utf-8")
 
     for table in ("portal_users", "portal_document_shares", "portal_service_requests"):
         assert f"CREATE TABLE IF NOT EXISTS {table}" in mig_text
         assert f"ALTER TABLE {table} ENABLE ROW LEVEL SECURITY" in mig_text
         assert f"ALTER TABLE {table} FORCE ROW LEVEL SECURITY" in mig_text
-        assert f"CREATE TABLE IF NOT EXISTS {table}" in schema_text
-        assert f"ALTER TABLE {table} ENABLE ROW LEVEL SECURITY" in schema_text
-        assert f"ALTER TABLE {table} FORCE ROW LEVEL SECURITY" in schema_text
 
-    for text in (mig_text, schema_text):
-        assert "get_nce_external_scope()" in text
-        assert (
-            "customer_isolation_policy" in text or "external_isolation_policy" in text
-        )
+    assert "get_nce_external_scope()" in mig_text
+    assert "customer_isolation_policy" in mig_text or "external_isolation_policy" in mig_text
 
 
 def test_allowlist_redaction_harness():
@@ -123,9 +118,7 @@ def test_allowlist_redaction_harness():
         "unregistered_secret_field",
     }
     for key in forbidden_keys:
-        assert key not in projected, (
-            f"Sensitive key {key!r} leaked in customer projection!"
-        )
+        assert key not in projected, f"Sensitive key {key!r} leaked in customer projection!"
 
 
 def test_customer_isolation_policy_logic_and_idor_refusal():
@@ -173,9 +166,7 @@ def test_separate_customer_portal_app_surface():
     ]
     for route in forbidden_routes:
         r = client.get(route)
-        assert r.status_code == 404, (
-            f"Privileged route {route!r} exposed on customer portal app!"
-        )
+        assert r.status_code == 404, f"Privileged route {route!r} exposed on customer portal app!"
 
     login_resp = client.post(
         "/api/portal/login",
@@ -282,13 +273,9 @@ def test_every_route_assigns_the_authoritative_scope_last():
     """
     import re
 
-    src = (REPO_ROOT / "nce_verticals" / "customer_portal" / "app.py").read_text(
-        encoding="utf-8"
-    )
+    src = (REPO_ROOT / "nce_verticals" / "customer_portal" / "app.py").read_text(encoding="utf-8")
 
-    offenders = re.findall(
-        r"\*\*(?:body|dict\(request\.query_params\)),\s*\n\s*\}", src
-    )
+    offenders = re.findall(r"\*\*(?:body|dict\(request\.query_params\)),\s*\n\s*\}", src)
     assert not offenders, (
         f"{len(offenders)} route(s) still spread client-controlled input LAST in their params "
         "dict, so a client can override customer_scope_id. Put the spread FIRST and assign "
